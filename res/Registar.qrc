@@ -1,0 +1,13 @@
+<RCC>
+  <qresource>
+  	<file>../images/bunny.png</file>
+    <file>../images/qt-logo.png</file>
+    <file>../images/open.png</file>
+    <file>../images/save.png</file>
+    <file>../images/saveAs.png</file>
+    <file>../images/layers.png</file>
+    <file>../images/points.png</file>
+    <file>../images/add.png</file>
+    <file>../images/delete.png</file>
+  </qresource>
+</RCC>

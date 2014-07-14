@@ -1,0 +1,35 @@
+#ifndef PAIRWISEREGISTRATIONDIALOG_H
+#define PAIRWISEREGISTRATIONDIALOG_H
+
+#include <QtGui/QDialog>
+#include <Eigen/Eigen>
+
+#include "../ui/ui_PairwiseRegistrationDialog.h"
+
+class PairwiseRegistrationDialog : public QDialog, public Ui_PairwiseRegistrationDialog
+{
+	Q_OBJECT
+
+public:
+	PairwiseRegistrationDialog(QWidget *parent = 0);
+	virtual ~PairwiseRegistrationDialog();
+
+	void showResults(Eigen::Matrix4f transformation, float rmsError, int corrNumber);
+
+public slots:
+	void on_tabWidget_currentChanged(int index);
+
+signals:
+	void sendParameters(QVariantMap parameters);
+
+private slots:
+	void on_initializePushButton_clicked();
+	void on_prePushButton_clicked();
+	void on_icpPushButton_clicked();
+	void on_exportPushButton_clicked();
+
+	void on_targetComboBox_currentIndexChanged(const QString &cloudName_target);
+	void on_sourceComboBox_currentIndexChanged(const QString &cloudName_source);
+};
+
+#endif

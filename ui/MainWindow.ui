@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1068</width>
+    <height>808</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Registar</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../res/Registar.qrc">
+    <normaloff>:/images/bunny.png</normaloff>:/images/bunny.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1068</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="fileMenu">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="openAction"/>
+    <addaction name="saveAction"/>
+    <addaction name="saveAsAction"/>
+    <addaction name="separator"/>
+    <addaction name="exitAction"/>
+   </widget>
+   <widget class="QMenu" name="editMenu">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="toolsMenu">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <widget class="QMenu" name="globalRegistrationMenu">
+     <property name="title">
+      <string>Global Registration</string>
+     </property>
+     <addaction name="diagramAction"/>
+     <addaction name="globalRegistrationAction"/>
+    </widget>
+    <addaction name="pairwiseRegistrationAction"/>
+    <addaction name="globalRegistrationMenu"/>
+   </widget>
+   <widget class="QMenu" name="optionsMenu">
+    <property name="title">
+     <string>&amp;Options</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="helpMenu">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="aboutAction"/>
+    <addaction name="aboutQtAction"/>
+   </widget>
+   <widget class="QMenu" name="menuFilters">
+    <property name="title">
+     <string>Fil&amp;ters</string>
+    </property>
+    <widget class="QMenu" name="menuTransformation">
+     <property name="title">
+      <string>Transformation</string>
+     </property>
+     <addaction name="translationAction"/>
+     <addaction name="rotationAction"/>
+     <addaction name="scaleAction"/>
+    </widget>
+    <widget class="QMenu" name="menuFieldsOperation">
+     <property name="title">
+      <string>FieldsOperation</string>
+     </property>
+     <addaction name="normalFieldAction"/>
+    </widget>
+    <addaction name="euclideanClusterExtractionAction"/>
+    <addaction name="voxelGridAction"/>
+    <addaction name="movingLeastSquaresAction"/>
+    <addaction name="boundaryEstimationAction"/>
+    <addaction name="outliersRemovalAction"/>
+    <addaction name="separator"/>
+    <addaction name="menuTransformation"/>
+    <addaction name="menuFieldsOperation"/>
+    <addaction name="separator"/>
+    <addaction name="concatenationAction"/>
+   </widget>
+   <widget class="QMenu" name="renderMenu">
+    <property name="title">
+     <string>&amp;Render</string>
+    </property>
+    <widget class="QMenu" name="menu_Color">
+     <property name="title">
+      <string>&amp;Color</string>
+     </property>
+     <addaction name="colorNoneAction"/>
+     <addaction name="colorOriginalAction"/>
+     <addaction name="colorCustomAction"/>
+    </widget>
+    <addaction name="menu_Color"/>
+    <addaction name="drawNormalAction"/>
+    <addaction name="separator"/>
+    <addaction name="drawAxisAction"/>
+    <addaction name="drawOrientationMarkerAction"/>
+    <addaction name="separator"/>
+    <addaction name="registrationModeAction"/>
+    <addaction name="drawBoundaryAction"/>
+   </widget>
+   <addaction name="fileMenu"/>
+   <addaction name="editMenu"/>
+   <addaction name="menuFilters"/>
+   <addaction name="renderMenu"/>
+   <addaction name="toolsMenu"/>
+   <addaction name="optionsMenu"/>
+   <addaction name="helpMenu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="fileToolBar">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="openAction"/>
+   <addaction name="saveAction"/>
+   <addaction name="saveAsAction"/>
+   <addaction name="separator"/>
+   <addaction name="showCloudBrowserAction"/>
+   <addaction name="showPointBrowserAction"/>
+  </widget>
+  <widget class="QDockWidget" name="cloudBrowserDockWidget">
+   <property name="windowIcon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/layers.png</normaloff>:/images/layers.png</iconset>
+   </property>
+   <property name="windowTitle">
+    <string>Cloud Browser</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="cloudBrowserDockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="CloudBrowser" name="cloudBrowser">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="columnCount">
+        <number>3</number>
+       </property>
+       <column>
+        <property name="text">
+         <string/>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string/>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string/>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="pointBrowserDockWidget">
+   <property name="windowIcon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/points.png</normaloff>:/images/points.png</iconset>
+   </property>
+   <property name="windowTitle">
+    <string>Point Browser</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="pointBrowserDockWidgetContents"/>
+  </widget>
+  <widget class="QToolBar" name="visualizerBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="openAction">
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+   <property name="statusTip">
+    <string>Open an PointCloud file</string>
+   </property>
+  </action>
+  <action name="saveAction">
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="statusTip">
+    <string>Save the PointCloud to original file</string>
+   </property>
+  </action>
+  <action name="saveAsAction">
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/saveAs.png</normaloff>:/images/saveAs.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save &amp;As</string>
+   </property>
+   <property name="statusTip">
+    <string>Save the PointCloud to disk as new file</string>
+   </property>
+  </action>
+  <action name="exitAction">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+   <property name="statusTip">
+    <string>Exit Registar</string>
+   </property>
+  </action>
+  <action name="aboutAction">
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/bunny.png</normaloff>:/images/bunny.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+   <property name="statusTip">
+    <string>Show Registar's About box</string>
+   </property>
+  </action>
+  <action name="aboutQtAction">
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/qt-logo.png</normaloff>:/images/qt-logo.png</iconset>
+   </property>
+   <property name="text">
+    <string>About &amp;Qt</string>
+   </property>
+   <property name="statusTip">
+    <string>Show the Qt library's About box</string>
+   </property>
+  </action>
+  <action name="voxelGridAction">
+   <property name="text">
+    <string>Voxel Grid</string>
+   </property>
+   <property name="statusTip">
+    <string>Use voxel grid to resample PointCloud</string>
+   </property>
+  </action>
+  <action name="movingLeastSquaresAction">
+   <property name="text">
+    <string>Moving Least Squares</string>
+   </property>
+   <property name="statusTip">
+    <string>Use Moving Least Squares to resample PointCloud</string>
+   </property>
+  </action>
+  <action name="showCloudBrowserAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/layers.png</normaloff>:/images/layers.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Cloud Browser</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Cloud Browser</string>
+   </property>
+  </action>
+  <action name="showPointBrowserAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../res/Registar.qrc">
+     <normaloff>:/images/points.png</normaloff>:/images/points.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Point Browser</string>
+   </property>
+  </action>
+  <action name="colorNoneAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;None</string>
+   </property>
+   <property name="statusTip">
+    <string>Render with no color</string>
+   </property>
+  </action>
+  <action name="colorOriginalAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Original</string>
+   </property>
+   <property name="statusTip">
+    <string>Render with original color </string>
+   </property>
+  </action>
+  <action name="colorCustomAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Custom</string>
+   </property>
+   <property name="statusTip">
+    <string>Render foreach custom color </string>
+   </property>
+  </action>
+  <action name="drawNormalAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;Normal</string>
+   </property>
+  </action>
+  <action name="boundaryEstimationAction">
+   <property name="text">
+    <string>Boundary Estimation</string>
+   </property>
+  </action>
+  <action name="outliersRemovalAction">
+   <property name="text">
+    <string>Outliers Removal</string>
+   </property>
+  </action>
+  <action name="pairwiseRegistrationAction">
+   <property name="text">
+    <string>Pairwise Registration</string>
+   </property>
+  </action>
+  <action name="drawAxisAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;Axis</string>
+   </property>
+  </action>
+  <action name="drawOrientationMarkerAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;Orientation Marker</string>
+   </property>
+  </action>
+  <action name="translationAction">
+   <property name="text">
+    <string>Translation</string>
+   </property>
+  </action>
+  <action name="rotationAction">
+   <property name="text">
+    <string>Rotation</string>
+   </property>
+  </action>
+  <action name="scaleAction">
+   <property name="text">
+    <string>Scale</string>
+   </property>
+  </action>
+  <action name="euclideanClusterExtractionAction">
+   <property name="text">
+    <string>Euclidean Cluster Extraction</string>
+   </property>
+  </action>
+  <action name="normalFieldAction">
+   <property name="text">
+    <string>Normal Field</string>
+   </property>
+  </action>
+  <action name="concatenationAction">
+   <property name="text">
+    <string>Concatenation</string>
+   </property>
+  </action>
+  <action name="diagramAction">
+   <property name="text">
+    <string>Diagram</string>
+   </property>
+  </action>
+  <action name="globalRegistrationAction">
+   <property name="text">
+    <string>Registration</string>
+   </property>
+  </action>
+  <action name="registrationModeAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Registration Mode</string>
+   </property>
+  </action>
+  <action name="drawBoundaryAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;Boundary</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CloudBrowser</class>
+   <extends>QTreeWidget</extends>
+   <header>../include/cloudbrowser.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../res/Registar.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>exitAction</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>422</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
