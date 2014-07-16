@@ -58,6 +58,15 @@ void PairwiseRegistrationDialog::on_exportPushButton_clicked()
 	emit sendParameters(parameters);
 }
 
+void PairwiseRegistrationDialog::on_manualPushButton_clicked()
+{
+	QVariantMap parameters;
+	parameters["target"] = targetComboBox->currentText();
+	parameters["source"] = sourceComboBox->currentText();
+	parameters["command"] = QString("Manual");
+	emit sendParameters(parameters);	
+}
+
 void PairwiseRegistrationDialog::on_targetComboBox_currentIndexChanged(const QString &cloudName_target)
 {
 	QString cloudName_source = sourceComboBox->currentText();

@@ -39,6 +39,7 @@
  */
 
 #include "manual_registration.h"
+#include "../include/qtbase.h"
 
 //QT4
 #include <QtGui/QApplication>
@@ -55,15 +56,15 @@ using namespace pcl;
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-ManualRegistration::ManualRegistration ()
+ManualRegistration::ManualRegistration (QWidget *parent): QMainWindow(parent)
 {
   //Create a timer
-  vis_timer_ = new QTimer (this);
-  vis_timer_->start (5);//5ms
+  // vis_timer_ = new QTimer (this);
+  // vis_timer_->start (5);//5ms
 
-  connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot()));
+  // connect (vis_timer_, SIGNAL (timeout ()), this, SLOT (timeoutSlot()));
 
-  ui_ = new Ui::MainWindow;
+  ui_ = new Ui_Manual_Registration_MainWindow;
   ui_->setupUi (this);
 
   
@@ -73,8 +74,8 @@ ManualRegistration::ManualRegistration ()
   vis_src_.reset (new pcl::visualization::PCLVisualizer ("", false));
   //vis_src_->setSize ( 500, 500 );
   //vis_src_->resetCamera();
-  vis_src_->resetCameraViewpoint( "cloud_src_" );
-  vis_src_->addCoordinateSystem( 0.2, "reference_src" );
+  //vis_src_->resetCameraViewpoint( "cloud_src_" );
+  //vis_src_->addCoordinateSystem( 0.2, "reference_src" );
   
   ui_->qvtk_widget_src->SetRenderWindow (vis_src_->getRenderWindow ());
   vis_src_->setupInteractor (ui_->qvtk_widget_src->GetInteractor (), ui_->qvtk_widget_src->GetRenderWindow ());
@@ -82,13 +83,14 @@ ManualRegistration::ManualRegistration ()
   ui_->qvtk_widget_src->update ();
 
   vis_src_->registerPointPickingCallback (&ManualRegistration::SourcePointPickCallback, *this);
+  //vis_src_->setBackgroundColor(1.0f, 1.0f, 1.0f);
 
   // Set up the destination window
   vis_dst_.reset (new pcl::visualization::PCLVisualizer ("", false));
   //vis_dst_->setSize( 500, 500 );
   //vis_dst_->resetCamera();
-  vis_dst_->resetCameraViewpoint( "cloud_dst_" );
-  vis_dst_->addCoordinateSystem( 0.2, "reference_dst" );
+  //vis_dst_->resetCameraViewpoint( "cloud_dst_" );
+  //vis_dst_->addCoordinateSystem( 0.2, "reference_dst" );
   
   ui_->qvtk_widget_dst->SetRenderWindow (vis_dst_->getRenderWindow ());
   vis_dst_->setupInteractor (ui_->qvtk_widget_dst->GetInteractor (), ui_->qvtk_widget_dst->GetRenderWindow ());
@@ -96,7 +98,7 @@ ManualRegistration::ManualRegistration ()
   ui_->qvtk_widget_dst->update ();
 
   vis_dst_->registerPointPickingCallback (&ManualRegistration::DstPointPickCallback, *this);
-
+  //vis_dst_->setBackgroundColor(1.0f, 1.0f, 1.0f);
 
   // Connect all buttons
   connect (ui_->confirmSrcPointButton, SIGNAL(clicked()), this, SLOT(confirmSrcPointPressed()));
@@ -113,8 +115,7 @@ ManualRegistration::ManualRegistration ()
   cloud_dst_modified_ = true;
 }
 
-void
-ManualRegistration::SourcePointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
+void ManualRegistration::SourcePointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
 {
   // Check to see if we got a valid point. Early exit.
   int idx = event.getPointIndex ();
@@ -127,11 +128,10 @@ ManualRegistration::SourcePointPickCallback (const pcl::visualization::PointPick
   src_point_selected_ = true;
 
   vis_src_->removeShape( "point_src");
-  vis_src_->addSphere( src_point_, 0.1, 1.0, 0.0, 0.0, "point_src");
+  vis_src_->addSphere( src_point_, 0.001, 1.0, 0.0, 0.0, "point_src");
 }
 
-void
-ManualRegistration::DstPointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
+void ManualRegistration::DstPointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
 {
   // Check to see if we got a valid point. Early exit.
   int idx = event.getPointIndex ();
@@ -144,11 +144,10 @@ ManualRegistration::DstPointPickCallback (const pcl::visualization::PointPicking
   dst_point_selected_ = true;
 
   vis_dst_->removeShape( "point_dst");
-  vis_dst_->addSphere( dst_point_, 0.1, 0.0, 0.0, 1.0, "point_dst");
+  vis_dst_->addSphere( dst_point_, 0.001, 0.0, 0.0, 1.0, "point_dst");
 }
 
-void 
-ManualRegistration::confirmSrcPointPressed()
+void ManualRegistration::confirmSrcPointPressed()
 {
   if(src_point_selected_)
   {
@@ -159,7 +158,7 @@ ManualRegistration::confirmSrcPointPressed()
     stringstream sstream;
     sstream << src_pc_.size();
     vis_src_->removeShape( "point_src");
-    vis_src_->addSphere( src_point_, 0.1, 1.0, 0.0, 0.0, "point_" + sstream.str());
+    vis_src_->addSphere( src_point_, 0.001, 1.0, 0.0, 0.0, "point_" + sstream.str());
   }
   else
   {
@@ -167,8 +166,7 @@ ManualRegistration::confirmSrcPointPressed()
   }
 }
 
-void 
-ManualRegistration::confirmDstPointPressed()
+void ManualRegistration::confirmDstPointPressed()
 {
   if(dst_point_selected_)
   {
@@ -179,7 +177,7 @@ ManualRegistration::confirmDstPointPressed()
     stringstream sstream;
     sstream << dst_pc_.size();
     vis_dst_->removeShape( "point_dst");
-    vis_dst_->addSphere( dst_point_, 0.1, 0.0, 0.0, 1.0, "point_" + sstream.str());
+    vis_dst_->addSphere( dst_point_, 0.001, 0.0, 0.0, 1.0, "point_" + sstream.str());
   }
   else
   {
@@ -187,8 +185,7 @@ ManualRegistration::confirmDstPointPressed()
   }
 }
 
-void 
-ManualRegistration::calculatePressed()
+void ManualRegistration::calculatePressed()
 {
   if(dst_pc_.points.size() != src_pc_.points.size())
   {
@@ -200,8 +197,7 @@ ManualRegistration::calculatePressed()
   std::cout << "Transform : " << std::endl << transform_ << std::endl;
 }
 
-void
-ManualRegistration::clearPressed()
+void ManualRegistration::clearPressed()
 {
   dst_point_selected_ = false;
   src_point_selected_ = false;
@@ -214,8 +210,7 @@ ManualRegistration::clearPressed()
   vis_dst_->removeAllShapes();
 }
 
-void 
-ManualRegistration::orthoChanged (int state)
+void ManualRegistration::orthoChanged (int state)
 {
   PCL_INFO ("Ortho state %d\n", state);
   if(state == 0) // Not selected
@@ -233,109 +228,86 @@ ManualRegistration::orthoChanged (int state)
 }
 
 //TODO
-void 
-ManualRegistration::applyTransformPressed()
+void ManualRegistration::applyTransformPressed()
 {
-  pcl::transformPointCloud ( *cloud_src_, *cloud_src_, transform_ );
-  ui_->qvtk_widget_src->update();
+  QVariantMap parameters;
+
+  parameters["transformation"].setValue<Eigen::Matrix4f>(transform_);
+  parameters["target"] = name_dst_;
+  parameters["source"] = name_src_;
+  parameters["command"] = "ManualTransform";
+  emit sendParameters(parameters);
 }
 
-void
-ManualRegistration::refinePressed()
-{
-}
-
-void
-ManualRegistration::undoPressed()
+void ManualRegistration::refinePressed()
 {
 }
 
-void
-ManualRegistration::safePressed()
+void ManualRegistration::undoPressed()
 {
 }
 
-void 
-ManualRegistration::timeoutSlot ()
+void ManualRegistration::safePressed()
 {
-  if(cloud_src_present_ && cloud_src_modified_)
-  {
-    if(!vis_src_->updatePointCloud(cloud_src_, "cloud_src_"))
-    {
-      vis_src_->addPointCloud (cloud_src_, "cloud_src_");
-      Eigen::Vector4f centroid;
-      pcl::compute3DCentroid(*cloud_src_, centroid);
-      vis_src_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
-      //vis_src_->setPointCloudSelected(true, "cloud_src_");
-      // vis_src_->resetCameraViewpoint("cloud_src_");
-    }
-    cloud_src_modified_ = false;
-  }
-  if(cloud_dst_present_ && cloud_dst_modified_)
-  {
-    if(!vis_dst_->updatePointCloud(cloud_dst_, "cloud_dst_"))
-    {
-      vis_dst_->addPointCloud (cloud_dst_, "cloud_dst_");
-      Eigen::Vector4f centroid;
-      pcl::compute3DCentroid(*cloud_dst_, centroid);
-      vis_dst_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
-      //vis_dst_->setPointCloudSelected(true, "cloud_dst_");
-      // vis_dst_->resetCameraViewpoint("cloud_dst_");
-    }
-    cloud_dst_modified_ = false;
-  }
-  ui_->qvtk_widget_src->update();
-  ui_->qvtk_widget_dst->update();
 }
 
-void
-print_usage ()
+void ManualRegistration::clearSrcVis()
 {
-  PCL_INFO ("manual_registration cloud1.ply cloud2.ply\n");
-  PCL_INFO ("\t cloud1 \t source cloud\n");
-  PCL_INFO ("\t cloud2 \t destination cloud\n");
+  vis_src_->removeAllPointClouds();
+  vis_src_->removeAllShapes();
 }
 
-int
-main (int argc, char** argv)
+void ManualRegistration::clearDstVis()
 {
-  QApplication app(argc, argv);
-
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_src (new pcl::PointCloud<pcl::PointXYZRGBA>);
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_dst (new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-  if(argc < 3)
-  {
-    PCL_ERROR ("Incorrect usage\n");
-    print_usage();
-  }
-
-  // TODO do this with PCL console
-  pcl::PLYReader reader1;
-  if (reader1.read(argv[1], *cloud_src) != 0) //* load the file
-  {
-    PCL_ERROR ("Couldn't read file %s \n", argv[1]);
-    return (-1);
-  }
-  pcl::PLYReader reader2;
-  if (reader2.read(argv[2], *cloud_dst) != 0) //* load the file
-  {
-    PCL_ERROR ("Couldn't read file %s \n", argv[2]);
-    return (-1);
-  }
-
-  cloud_src->sensor_orientation_ = Eigen::Quaternionf( 1.0, 0.0, 0.0, 0.0 );
-  cloud_src->sensor_origin_ = Eigen::Vector4f( 0.0, 0.0, 0.0, 0.0 );
-  cloud_dst->sensor_orientation_ = Eigen::Quaternionf( 1.0, 0.0, 0.0, 0.0 );
-  cloud_dst->sensor_origin_ = Eigen::Vector4f( 0.0, 0.0, 0.0, 0.0 );
-
-
-  ManualRegistration man_reg;
-
-  man_reg.setSrcCloud(cloud_src);
-  man_reg.setDstCloud(cloud_dst);
-
-  man_reg.show();
-
-  return (app.exec());
+  vis_dst_->removeAllPointClouds();
+  vis_dst_->removeAllShapes();
 }
+
+void ManualRegistration::showSrcCloud()
+{
+  vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
+  Eigen::Vector4f centroid;
+  pcl::compute3DCentroid(*cloud_src_, centroid);
+  vis_src_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);  
+}
+
+void ManualRegistration::showDstCloud()
+{
+  vis_dst_->addPointCloud<PointT>(cloud_dst_, "cloud_dst_");
+  Eigen::Vector4f centroid;
+  pcl::compute3DCentroid(*cloud_dst_, centroid);
+  vis_dst_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);  
+}
+// void ManualRegistration::timeoutSlot ()
+// {
+//   if(cloud_src_present_ && cloud_src_modified_)
+//   {
+//     if(!vis_src_->updatePointCloud<PointT>(cloud_src_, "cloud_src_"))
+//     {
+//       vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
+//       Eigen::Vector4f centroid;
+//       pcl::compute3DCentroid(*cloud_src_, centroid);
+//       vis_src_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
+//       //vis_src_->setPointCloudSelected(true, "cloud_src_");
+//       // vis_src_->resetCameraViewpoint("cloud_src_");
+//     }
+//     cloud_src_modified_ = false;
+//   }
+//   if(cloud_dst_present_ && cloud_dst_modified_)
+//   {
+//     if(!vis_dst_->updatePointCloud<PointT>(cloud_dst_, "cloud_dst_"))
+//     {
+//       vis_dst_->addPointCloud<PointT>(cloud_dst_, "cloud_dst_");
+//       Eigen::Vector4f centroid;
+//       pcl::compute3DCentroid(*cloud_dst_, centroid);
+//       vis_dst_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
+//       //vis_dst_->setPointCloudSelected(true, "cloud_dst_");
+//       // vis_dst_->resetCameraViewpoint("cloud_dst_");
+//     }
+//     cloud_dst_modified_ = false;
+//   }
+//   ui_->qvtk_widget_src->update();
+//   ui_->qvtk_widget_dst->update();
+// }
+
+

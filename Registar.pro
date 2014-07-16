@@ -16,7 +16,7 @@ INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/
 LIBS += -L/usr/lib/ \
 					-lQVTK \
 					-lboost_system \
-					-lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering \
+					-lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics\
 		-L/usr/lib/gcc/x85_64-linux-gnu/ \
 					-lgomp \
 		-L/usr/local/lib/ \
@@ -60,7 +60,7 @@ HEADERS += include/mainwindow.h \
 			diagram/propertiesdialog.h \
 			include/globalregistrationdialog.h \
 			include/globalregistration.h \
-
+			manual_registration/manual_registration.h
 
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -88,6 +88,7 @@ SOURCES += src/main.cpp \
 			diagram/propertiesdialog.cpp \
 			src/globalregistrationdialog.cpp \
 			src/globalregistration.cpp \
+			manual_registration/manual_registration.cpp
 
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -101,7 +102,8 @@ FORMS += ui/MainWindow.ui \
 			ui/NormalFieldDialog.ui \
 			ui/PairwiseRegistrationDialog.ui \
 			diagram/propertiesdialog.ui \
-			ui/GlobalRegistrationDialog.ui
+			ui/GlobalRegistrationDialog.ui \
+			manual_registration/manual_registration.ui
 #output
 
 

@@ -25,6 +25,8 @@
 #include "../include/globalregistrationdialog.h"
 #include "../include/globalregistration.h"
 
+#include "../manual_registration/manual_registration.h"
+
 #include "../include/mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
@@ -50,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
 
+	manualRegistration = 0;
+
 	setCentralWidget(cloudVisualizer);
 
 	cloudBrowserDockWidget->setVisible(false);
@@ -71,6 +75,7 @@ void MainWindow::registerMetaType()
 	qRegisterMetaType<CloudDataConstPtr>("CloudDataConstPtr");
 
 	qRegisterMetaType< QList<bool> >("QList<bool>");
+	qRegisterMetaType<Eigen::Matrix4f>("Eigen::Matrix4f");
 }
 
 void MainWindow::changeEvent(QEvent *event)
@@ -897,6 +902,44 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 				pairwiseRegistration->transformation, 
 				pairwiseRegistration->rmsError_total,
 				pairwiseRegistration->squareErrors_total.size());
+		}
+	}
+
+	if(parameters["command"] == "Manual")
+	{
+		if (pairwiseRegistration == NULL)
+		{
+			qDebug() << "Still Uninitialized";
+		}
+		else 
+		{
+			if (manualRegistration == NULL)
+			{
+				manualRegistration = new ManualRegistration(this);
+				connect(manualRegistration, SIGNAL(sendParameters(QVariantMap)), 
+					this, SLOT(on_pairwiseRegistrationDialog_sendParameters(QVariantMap)));
+			}
+			manualRegistration->setSrcCloud(pairwiseRegistration->cloudData_source, cloudName_source);
+			manualRegistration->setDstCloud(pairwiseRegistration->cloudData_target, cloudName_target);
+			manualRegistration->clearSrcVis();
+			manualRegistration->clearDstVis();
+			manualRegistration->showSrcCloud();
+			manualRegistration->showDstCloud();
+			manualRegistration->show();
+			manualRegistration->raise();
+			manualRegistration->activateWindow();
+		}
+	}
+
+	if (parameters["command"] == "ManualTransform")
+	{
+		if (pairwiseRegistration == NULL)
+		{
+			qDebug() << "Still Uninitialized";
+		}
+		else 
+		{
+			qDebug() << "OK";
 		}
 	}
 

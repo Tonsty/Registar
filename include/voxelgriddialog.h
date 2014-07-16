@@ -2,7 +2,7 @@
 #define VOXELGRIDDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../ui/ui_VoxelGridDialog.h"
+#include "../build/ui/ui_VoxelGridDialog.h"
 
 class VoxelGridDialog : public QDialog, public Ui_VoxelGridDialog
 {

@@ -2,7 +2,7 @@
 #define EUCLIDEANCLUSTEREXTRACTIONDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../ui/ui_EuclideanClusterExtractionDialog.h"
+#include "../build/ui/ui_EuclideanClusterExtractionDialog.h"
 
 class EuclideanClusterExtractionDialog : public QDialog, public Ui_EuclideanClusterExtractionDialog
 {

@@ -22,4 +22,4 @@ INCLUDEPATH += . /usr/local/include/pcl-1.7/ /usr/include/eigen3 /usr/include/vt
 # Input
 FORMS += manual_registration.ui
 HEADERS += manual_registration.h
-SOURCES += manual_registration.cpp
+SOURCES += manual_registration.cpp main.cpp

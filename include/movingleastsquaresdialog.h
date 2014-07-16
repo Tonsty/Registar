@@ -2,7 +2,7 @@
 #define MOVINGLEASTSQUARESDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../ui/ui_MovingLeastSquaresDialog.h"
+#include "../build/ui/ui_MovingLeastSquaresDialog.h"
 
 class MovingLeastSquaresDialog : public QDialog, public Ui_MovingLeastSquaresDialog
 {

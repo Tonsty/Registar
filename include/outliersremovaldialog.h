@@ -2,7 +2,7 @@
 #define OUTLIERSREMOVALDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../ui/ui_OutliersRemovalDialog.h"
+#include "../build/ui/ui_OutliersRemovalDialog.h"
 
 class OutliersRemovalDialog : public QDialog, public Ui_OutliersRemovalDialog
 {

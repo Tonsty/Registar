@@ -2,7 +2,7 @@
 #define BOUNDARYESTIMATIONDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../ui/ui_BoundaryEstimationDialog.h"
+#include "../build/ui/ui_BoundaryEstimationDialog.h"
 
 class BoundaryEstimationDialog : public QDialog, public Ui_BoundaryEstimationDialog
 {

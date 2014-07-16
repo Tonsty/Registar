@@ -64,7 +64,7 @@
 
 #include <pcl/registration/transformation_estimation_svd.h>
 
-typedef pcl::PointXYZRGBA PointT;
+typedef pcl::PointXYZRGBNormal PointT;
 
 // Useful macros
 #define FPS_CALC(_WHAT_) \
@@ -82,11 +82,6 @@ do \
     } \
 }while(false)
 
-namespace Ui
-{
-  class MainWindow;
-}
-
 class ManualRegistration : public QMainWindow
 {
   Q_OBJECT
@@ -95,40 +90,50 @@ class ManualRegistration : public QMainWindow
     typedef Cloud::Ptr CloudPtr;
     typedef Cloud::ConstPtr CloudConstPtr;
 
-    ManualRegistration ();
+    ManualRegistration (QWidget *parent = 0);
 
     ~ManualRegistration ()
     {
     }
 
-    void
-    setSrcCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_src)
+    void setSrcCloud (pcl::PointCloud<PointT>::Ptr cloud_src, QString name_src= "")
     {
       cloud_src_ = cloud_src;
+      name_src_ = name_src;
       cloud_src_present_ = true;
     }
-    void
-    setDstCloud (pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_dst)
+    void setDstCloud (pcl::PointCloud<PointT>::Ptr cloud_dst, QString name_dst = "")
     {
       cloud_dst_ = cloud_dst;
+      name_dst_ = name_dst;
       cloud_dst_present_ = true;
     }
 
-    void
-    SourcePointPickCallback (const pcl::visualization::PointPickingEvent& event, void*);
-    void
-    DstPointPickCallback (const pcl::visualization::PointPickingEvent& event, void*);
+    void clearSrcVis();
+    void clearDstVis();
+
+    void showSrcCloud();
+    void showDstCloud();
+
+    void SourcePointPickCallback (const pcl::visualization::PointPickingEvent& event, void*);
+    void DstPointPickCallback (const pcl::visualization::PointPickingEvent& event, void*);
+  
+  signals:
+    void sendParameters(QVariantMap parameters);
 
   protected:
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_src_;
     boost::shared_ptr<pcl::visualization::PCLVisualizer> vis_dst_;
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_src_;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_dst_;
+    pcl::PointCloud<PointT>::Ptr cloud_src_;
+    pcl::PointCloud<PointT>::Ptr cloud_dst_;
+
+    QString name_src_;
+    QString name_dst_;
 
     QMutex mtx_;
     QMutex vis_mtx_;
-    Ui::MainWindow *ui_;
+    Ui_Manual_Registration_MainWindow *ui_;
     QTimer *vis_timer_;
 
     bool                              cloud_src_present_;
@@ -148,27 +153,17 @@ class ManualRegistration : public QMainWindow
     Eigen::Matrix4f                   transform_;
 
   public slots:
-    void 
-    confirmSrcPointPressed();
-    void 
-    confirmDstPointPressed();
-    void 
-    calculatePressed();
-    void
-    clearPressed();
-    void 
-    orthoChanged(int state);
-    void 
-    applyTransformPressed();
-    void
-    refinePressed();
-    void
-    undoPressed();
-    void
-    safePressed();
+    void confirmSrcPointPressed();
+    void confirmDstPointPressed();
+    void calculatePressed();
+    void clearPressed();
+    void orthoChanged(int state);
+    void applyTransformPressed();
+    void refinePressed();
+    void undoPressed();
+    void safePressed();
 
-  private slots:
-    void
-    timeoutSlot();
+  // private slots:
+  //   void timeoutSlot();
 
 };

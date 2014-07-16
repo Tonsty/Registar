@@ -5,7 +5,7 @@
 
 #include <Eigen/Eigen>
 
-#include "../ui/ui_GlobalRegistrationDialog.h"
+#include "../build/ui/ui_GlobalRegistrationDialog.h"
 
 class QErrorMessage;
 

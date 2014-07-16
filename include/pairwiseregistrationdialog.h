@@ -4,7 +4,7 @@
 #include <QtGui/QDialog>
 #include <Eigen/Eigen>
 
-#include "../ui/ui_PairwiseRegistrationDialog.h"
+#include "../build/ui/ui_PairwiseRegistrationDialog.h"
 
 class PairwiseRegistrationDialog : public QDialog, public Ui_PairwiseRegistrationDialog
 {
@@ -27,6 +27,7 @@ private slots:
 	void on_prePushButton_clicked();
 	void on_icpPushButton_clicked();
 	void on_exportPushButton_clicked();
+	void on_manualPushButton_clicked();
 
 	void on_targetComboBox_currentIndexChanged(const QString &cloudName_target);
 	void on_sourceComboBox_currentIndexChanged(const QString &cloudName_source);

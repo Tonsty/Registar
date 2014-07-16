@@ -3,7 +3,7 @@
 
 #include <QtGui/QMainWindow>
 
-#include "../ui/ui_MainWindow.h"
+#include "../build/ui/ui_MainWindow.h"
 
 class CloudManager;
 class CloudVisualizer;
@@ -19,6 +19,8 @@ class PairwiseRegistrationManager;
 class DiagramWindow;
 class GlobalRegistrationDialog;
 class CycleRegistrationManager;
+
+class ManualRegistration;
 
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
@@ -54,6 +56,8 @@ private:
 	DiagramWindow *diagramWindow;
 	GlobalRegistrationDialog *globalRegistrationDialog;
 	CycleRegistrationManager *cycleRegistrationManager;
+
+	ManualRegistration *manualRegistration;
 
 private slots:
 	void on_aboutAction_triggered();
