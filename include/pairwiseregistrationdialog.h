@@ -4,7 +4,7 @@
 #include <QtGui/QDialog>
 #include <Eigen/Eigen>
 
-#include "../build/ui/ui_PairwiseRegistrationDialog.h"
+#include "ui_PairwiseRegistrationDialog.h"
 
 class PairwiseRegistrationDialog : public QDialog, public Ui_PairwiseRegistrationDialog
 {
@@ -18,13 +18,14 @@ public:
 
 public slots:
 	void on_tabWidget_currentChanged(int index);
+	void on_prePushButton_clicked();
 
 signals:
 	void sendParameters(QVariantMap parameters);
 
 private slots:
 	void on_initializePushButton_clicked();
-	void on_prePushButton_clicked();
+	//void on_prePushButton_clicked();
 	void on_icpPushButton_clicked();
 	void on_exportPushButton_clicked();
 	void on_manualPushButton_clicked();

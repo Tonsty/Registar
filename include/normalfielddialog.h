@@ -2,7 +2,7 @@
 #define NORMALFIELDDIALOG_H
 
 #include <QtGui/QDialog>
-#include "../build/ui/ui_NormalFieldDialog.h"
+#include "ui_NormalFieldDialog.h"
 
 class NormalFieldDialog : public QDialog, public Ui_NormalFieldDialog
 {

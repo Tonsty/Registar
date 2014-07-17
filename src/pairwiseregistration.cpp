@@ -143,6 +143,15 @@ void PairwiseRegistration::showBoundaries()
 	cloudVisualizer->addCloud(cloudBoundaries_source, "cloudBoundaries_source", 254.0f, 254.0f, 0.0f);
 }
 
+void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)
+{
+	this->transformation = transformation;
+	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, this->transformation);
+
+	this->transformation_inverse = this->transformation.inverse();
+	pcl::transformPointCloudWithNormals(*cloudData_target, *cloudData_target_dynamic, this->transformation_inverse);
+}
+
 void PairwiseRegistration::buildNearestCorrespondences(
 		CloudDataPtr cloudData_target_dynamic,
 		CloudDataPtr cloudData_source_dynamic,

@@ -253,12 +253,18 @@ void ManualRegistration::safePressed()
 
 void ManualRegistration::clearSrcVis()
 {
+  src_point_selected_ = false;
+  src_pc_.points.clear();
+  src_pc_.height = 1; src_pc_.width = 0;
   vis_src_->removeAllPointClouds();
   vis_src_->removeAllShapes();
 }
 
 void ManualRegistration::clearDstVis()
 {
+  dst_point_selected_ = false;
+  dst_pc_.points.clear();
+  dst_pc_.height = 1; dst_pc_.width = 0;
   vis_dst_->removeAllPointClouds();
   vis_dst_->removeAllShapes();
 }

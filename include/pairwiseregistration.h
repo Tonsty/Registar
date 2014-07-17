@@ -84,6 +84,7 @@ public:
 	void initialize();
 	void reinitialize();
 
+	void initializeTransformation(Eigen::Matrix4f transformation);
 	void buildNearestCorrespondences(
 		CloudDataPtr cloudData_target_dynamic,
 		CloudDataPtr cloudData_source_dynamic,

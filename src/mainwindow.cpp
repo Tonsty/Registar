@@ -919,6 +919,7 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 				connect(manualRegistration, SIGNAL(sendParameters(QVariantMap)), 
 					this, SLOT(on_pairwiseRegistrationDialog_sendParameters(QVariantMap)));
 			}
+			manualRegistration->setWindowTitle(cloudName_source + "->" + cloudName_target);
 			manualRegistration->setSrcCloud(pairwiseRegistration->cloudData_source, cloudName_source);
 			manualRegistration->setDstCloud(pairwiseRegistration->cloudData_target, cloudName_target);
 			manualRegistration->clearSrcVis();
@@ -940,6 +941,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 		else 
 		{
 			qDebug() << "OK";
+			pairwiseRegistration->initializeTransformation(parameters["transformation"].value<Eigen::Matrix4f>());
+			pairwiseRegistration->correspondencesOK = false;
+			pairwiseRegistrationDialog->on_prePushButton_clicked();
 		}
 	}
 
