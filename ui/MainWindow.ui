@@ -55,6 +55,7 @@
     </widget>
     <addaction name="pairwiseRegistrationAction"/>
     <addaction name="globalRegistrationMenu"/>
+    <addaction name="confirmRegistrationAction"/>
    </widget>
    <widget class="QMenu" name="optionsMenu">
     <property name="title">
@@ -455,6 +456,11 @@
    </property>
    <property name="text">
     <string>Draw &amp;Boundary</string>
+   </property>
+  </action>
+  <action name="confirmRegistrationAction">
+   <property name="text">
+    <string>Confirm Registration</string>
    </property>
   </action>
  </widget>

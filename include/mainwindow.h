@@ -89,6 +89,7 @@ private slots:
 
 	void on_diagramAction_triggered();
 	void on_globalRegistrationAction_triggered();
+	void on_confirmRegistrationAction_triggered();
 
 	void on_euclideanClusterExtractionDialog_sendParameters(QVariantMap parameters);
 	void on_voxelGridDialog_sendParameters(QVariantMap parameters);

@@ -534,6 +534,25 @@ void MainWindow::on_drawBoundaryAction_toggled(bool isChecked)
 	}
 }
 
+void MainWindow::on_confirmRegistrationAction_triggered()
+{
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		cloud->setTransformation(cloud->getRegistrationTransformation());
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
+		qDebug() << cloudName << " confirmed!";
+		it_name++;
+	}	
+}
+
 
 void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap parameters)
 {
