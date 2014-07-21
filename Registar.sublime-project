@@ -23,7 +23,8 @@
 			"-I/usr/include/vtk-5.8/",
 			"-I/usr/include/qt4/",
 			"-I/usr/include/ni/",
-			"-I/usr/lib/gcc/x86_64-linux-gnu/4.6/include/"
+			"-I/usr/lib/gcc/x86_64-linux-gnu/4.6/include/",
+			"-I/home/yiztang/Registar/build/ui/"
 		],
 		"sublimegdb_commandline": "gdb --interpreter=mi Registar_debug",
 		"sublimegdb_workingdir": "${folder:${project_path:./build/Registar_debug}}"

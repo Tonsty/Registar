@@ -75,6 +75,8 @@ public:
 
 	bool correspondencesOK;
 	bool boundaryTest;
+	bool allowScaling;
+
 
 	bool isShowCorrespondences;
 	bool isShowBoundaries;

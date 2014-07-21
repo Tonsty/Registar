@@ -46,6 +46,7 @@ void PairwiseRegistrationDialog::on_icpPushButton_clicked()
 	parameters["normalAngleThreshold"] = normalDoubleSpinBox->value();
 	parameters["boundaryTest"] = boundaryTestCheckBox->isChecked();
 	parameters["icpNumber"] = icpNumberSpinBox->value();
+	parameters["allowScaling"] = scalingCheckBox->isChecked();
 	emit sendParameters(parameters);
 }
 

@@ -26,6 +26,7 @@
 #include "../include/globalregistration.h"
 
 #include "../manual_registration/manual_registration.h"
+#include "../include/mathutilities.h"
 
 #include "../include/mainwindow.h"
 
@@ -367,18 +368,21 @@ void MainWindow::on_concatenationAction_triggered()
 	
 	QStringList::Iterator it = cloudNameList.begin();
 	CloudDataPtr con_cloudData(new CloudData);
+	BoundariesPtr con_boundaries(new Boundaries);
 	while (it != cloudNameList.end())
 	{
 		QString cloudName = (*it);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
 		CloudDataPtr cloudData(new CloudData);
 		pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getTransformation());
-		(*con_cloudData) += (*cloudData); 
+		(*con_cloudData) += (*cloudData);
+		(*con_boundaries) += (*cloud->getBoundaries());
 		qDebug() << cloudName << " added!";
 		it++;
 	}
 
 	Cloud* con_cloud = cloudManager->addCloud(con_cloudData, Cloud::fromFilter);
+	con_cloud->setBoundaries(con_boundaries);
 	cloudBrowser->addCloud(con_cloud);
 	cloudVisualizer->addCloud(con_cloud);
 }
@@ -548,9 +552,31 @@ void MainWindow::on_confirmRegistrationAction_triggered()
 		cloud->setTransformation(cloud->getRegistrationTransformation());
 		bool isVisible = (*it_visible);
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
-		qDebug() << cloudName << " confirmed!";
+		qDebug() << cloudName << "registration transformation confirmed!";
 		it_name++;
 	}	
+}
+
+void MainWindow::on_forceRigidRegistrationAction_triggered()
+{
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		//std::cout << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
+		Eigen::Matrix4f transformation = cloud->getRegistrationTransformation();
+		cloud->setRegistrationTransformation(toRigidTransformation(transformation));
+		//std::cout << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
+		qDebug() << cloudName << " is forced to rigid transformation!";
+		it_name++;
+	}		
 }
 
 

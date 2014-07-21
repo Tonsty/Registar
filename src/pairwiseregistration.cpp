@@ -50,7 +50,8 @@ void PairwiseRegistration::initialize()
 	transformation_inverse = Eigen::Matrix4f::Identity();
 
 	correspondencesOK = false;
-	boundaryTest = true;
+	boundaryTest = false;
+	allowScaling = false;
 
 	isShowBoundaries = false;
 	isShowCorrespondences = false;
@@ -92,7 +93,8 @@ void PairwiseRegistration::reinitialize()
 	correspondences_temp_inverse->clear();
 
 	correspondencesOK = false;
-	boundaryTest = true;
+	boundaryTest = false;
+	allowScaling = false;
 
 	cloudVisualizer->removeCloud("target");
 	cloudVisualizer->removeCloud("source");
@@ -592,7 +594,7 @@ void PairwiseRegistration::icp()
 	tgt.block(0, 0, 3, cloud_tgt.cols()) = cloud_tgt;
 	tgt.block(0, cloud_tgt.cols(), 3, inversed_tgt.cols()) = inversed_tgt.block(0, 0, 3, inversed_tgt.cols());
 
-	Eigen::Matrix4f transformation_matrix = pcl::umeyama (src, tgt, true );
+	Eigen::Matrix4f transformation_matrix = pcl::umeyama (src, tgt, allowScaling );
 	transformation = transformation_matrix * transformation;
 	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, transformation);
 
@@ -719,10 +721,9 @@ void PairwiseRegistration::process(QVariantMap parameters)
 	}
 
 	//method = (Method)parameters["method"].toInt();
-
 	//isShowBoundaries = parameters["isShowBoundaries"].toBool();
 	//isShowCorrespondences = parameters["isShowCorrespondences"].toBool();
-
+	allowScaling = parameters["allowScaling"].toBool();
 	if(correspondencesOK == false)
 	{
 		distanceThreshold = parameters["distanceThreshold"].toFloat();
@@ -739,19 +740,15 @@ void PairwiseRegistration::process(QVariantMap parameters)
 			// qDebug() << QString::number(normalAngleThreshold);
 			// qDebug() << QString::number(method);
 			qDebug() << boundaryTest;
-
 			distanceThreshold = parameters["distanceThreshold"].toFloat();
 			normalAngleThreshold = parameters["normalAngleThreshold"].toFloat();
 			method = (Method)parameters["method"].toInt();
 			boundaryTest = parameters["boundaryTest"].toBool();
-
 			// qDebug() << QString::number(distanceThreshold);
 			// qDebug() << QString::number(normalAngleThreshold);
 			// qDebug() << QString::number(method);
 			qDebug() << boundaryTest;
-
 			correspondencesOK = false;
-
 			qDebug() << "correspondences parameters changed";			
 		}
 	}

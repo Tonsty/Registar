@@ -60,7 +60,8 @@ HEADERS += include/mainwindow.h \
 			diagram/propertiesdialog.h \
 			include/globalregistrationdialog.h \
 			include/globalregistration.h \
-			manual_registration/manual_registration.h
+			manual_registration/manual_registration.h \
+			include/mathutilities.h
 
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
