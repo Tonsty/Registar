@@ -1011,8 +1011,12 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 				Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
 				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
-				int index = pairwiseRegistrationDialog->tabWidget->addTab(pairwiseRegistration->cloudVisualizer, pairwiseRegistration->objectName());
-				pairwiseRegistrationDialog->tabWidget->setCurrentIndex(index);
+				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
+				pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
+				pairwiseRegistrationDialog->showResults(
+					pairwiseRegistration->transformation, 
+					pairwiseRegistration->rmsError_total,
+					pairwiseRegistration->squareErrors_total.size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
 			}
 		}
@@ -1038,8 +1042,12 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 				Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
 				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
-				int index = pairwiseRegistrationDialog->tabWidget->addTab(pairwiseRegistration->cloudVisualizer, pairwiseRegistration->objectName());
-				pairwiseRegistrationDialog->tabWidget->setCurrentIndex(index);
+				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
+				pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
+				pairwiseRegistrationDialog->showResults(
+					pairwiseRegistration->transformation, 
+					pairwiseRegistration->rmsError_total,
+					pairwiseRegistration->squareErrors_total.size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
 			}
 			prList.append(pairwiseRegistration);
