@@ -22,18 +22,17 @@ void PairwiseRegistration::initialize()
 	cloudData_source.reset(new CloudData);
 	pcl::transformPointCloudWithNormals(*cloud_source->getCloudData(), *cloudData_source, cloud_source->getTransformation());
 
+	boundaries_target = cloud_target->getBoundaries();
+	boundaries_source = cloud_source->getBoundaries();
+
 	tree_target.reset(new pcl::search::KdTree<PointType>);
 	tree_target->setInputCloud(cloudData_target);
 	tree_source.reset(new pcl::search::KdTree<PointType>);
 	tree_source->setInputCloud(cloudData_source);
 
 	cloudData_target_dynamic.reset(new CloudData);
-	pcl::copyPointCloud(*cloudData_target, *cloudData_target_dynamic);
 	cloudData_source_dynamic.reset(new CloudData);
-	pcl::copyPointCloud(*cloudData_source, *cloudData_source_dynamic);
-
-	boundaries_target = cloud_target->getBoundaries();
-	boundaries_source = cloud_source->getBoundaries();
+	initializeTransformation(Eigen::Matrix4f::Identity());
 
 	correspondences.reset(new pcl::Correspondences);
 	correspondences_temp.reset(new pcl::Correspondences);
@@ -55,15 +54,6 @@ void PairwiseRegistration::initialize()
 
 }
 
-void PairwiseRegistration::setCloudVisualizer(CloudVisualizer *cloudVisualizer)
-{
-	this->cloudVisualizer = cloudVisualizer;
-	cloudVisualizer->addCloud(cloudData_target, "target");
-	cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
-	// cloudVisualizer->addCloud(cloudData_target, "target");
-	// cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
-}
-
 void PairwiseRegistration::reinitialize()
 {
 	pcl::transformPointCloudWithNormals(*cloud_target->getCloudData(), *cloudData_target, cloud_target->getTransformation());
@@ -72,8 +62,7 @@ void PairwiseRegistration::reinitialize()
 	tree_target->setInputCloud(cloudData_target);
 	tree_source->setInputCloud(cloudData_source);
 
-	pcl::copyPointCloud(*cloudData_target, *cloudData_target_dynamic);
-	pcl::copyPointCloud(*cloudData_source, *cloudData_source_dynamic);
+	initializeTransformation(Eigen::Matrix4f::Identity());
 
 	boundaries_target = cloud_target->getBoundaries();
 	boundaries_source = cloud_source->getBoundaries();
@@ -93,24 +82,42 @@ void PairwiseRegistration::reinitialize()
 	boundaryTest = false;
 	allowScaling = false;
 
-	cloudVisualizer->removeCloud("target");
-	cloudVisualizer->removeCloud("source");
-	cloudVisualizer->removeCloud("cloudBoundaries_target");
-	cloudVisualizer->removeCloud("cloudBoundaries_source");
-	cloudVisualizer->removeCloud("cloudCorrespondences_target");
-	cloudVisualizer->removeCloud("cloudCorrespondences_source");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("target");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("source");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudBoundaries_target");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudBoundaries_source");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudCorrespondences_target");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudCorrespondences_source");
 
-	cloudVisualizer->addCloud(cloudData_target, "target");
-	cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudData_target, "target");
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
+}
+
+void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)
+{
+	this->transformation = transformation;
+	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, this->transformation);
+
+	this->transformation_inverse = this->transformation.inverse();
+	pcl::transformPointCloudWithNormals(*cloudData_target, *cloudData_target_dynamic, this->transformation_inverse);
 }
 
 PairwiseRegistration::~PairwiseRegistration()
 {
 }
 
+void PairwiseRegistration::setCloudVisualizer(CloudVisualizer *cloudVisualizer)
+{
+	this->cloudVisualizer = cloudVisualizer;
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudData_target, "target");
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
+	//if(cloudVisualizer)  cloudVisualizer->addCloud(cloudData_target, "target");
+	//if(cloudVisualizer)  cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
+}
+
 void PairwiseRegistration::showBoundaries()
 {
-	cloudVisualizer->removeCloud("cloudBoundaries_target");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudBoundaries_target");
 	CloudDataPtr cloudBoundaries_target(new CloudData);
 	for (int i = 0; i < boundaries_target->size(); ++i)
 	{
@@ -123,9 +130,9 @@ void PairwiseRegistration::showBoundaries()
 			cloudBoundaries_target->push_back(point);
 		}
 	}
-	cloudVisualizer->addCloud(cloudBoundaries_target, "cloudBoundaries_target", 254.0f, 254.0f, 0.0f);
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudBoundaries_target, "cloudBoundaries_target", 254.0f, 254.0f, 0.0f);
 
-	cloudVisualizer->removeCloud("cloudBoundaries_source");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudBoundaries_source");
 	CloudDataPtr cloudBoundaries_source(new CloudData);
 	for (int i = 0; i < boundaries_source->size(); ++i)
 	{
@@ -138,16 +145,7 @@ void PairwiseRegistration::showBoundaries()
 			cloudBoundaries_source->push_back(point);
 		}
 	}
-	cloudVisualizer->addCloud(cloudBoundaries_source, "cloudBoundaries_source", 254.0f, 254.0f, 0.0f);
-}
-
-void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)
-{
-	this->transformation = transformation;
-	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, this->transformation);
-
-	this->transformation_inverse = this->transformation.inverse();
-	pcl::transformPointCloudWithNormals(*cloudData_target, *cloudData_target_dynamic, this->transformation_inverse);
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudBoundaries_source, "cloudBoundaries_source", 254.0f, 254.0f, 0.0f);
 }
 
 void PairwiseRegistration::buildNearestCorrespondences(
@@ -465,9 +463,9 @@ void PairwiseRegistration::computeSquareErrors(
 
 void PairwiseRegistration::showCorrespondences()
 {
-	cloudVisualizer->removeCloud("cloudCorrespondences_target");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudCorrespondences_target");
 	CloudDataPtr cloudCorrespondences_target(new CloudData);
-	cloudVisualizer->removeCloud("cloudCorrespondences_source");
+	if(cloudVisualizer) cloudVisualizer->removeCloud("cloudCorrespondences_source");
 	CloudDataPtr cloudCorrespondences_source(new CloudData);
 
 	for (int i = 0; i < correspondences->size(); ++i)
@@ -501,8 +499,8 @@ void PairwiseRegistration::showCorrespondences()
 		cloudCorrespondences_target->push_back(point_match);
 	}
 
-	cloudVisualizer->addCloud(cloudCorrespondences_target, "cloudCorrespondences_target", 0.0f, 254.0f, 0.0f);
-	cloudVisualizer->addCloud(cloudCorrespondences_source, "cloudCorrespondences_source", 0.0f, 254.0f, 0.0f);
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudCorrespondences_target, "cloudCorrespondences_target", 0.0f, 254.0f, 0.0f);
+	if(cloudVisualizer) cloudVisualizer->addCloud(cloudCorrespondences_source, "cloudCorrespondences_source", 0.0f, 254.0f, 0.0f);
 }
 
 void PairwiseRegistration::icp()
@@ -793,8 +791,8 @@ void PairwiseRegistration::renderErrorMap()
     	}
     }
 
-	cloudVisualizer->updateCloud(cloudData_target, "target");
-	cloudVisualizer->updateCloud(cloudData_source_dynamic, "source");
+	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target, "target");
+	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_dynamic, "source");
 }
 
 PairwiseRegistrationManager::PairwiseRegistrationManager(QObject *parent) : QObject(parent){}
