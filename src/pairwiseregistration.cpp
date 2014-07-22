@@ -53,16 +53,13 @@ void PairwiseRegistration::initialize()
 	boundaryTest = false;
 	allowScaling = false;
 
-	isShowBoundaries = false;
-	isShowCorrespondences = false;
+}
 
-	cloudVisualizer = new CloudVisualizer();
-	cloudVisualizer->setObjectName(cloud_target->getCloudName() + "<-" + cloud_source->getCloudName());
-	//cloudVisualizer->setColorMode(CloudVisualizer::colorCustom);
-
+void PairwiseRegistration::setCloudVisualizer(CloudVisualizer *cloudVisualizer)
+{
+	this->cloudVisualizer = cloudVisualizer;
 	cloudVisualizer->addCloud(cloudData_target, "target");
 	cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
-
 	// cloudVisualizer->addCloud(cloudData_target, "target");
 	// cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
 }
@@ -109,7 +106,6 @@ void PairwiseRegistration::reinitialize()
 
 PairwiseRegistration::~PairwiseRegistration()
 {
-	//if(cloudVisualizer != NULL) delete cloudVisualizer;
 }
 
 void PairwiseRegistration::showBoundaries()
@@ -201,64 +197,6 @@ void PairwiseRegistration::buildNearestCorrespondences(
 	correspondences_inverse->swap(*correspondences_temp_inverse);
 
 }
-
-// void PairwiseRegistration::buildNearestCorrespondences_GPU()
-// {
-// 	// pcl::CorrespondencesPtr correspondences_filtered(new pcl::Correspondences);
-// 	if (!correspondences) correspondences.reset(new pcl::Correspondences);
-// 	else correspondences->clear();
-// 	if (!correspondences_temp) correspondences_temp.reset(new pcl::Correspondences);
-// 	else correspondences_temp->clear();
-
-// 	if (!gpu_tree_target)
-// 	{
-// 		gpu_tree_target.reset(new pcl::gpu::Octree);
-// 		pcl::gpu::DeviceArray<pcl::PointXYZ> cloudDataDevice_target;
-// 		if (!cloudDataXYZ_target)
-// 		{
-// 			cloudDataXYZ_target.reset(new pcl::PointCloud<pcl::PointXYZ>);
-// 		}
-// 		//pcl::PointCloud<pcl::PointXYZ>::Ptr cloudDataXYZ_target(new pcl::PointCloud<pcl::PointXYZ>);
-// 		pcl::copyPointCloud(*cloudData_target, *cloudDataXYZ_target);
-// 		cloudDataDevice_target.upload(cloudDataXYZ_target->points);
-// 		gpu_tree_target->setCloud(cloudDataDevice_target);
-// 		gpu_tree_target->build();
-// 	}
-
-// 	pcl::gpu::DeviceArray<pcl::PointXYZ> cloudDataDevice_source;
-// 	if (!cloudDataXYZ_source)
-// 	{
-// 		cloudDataXYZ_source.reset(new pcl::PointCloud<pcl::PointXYZ>);
-// 	}
-// 	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloudDataXYZ_source(new pcl::PointCloud<pcl::PointXYZ>);
-// 	pcl::copyPointCloud(*cloudData_source, *cloudDataXYZ_source);
-// 	cloudDataDevice_source.upload(cloudDataXYZ_source->points);
-
-// 	pcl::gpu::NeighborIndices result_device(cloudDataDevice_source.size(), 1);
-
-// 	gpu_tree_target->nearestKSearchBatch(cloudDataDevice_source, 1, result_device);
-
-// 	std::vector<int> data;
-// 	result_device.data.download(data);
-
-// 	for (int i = 0; i < cloudData_source->size(); ++i)
-// 	{
-// 		pcl::Correspondence temp;
-// 		temp.index_query = i;
-// 		temp.index_match = data[i];
-
-// 		Eigen::Vector4f source_point = (*cloudData_source)[i].getVector4fMap();
-// 		Eigen::Vector4f target_point = (*cloudData_target)[data[i]].getVector4fMap();
-
-// 		// temp.distance = pcl::distances::l2(source_point, target_point);
-// 		temp.distance = pcl::distances::l2Sqr(source_point, target_point);
-// 		// correspondences_filtered->push_back(temp);
-// 		correspondences_temp->push_back(temp);
-// 	}
-
-// 	//correspondences = correspondences_filtered;
-// 	correspondences->swap(*correspondences_temp);
-// }
 
 void PairwiseRegistration::filterCorrespondencesByDistanceAndNormal(
 		CloudDataPtr cloudData_target_dynamic,
@@ -454,7 +392,6 @@ void PairwiseRegistration::preCorrespondences()
 			cloudData_target_dynamic, cloudData_source_dynamic, 
 			correspondences, correspondences_temp, 
 			correspondences_inverse, correspondences_temp_inverse);
-		//buildNearestCorrespondences_GPU();
 		filterCorrespondencesByDistanceAndNormal(
 			cloudData_target_dynamic, cloudData_source_dynamic, 
 			correspondences, correspondences_temp, 
@@ -473,8 +410,6 @@ void PairwiseRegistration::preCorrespondences()
 			cloud_src_inverse, cloud_tgt_inverse);
 		correspondencesOK = true;
 	}
-	if(isShowBoundaries) showBoundaries();
-	if(isShowCorrespondences) showCorrespondences();
 }
 
 void PairwiseRegistration::computeSquareErrors(
@@ -613,12 +548,7 @@ void PairwiseRegistration::icp(int iterationNumber)
 	}
 	qDebug() << QString::number(iterationNumber) << " icp iteration(s) completed!";
 
-	cloudVisualizer->removeCloud("cloudBoundaries_target");
-	cloudVisualizer->removeCloud("cloudBoundaries_source");
-	cloudVisualizer->removeCloud("cloudCorrespondences_target");
-	cloudVisualizer->removeCloud("cloudCorrespondences_source");
 	//cloudVisualizer->updateCloud(cloudData_source_dynamic, "source", 254.0f, 127.0f, 0.0f);
-
 	//cloudVisualizer->updateCloud(cloudData_target_dynamic, "target");
 }
 
@@ -650,7 +580,6 @@ void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f tran
 		cloudData_target_dynamic, cloudData_source_dynamic, 
 		correspondences, correspondences_temp, 
 		correspondences_inverse, correspondences_temp_inverse);
-	//buildNearestCorrespondences_GPU();
 	filterCorrespondencesByDistanceAndNormal(
 		cloudData_target_dynamic, cloudData_source_dynamic, 
 		correspondences, correspondences_temp, 
@@ -721,8 +650,6 @@ void PairwiseRegistration::process(QVariantMap parameters)
 	}
 
 	//method = (Method)parameters["method"].toInt();
-	//isShowBoundaries = parameters["isShowBoundaries"].toBool();
-	//isShowCorrespondences = parameters["isShowCorrespondences"].toBool();
 	allowScaling = parameters["allowScaling"].toBool();
 	if(correspondencesOK == false)
 	{
@@ -885,77 +812,3 @@ PairwiseRegistration* PairwiseRegistrationManager::getPairwiseRegistration(QStri
 {
 	return findChild<PairwiseRegistration*>(cloudName_target + "<-" + cloudName_source);
 }
-
-// void PairwiseRegistration::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
-// {
-// 	float searchRadius = parameters["searchRadius"].toFloat(); 
-// 	float angleThreshold = parameters["angleThreshold"].toFloat();
-// 	float dilationRadius = parameters["dilationRadius"].toFloat();
-
-// 	qDebug() << "SearchRadius : " << QString::number(searchRadius);
-// 	qDebug() << "AngleThreshold : " << QString::number(angleThreshold);
-// 	qDebug() << "DilationRadius : " << QString::number(dilationRadius);
-
-// 	qDebug() << "Cloud Size Before : " << cloudData->size();
-
-// 	pcl::BoundaryEstimation<PointType, PointType, pcl::Boundary> be;
-// 	be.setInputCloud(cloudData);
-// 	be.setInputNormals(cloudData);
-// 	be.setRadiusSearch(searchRadius);
-// 	pcl::search::KdTree<PointType>::Ptr tree (new pcl::search::KdTree<PointType>);
-// 	be.setSearchMethod(tree);
-// 	be.setAngleThreshold(angleThreshold/180.0f*M_PI);
-// 	pcl::PointCloud<pcl::Boundary> boundary;
-// 	be.compute(boundary);
-
-// 	for(int i = 0; i < boundary.size(); ++i)
-// 	{
-// 		if(boundary.points[i].boundary_point == 1)
-// 		{
-// 			PointType point = (*cloudData)[i];
-// 			std::vector<int> indices;
-// 			std::vector<float> sqr_distances;
-// 			tree->radiusSearch(point, dilationRadius, indices, sqr_distances, cloudData->size());
-// 			for (int j = 0; j < indices.size(); ++j)
-// 			{	
-// 				boundary.points[indices[j]].boundary_point = 2;
-// 			}
-// 			std::cerr << indices.size() << " " << std::endl;		
-// 		}
-
-// 	}
-
-// 	pcl::PointIndicesPtr inliers_indices(new pcl::PointIndices);
-// 	for( int i = 0; i < boundary.size(); i++)
-// 	{
-// 		if (boundary.points[i].boundary_point != 0)
-// 		{
-// 			inliers_indices->indices.push_back(i);
-// 		}
-// 	}
-
-// 	pcl::ExtractIndices<PointType> indicesExtract;
-// 	indicesExtract.setInputCloud(cloudData);
-// 	indicesExtract.setIndices(inliers_indices);
-
-// 	CloudDataPtr cloudInliers(new CloudData);
-// 	indicesExtract.setNegative(false);
-// 	indicesExtract.filter(*cloudInliers);
-
-// 	CloudDataPtr cloudOutliers(new CloudData);
-// 	indicesExtract.setNegative(true);
-// 	indicesExtract.filter(*cloudOutliers);
-
-// 	cloudData_inliers = cloudInliers;
-// 	cloudData_outliers = cloudOutliers;
-
-// 	qDebug() << "Cloud Inliers Size : " << cloudData_inliers->size();
-// 	qDebug() << "Cloud Outliers Size : " << cloudData_outliers->size();
-// }
-
-// void PairwiseRegistration::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
-// {
-// 	CloudDataPtr cloudData_inliers, cloudData_outliers;
-// 	filter(cloudData, parameters, cloudData_inliers, cloudData_outliers);
-// 	cloudData_filtered = cloudData_inliers;
-// }

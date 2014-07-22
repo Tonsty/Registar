@@ -593,8 +593,6 @@ void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap 
 		Cloud *cloud = cloudManager->getCloud(cloudName);
 		CloudDataPtr cloudData = cloud->getCloudData();
 		CloudDataPtr cloudData_inliers, cloudData_outliers;
-		// parameters["cloudData"].setValue(cloudData);
-		// parameters["cloudData_filtered"].setValue(cloudData_filtered);
 		
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		EuclideanClusterExtraction::filter(cloudData, parameters, cloudData_inliers, cloudData_outliers);
@@ -871,8 +869,8 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
 			Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 			pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
-			int index = pairwiseRegistrationDialog->tabWidget->addTab(pairwiseRegistration->cloudVisualizer, pairwiseRegistration->objectName());
-			pairwiseRegistrationDialog->tabWidget->setCurrentIndex(index);
+			CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
+			pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
 			pairwiseRegistrationDialog->showResults(
 				pairwiseRegistration->transformation, 
 				pairwiseRegistration->rmsError_total,
@@ -991,36 +989,6 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			pairwiseRegistrationDialog->on_prePushButton_clicked();
 		}
 	}
-
-	// int method = parameters["method"].toInt();
-	// float distanceThreshold = parameters["distanceThreshold"].toFloat();
-	// float normalAngleThreshold = parameters["normalAngleThreshold"].toFloat();
-	// float searchRadius = parameters["boundarySearchRadius"].toFloat();
-	// float angleThreshold = parameters["boundaryAngleThreshold"].toFloat();
-	// float dilationRadius = parameters["boundaryDilationRadius"].toFloat();
-
-	// CloudDataPtr cloudData_target = cloud_target->getCloudData();
-	// CloudDataPtr cloudData_source = cloud_source->getCloudData();
-
-	// pairwiseRegistration(cloudData_target, cloudData_source, distanceThreshold, 
-	// 	normalAngleThreshold, searchRadius, angleThreshold, dilationRadius);
-	
-	//QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
-	//QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
-
-	// QStringList::Iterator it_name = cloudNameList.begin();
-	// QList<bool>::Iterator it_visible = isVisibleList.begin();
-
-	// QString cloudName_target = *it_name;
-	// QString cloudName_source = *(it_name + 1);
-
-	// Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
-	// Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
-
-	// CloudDataPtr cloudData_target = cloud_target->getCloudData();
-	// CloudDataPtr cloudData_source = cloud_source->getCloudData();
-
-	// pairwiseRegistration(cloudData_target, cloudData_source);
 }
 
 void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap parameters)

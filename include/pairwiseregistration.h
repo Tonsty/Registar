@@ -36,12 +36,6 @@ public:
 	pcl::search::KdTree<PointType>::Ptr tree_target;
 	pcl::search::KdTree<PointType>::Ptr tree_source;
 
-	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloudDataXYZ_target;
-	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloudDataXYZ_source;
-
-	//pcl::gpu::Octree::Ptr gpu_tree_target;
-	//pcl::gpu::Octree::Ptr gpu_tree_source;	
-
 	Method method;
 
 	float distanceThreshold;
@@ -76,10 +70,6 @@ public:
 	bool correspondencesOK;
 	bool boundaryTest;
 	bool allowScaling;
-
-
-	bool isShowCorrespondences;
-	bool isShowBoundaries;
 
 	CloudVisualizer *cloudVisualizer;
 
@@ -135,6 +125,7 @@ public:
 
 	void exportTransformation();
 
+	void setCloudVisualizer(CloudVisualizer *cloudVisualizer);
 	void showBoundaries();
 	void showCorrespondences();
 	void renderErrorMap();

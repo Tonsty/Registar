@@ -4,7 +4,10 @@
 #include <QtGui/QDialog>
 #include <Eigen/Eigen>
 
+#include "pclbase.h"
 #include "ui_PairwiseRegistrationDialog.h"
+
+class CloudVisualizer;
 
 class PairwiseRegistrationDialog : public QDialog, public Ui_PairwiseRegistrationDialog
 {
@@ -14,6 +17,7 @@ public:
 	PairwiseRegistrationDialog(QWidget *parent = 0);
 	virtual ~PairwiseRegistrationDialog();
 
+	CloudVisualizer* addCloudVisualizerTab(QString targetBySource);
 	void showResults(Eigen::Matrix4f transformation, float rmsError, int corrNumber);
 
 public slots:

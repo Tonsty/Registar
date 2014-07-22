@@ -2,6 +2,7 @@
 #include <QtCore/qmath.h>
 #include <sstream>
 
+#include "../include/cloudvisualizer.h"
 #include "../include/pairwiseregistrationdialog.h"
 
 PairwiseRegistrationDialog::PairwiseRegistrationDialog(QWidget *parent) : QDialog(parent)
@@ -112,6 +113,18 @@ void PairwiseRegistrationDialog::on_tabWidget_currentChanged(int index)
 	parameters["source"] = cloudName_source;
 	parameters["command"] = QString("ShowResults");
 	emit sendParameters(parameters);
+}
+
+CloudVisualizer* PairwiseRegistrationDialog::addCloudVisualizerTab(QString targetBySource)
+{
+	CloudVisualizer *cloudVisualizer = new CloudVisualizer(this);
+	cloudVisualizer->setObjectName(targetBySource);
+	//cloudVisualizer->setColorMode(CloudVisualizer::colorCustom);
+	
+	int index = tabWidget->addTab(cloudVisualizer, targetBySource);
+	tabWidget->setCurrentIndex(index);
+
+	return cloudVisualizer;
 }
 
 void PairwiseRegistrationDialog::showResults(Eigen::Matrix4f transformation, float rmsError, int corrNumber)
