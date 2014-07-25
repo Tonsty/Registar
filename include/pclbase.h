@@ -11,6 +11,8 @@ typedef CloudData::Ptr CloudDataPtr;
 typedef CloudData::ConstPtr CloudDataConstPtr;
 typedef pcl::PointCloud<pcl::Boundary> Boundaries;
 typedef Boundaries::Ptr BoundariesPtr;
+typedef pcl::search::KdTree<PointType> KdTree;
+typedef KdTree::Ptr KdTreePtr;
 
 #endif
 

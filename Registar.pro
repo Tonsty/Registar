@@ -61,7 +61,8 @@ HEADERS += include/mainwindow.h \
 			include/globalregistrationdialog.h \
 			include/globalregistration.h \
 			manual_registration/manual_registration.h \
-			include/mathutilities.h
+			include/mathutilities.h \
+			include/registrationdatamanager.h
 
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -89,7 +90,8 @@ SOURCES += src/main.cpp \
 			diagram/propertiesdialog.cpp \
 			src/globalregistrationdialog.cpp \
 			src/globalregistration.cpp \
-			manual_registration/manual_registration.cpp
+			manual_registration/manual_registration.cpp \
+			src/registrationdatamanager.cpp
 
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
