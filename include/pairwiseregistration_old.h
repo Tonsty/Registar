@@ -1,5 +1,5 @@
-#ifndef PAIRWISEREGISTRATION_H
-#define PAIRWISEREGISTRATION_H
+#ifndef PAIRWISEREGISTRATION_OLD_H
+#define PAIRWISEREGISTRATION_OLD_H
 
 #include <QtGui/QWidget>
 #include <QtCore/QVariantMap>

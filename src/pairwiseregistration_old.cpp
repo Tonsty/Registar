@@ -6,7 +6,7 @@
 
 //#include "../include/qtbase.h"
 #include "../include/cloudvisualizer.h"
-#include "../include/pairwiseregistration.h" 
+#include "../include/pairwiseregistration_old.h" 
 
 PairwiseRegistration::PairwiseRegistration(Cloud *cloud_target, Cloud *cloud_source, QObject *parent) : QObject(parent)
 {

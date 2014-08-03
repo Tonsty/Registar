@@ -14,27 +14,22 @@ struct Correspondence
 	PointType sourcePoint;
 };
 
-typedef std::vector<Correspondence> Correspondences;
+typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
 
 struct CorrspondencesComputationData
 {
-	CloudDataPtr cloudData_target_dynamic;
-	CloudDataPtr cloudData_source_dynamic;
-
-	pcl::CorrespondencesPtr correspondences;
-	pcl::CorrespondencesPtr correspondences_temp;
-
-	pcl::CorrespondencesPtr correspondences_inverse;
-	pcl::CorrespondencesPtr correspondences_temp_inverse;
+	CloudData cloudData_source_dynamic;
+	pcl::Correspondences pcl_correspondences;
+	pcl::Correspondences pcl_correspondences_temp;
 };
 
+enum CorrespondenceComputationMethod
+{
+	POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
+};
 struct CorrspondencesComputationParameters
 {
-	enum Method
-	{
-		POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
-	};
-	Method method;
+	CorrespondenceComputationMethod method;
 	float distanceThreshold;
 	float normalAngleThreshold;
 	bool boundaryTest;
@@ -45,17 +40,16 @@ struct PairwiseRegistrationComputationData
 {
 	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src;
 	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_tgt;
+};
 
-	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src_inverse;
-	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_tgt_inverse;
-
-	std::vector<float> squareErrors;
-	std::vector<float> squareErrors_inverse;
-	std::vector<float> squareErrors_total;
-
-	float rmsError;
-	float rmsError_inverse;
-	float rmsError_total;
+enum PairwiseRegistrationComputationMethod
+{
+	SVD, UMEYAMA
+};
+struct PairwiseRegistrationComputationParameters
+{
+	PairwiseRegistrationComputationMethod method;
+	bool allowScaling;
 };
 
 class PairwiseRegistration : public QObject
@@ -64,7 +58,8 @@ class PairwiseRegistration : public QObject
 
 public:
 
-	PairwiseRegistration(RegistrationData *target, RegistrationData *source, QObject *parent = 0);
+	PairwiseRegistration(RegistrationData *target, RegistrationData *source, 
+		QString registrationName, QObject *parent = 0);
 	virtual ~PairwiseRegistration();
 
 	Eigen::Matrix4f transformation;
@@ -73,16 +68,29 @@ public:
 	RegistrationData *source;
 
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
-		CorrspondencesComputationData &correspondencesComputationData,
-		CorrspondencesComputationParameters &corrspondencesComputationParameters,
-		Correspondences &correspondences);
+		Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
+		Correspondences &correspondences, CorrspondencesComputationData &correspondencesComputationData);
 
 	static Eigen::Matrix4f registAr(Correspondences &correspondences, 
-		PairwiseRegistrationComputationData &pairwiseRegistrationComputationData, bool allowScaling);
+		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, 
+		PairwiseRegistrationComputationData &pairwiseRegistrationComputationData);
 
 	static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
-		CorrspondencesComputationParameters &corrspondencesComputationParameters, 
-		bool allowScaling, int iterationNumber);
+		Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
+		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
+};
+
+class PairwiseRegistrationManager : public QObject
+{
+	Q_OBJECT
+
+public:
+	PairwiseRegistrationManager(QObject *parent = 0);
+	virtual ~PairwiseRegistrationManager();
+	PairwiseRegistration *addPairwiseRegistration(RegistrationData *target, RegistrationData *source, 
+		QString registrationName);
+	void removePairwiseRegistration(QString registrationName);
+	PairwiseRegistration *getPairwiseRegistration(QString registrationName);
 };
 
 

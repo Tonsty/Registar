@@ -12,6 +12,7 @@ class RegistrationData : public QObject
 public:
 	RegistrationData(Cloud *cloud, QString dataName, QObject *parent = 0);
 	virtual ~RegistrationData();
+
 	Cloud * cloud;
 	CloudDataPtr cloudData;	
 	KdTreePtr kdTree;
