@@ -3,6 +3,8 @@
 #include "../include/mathutilities.h"
 #include "../include/pairwiseregistration.h"
 
+#include "../include/cloudvisualizer.h"//////////////////////
+
 PairwiseRegistration::PairwiseRegistration(RegistrationData *target, RegistrationData *source, 
 	QString registrationName, QObject *parent) : QObject(parent)
 {
@@ -22,7 +24,7 @@ PairwiseRegistration::PairwiseRegistration(RegistrationData *target, Registratio
 PairwiseRegistration::~PairwiseRegistration() {}
 
 
-void preCorrespondences(RegistrationData *target, RegistrationData *source,
+void PairwiseRegistration::preCorrespondences(RegistrationData *target, RegistrationData *source,
 	Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
 	Correspondences &correspondences, CorrspondencesComputationData &correspondencesComputationData)
 {
@@ -216,6 +218,17 @@ Eigen::Matrix4f PairwiseRegistration::icp(RegistrationData *target, Registration
 	}
 	return initialTransformation;
 }
+
+QString PairwiseRegistration::generateName(QString targetName, QString sourceName)
+{
+	return targetName + "<-" + sourceName;
+}
+
+void PairwiseRegistration::reinitialize(){}  /////////////////
+void PairwiseRegistration::process(QVariantMap parameters){} /////////////////
+void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation){}///////////////////////
+void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber){} //////////////////////////
+void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber){} /////////////////////
 
 PairwiseRegistrationManager::PairwiseRegistrationManager(QObject *parent) {}
 

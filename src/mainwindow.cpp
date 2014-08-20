@@ -18,8 +18,10 @@
 #include "../include/outliersremovaldialog.h"
 #include "../include/outliersremoval.h"
 #include "../include/normalfielddialog.h"
+
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
+#include "../include/registrationdatamanager.h"
 
 #include "../diagram/diagramwindow.h"
 #include "../include/globalregistrationdialog.h"
@@ -39,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	cloudManager = new CloudManager(this);
 	cloudVisualizer = new CloudVisualizer(this);
 	pairwiseRegistrationManager = new PairwiseRegistrationManager(this);
+	registrationDataManager = new RegistrationDataManager(this);
 
 	cycleRegistrationManager = new CycleRegistrationManager(this);
 
@@ -849,7 +852,8 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 	QString cloudName_target = parameters["target"].toString();
 	QString cloudName_source = parameters["source"].toString();
 
-	PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
+	QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+	PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
 
 	if (parameters["command"] == "ShowResults")
 	{
@@ -866,11 +870,23 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 	{
 		if(pairwiseRegistration == NULL)
 		{
-			Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
-			Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
-			pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
+			RegistrationData *registrationData_target = registrationDataManager->getRegistrationData(cloudName_target);
+			if ( registrationData_target == NULL)
+			{
+				Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
+				registrationData_target = registrationDataManager->addRegistrationData(cloud_target, cloudName_target);
+			}
+			RegistrationData *registrationData_source = registrationDataManager->getRegistrationData(cloudName_source);
+			if ( registrationData_source == NULL)
+			{
+				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
+				registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
+			}
+			pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+
 			CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-			pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
+			pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+
 			pairwiseRegistrationDialog->showResults(
 				pairwiseRegistration->transformation, 
 				pairwiseRegistration->rmsError_total,
@@ -963,8 +979,8 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 					this, SLOT(on_pairwiseRegistrationDialog_sendParameters(QVariantMap)));
 			}
 			manualRegistration->setWindowTitle(cloudName_source + "->" + cloudName_target);
-			manualRegistration->setSrcCloud(pairwiseRegistration->cloudData_source, cloudName_source);
-			manualRegistration->setDstCloud(pairwiseRegistration->cloudData_target, cloudName_target);
+			manualRegistration->setSrcCloud(pairwiseRegistration->source->cloudData, cloudName_source);
+			manualRegistration->setDstCloud(pairwiseRegistration->target->cloudData, cloudName_target);
 			manualRegistration->clearSrcVis();
 			manualRegistration->clearDstVis();
 			manualRegistration->showSrcCloud();
@@ -1005,14 +1021,27 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		{
 			QString cloudName_target = targets[i];
 			QString cloudName_source = sources[i];
-			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
+			QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
 			if(pairwiseRegistration == NULL)
 			{
-				Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
-				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
-				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
+				RegistrationData *registrationData_target = registrationDataManager->getRegistrationData(cloudName_target);
+				if ( registrationData_target == NULL)
+				{
+					Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
+					registrationData_target = registrationDataManager->addRegistrationData(cloud_target, cloudName_target);
+				}
+				RegistrationData *registrationData_source = registrationDataManager->getRegistrationData(cloudName_source);
+				if ( registrationData_source == NULL)
+				{
+					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
+					registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
+				}
+				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-				pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
+				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->transformation, 
 					pairwiseRegistration->rmsError_total,
@@ -1036,14 +1065,26 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		{
 			QString cloudName_target = targets[i];
 			QString cloudName_source = sources[i];
-			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
+			QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
 			if(pairwiseRegistration == NULL)
 			{
-				Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
-				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
-				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(cloud_target, cloud_source);
+				RegistrationData *registrationData_target = registrationDataManager->getRegistrationData(cloudName_target);
+				if ( registrationData_target == NULL)
+				{
+					Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
+					registrationData_target = registrationDataManager->addRegistrationData(cloud_target, cloudName_target);
+				}
+				RegistrationData *registrationData_source = registrationDataManager->getRegistrationData(cloudName_source);
+				if ( registrationData_source == NULL)
+				{
+					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
+					registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
+				}
+				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-				pairwiseRegistration->setCloudVisualizer(cloudVisualizer);
+				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->transformation, 
 					pairwiseRegistration->rmsError_total,
@@ -1109,8 +1150,10 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		{
 			QString cloudName_target = targets[i];
 			QString cloudName_source = sources[i];
-			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
-			PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_source, cloudName_target);
+			QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
+			QString reversePrName = PairwiseRegistration::generateName(cloudName_source, cloudName_target);
+			PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(reversePrName);
 			if(pairwiseRegistration == NULL && reversePairwiseRegistration == NULL)
 			{
 				qDebug() << cloudName_target << "<-" << cloudName_source << " not ready yet!!!";
@@ -1122,8 +1165,10 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		Eigen::Matrix4f transformation_total = Eigen::Matrix4f::Identity();
 		for (int i = 0; i < transformationList.size(); ++i) transformation_total *= transformationList[i];
 		
-		PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(targets.back(), sources.back());
-		PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(sources.back(), targets.back());
+		QString prName = PairwiseRegistration::generateName(targets.back(), sources.back());
+		PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
+		QString reversePrName = PairwiseRegistration::generateName(sources.back(), targets.back());
+		PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(reversePrName);
 		float error1 = 0.0f, error2 = 0.0f;
 		int ovlNumber1 = 0, ovlNumber2 = 0;
 
@@ -1162,8 +1207,12 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 					QString cloudName_target = cloudList[j-1];
 					QString cloudName_source = cloudList[j];
 					qDebug() << cloudName_target << "<-" << cloudName_source;
-					PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
-					PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_source, cloudName_target);
+
+					QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+					PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
+					QString reversePrName = PairwiseRegistration::generateName(cloudName_source, cloudName_target);
+					PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(reversePrName);
+
 					if(pairwiseRegistration == NULL && reversePairwiseRegistration == NULL)
 					{
 						qDebug() << cloudName_target << "<-" << cloudName_source << " not ready yet!!!";

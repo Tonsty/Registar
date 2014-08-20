@@ -23,9 +23,9 @@ CycleRegistration* CycleRegistrationManager::addCycleRegistration(QList<Pairwise
 	QString cloudNameCycle = "";
 	for (int i = 0; i < prList.size()-1; ++i)
 	{
-		cloudNameCycle.append(prList[i]->cloud_target->getCloudName()).append(",");
+		cloudNameCycle.append(prList[i]->target->objectName()).append(",");
 	}
-	cloudNameCycle.append(prList.back()->cloud_target->getCloudName());
+	cloudNameCycle.append(prList.back()->target->objectName());
 	qDebug() << cloudNameCycle;
 	cycleRegistration->setObjectName(cloudNameCycle);
 	return cycleRegistration;

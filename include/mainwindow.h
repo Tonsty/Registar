@@ -13,8 +13,10 @@ class MovingLeastSquaresDialog;
 class BoundaryEstimationDialog;
 class OutliersRemovalDialog;
 class NormalFieldDialog;
+
 class PairwiseRegistrationDialog;
 class PairwiseRegistrationManager;
+class RegistrationDataManager;
 
 class DiagramWindow;
 class GlobalRegistrationDialog;
@@ -50,8 +52,10 @@ private:
 	BoundaryEstimationDialog *boundaryEstimationDialog;
 	OutliersRemovalDialog *outliersRemovalDialog;
 	NormalFieldDialog *normalFieldDialog;
+
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	PairwiseRegistrationManager *pairwiseRegistrationManager;
+	RegistrationDataManager *registrationDataManager;
 
 	DiagramWindow *diagramWindow;
 	GlobalRegistrationDialog *globalRegistrationDialog;

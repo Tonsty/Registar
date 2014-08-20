@@ -8,6 +8,9 @@
 #include "pclbase.h"
 #include "registrationdatamanager.h"
 
+#include <QtCore/QVariantMap>  ///////////////////
+class CloudVisualizer;   ///////////////////////
+
 struct Correspondence
 {
 	PointType targetPoint;
@@ -78,6 +81,22 @@ public:
 	static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
 		Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
+
+	static QString generateName(QString targetName, QString sourceName);
+
+	CloudVisualizer *cloudVisualizer;  ///////////////
+
+	float rmsError_total;  ////////////////
+	std::vector<float> squareErrors_total; //////////////
+
+	void reinitialize();  /////////////////
+	void process(QVariantMap parameters); /////////////////
+	void initializeTransformation(Eigen::Matrix4f transformation);///////////////////////
+	bool correspondencesOK;/////////////////////
+	Eigen::Matrix4f transformation_inverse;////////////////////////
+	void estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); //////////////////////////
+	void estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); /////////////////////
+
 };
 
 class PairwiseRegistrationManager : public QObject
