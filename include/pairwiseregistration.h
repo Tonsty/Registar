@@ -19,7 +19,7 @@ struct Correspondence
 
 typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
 
-struct CorrspondencesComputationData
+struct CorrespondencesComputationData
 {
 	CloudData cloudData_source_dynamic;
 	pcl::Correspondences pcl_correspondences;
@@ -30,7 +30,7 @@ enum CorrespondenceComputationMethod
 {
 	POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
 };
-struct CorrspondencesComputationParameters
+struct CorrespondencesComputationParameters
 {
 	CorrespondenceComputationMethod method;
 	float distanceThreshold;
@@ -71,32 +71,34 @@ public:
 	RegistrationData *source;
 
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
-		Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
-		Correspondences &correspondences, CorrspondencesComputationData &correspondencesComputationData);
+		Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+		Correspondences &correspondences, CorrespondencesComputationData &correspondencesComputationData);
 
 	static Eigen::Matrix4f registAr(Correspondences &correspondences, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, 
 		PairwiseRegistrationComputationData &pairwiseRegistrationComputationData);
 
 	static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
-		Eigen::Matrix4f initialTransformation, CorrspondencesComputationParameters &corrspondencesComputationParameters, 
+		Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
 
 	static QString generateName(QString targetName, QString sourceName);
 
-	CloudVisualizer *cloudVisualizer;  ///////////////
+	CloudVisualizer *cloudVisualizer;  //////////////////////////////
 
-	float rmsError_total;  ////////////////
-	std::vector<float> squareErrors_total; //////////////
+	float rmsError_total;  /////////////////////////////////////////////
+	std::vector<float> squareErrors_total; /////////////////////////////
 
-	void reinitialize();  /////////////////
-	void process(QVariantMap parameters); /////////////////
+	void reinitialize();  //////////////////////////////////////////////
+	void process(QVariantMap parameters); //////////////////////////////////
 	void initializeTransformation(Eigen::Matrix4f transformation);///////////////////////
-	bool correspondencesOK;/////////////////////
-	Eigen::Matrix4f transformation_inverse;////////////////////////
+	bool correspondencesOK;/////////////////////////////////////////////////////////////////
+	Eigen::Matrix4f transformation_inverse;////////////////////////////////////////////////////
 	void estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); //////////////////////////
 	void estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); /////////////////////
 
+	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);////////////////////
+	void renderErrorMap();////////////////////////////////////////////////////////////
 };
 
 class PairwiseRegistrationManager : public QObject

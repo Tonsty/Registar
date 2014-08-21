@@ -887,6 +887,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 			pairwiseRegistration->cloudVisualizer = cloudVisualizer;
 
+			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+
 			pairwiseRegistrationDialog->showResults(
 				pairwiseRegistration->transformation, 
 				pairwiseRegistration->rmsError_total,
@@ -1002,7 +1005,11 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			qDebug() << "OK";
 			pairwiseRegistration->initializeTransformation(parameters["transformation"].value<Eigen::Matrix4f>());
 			pairwiseRegistration->correspondencesOK = false;
-			pairwiseRegistrationDialog->on_prePushButton_clicked();
+			//pairwiseRegistrationDialog->on_prePushButton_clicked();
+			pairwiseRegistrationDialog->showResults(
+				pairwiseRegistration->transformation, 
+				pairwiseRegistration->rmsError_total,
+				pairwiseRegistration->squareErrors_total.size());
 		}
 	}
 }
@@ -1041,6 +1048,9 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
 
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->transformation, 
@@ -1085,6 +1095,10 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target");
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source");
+
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->transformation, 
 					pairwiseRegistration->rmsError_total,
