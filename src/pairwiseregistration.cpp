@@ -556,7 +556,8 @@ void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f tran
 	CloudDataPtr cloudData_target_dynamic(new CloudData);
 	CloudDataPtr cloudData_source_dynamic(new CloudData);
 
-	pcl::copyPointCloud(*cloudData_target, *cloudData_target_dynamic);
+	//pcl::copyPointCloud(*cloudData_target, *cloudData_target_dynamic);               bug is here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	pcl::transformPointCloudWithNormals(*cloudData_target, *cloudData_target_dynamic, static_cast<Eigen::Matrix4f>(transformation.inverse())); //fix bug
 	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, transformation);
 
 	pcl::CorrespondencesPtr correspondences(new pcl::Correspondences);
@@ -574,18 +575,32 @@ void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f tran
 	float rmsError_inverse;
 	float rmsError_total;
 
+	std::cerr << static_cast<int>(method) << std::endl;
+	std::cerr << distanceThreshold << std::endl;
+	std::cerr << normalAngleThreshold << std::endl;
+	std::cerr << boundaryTest << std::endl;
+
 	buildNearestCorrespondences(
 		cloudData_target_dynamic, cloudData_source_dynamic, 
 		correspondences, correspondences_temp, 
 		correspondences_inverse, correspondences_temp_inverse);
+
+	std::cerr << correspondences->size() + correspondences_inverse->size() << std::endl;
+
 	filterCorrespondencesByDistanceAndNormal(
 		cloudData_target_dynamic, cloudData_source_dynamic, 
 		correspondences, correspondences_temp, 
 		correspondences_inverse, correspondences_temp_inverse);
+
+	std::cerr << correspondences->size() + correspondences_inverse->size() << std::endl;
+
 	if(boundaryTest && boundaries_target != NULL && boundaries_source != NULL)
 	filterCorrespondencesByBoundaries(
 		correspondences, correspondences_temp,
 		correspondences_inverse, correspondences_temp_inverse);
+
+	std::cerr << correspondences->size() + correspondences_inverse->size() << std::endl;
+
 	refineCorrespondences(
 		cloudData_target_dynamic, cloudData_source_dynamic, 
 		correspondences,  correspondences_inverse,

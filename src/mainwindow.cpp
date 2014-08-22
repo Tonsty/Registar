@@ -1129,6 +1129,7 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 		if(pairwiseRegistration) 
 		{
+			std::cerr << (transformation_total * transformationList.back().inverse()).inverse() << std::endl;
 			pairwiseRegistration->estimateRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error1, ovlNumber1);
 			pairwiseRegistration->estimateVirtualRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error2, ovlNumber2);
 		}
