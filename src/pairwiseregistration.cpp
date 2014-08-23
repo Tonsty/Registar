@@ -15,6 +15,9 @@ PairwiseRegistration::PairwiseRegistration(RegistrationData *target, Registratio
 
 	transformation = Eigen::Matrix4f::Identity();
 
+	rmsError_total = 0.0f; /////////////////////////////////////////////////////////
+	transformation_inverse = transformation.inverse();//////////////////////////////////
+
 	// method = POINT_TO_POINT;
 	// distanceThreshold = std::numeric_limits<float>::max();
 	// normalAngleThreshold = 180.0f;
@@ -84,6 +87,8 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		}
 		pcl_correspondences.swap(pcl_correspondences_temp);
 
+		std::cerr << pcl_correspondences.size() << std::endl;
+
 		float normalAngleThreshold = correspondencesComputationParameters.normalAngleThreshold;
 		float NAthreshold = cosf(normalAngleThreshold / 180.0f * M_PI);
 		float distanceThreshold = correspondencesComputationParameters.distanceThreshold;
@@ -107,6 +112,8 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		}
 		pcl_correspondences.swap(pcl_correspondences_temp);
 
+		std::cerr << pcl_correspondences.size() << std::endl;
+
 		if (correspondencesComputationParameters.boundaryTest)
 		{
 			pcl_correspondences_temp.clear();
@@ -118,6 +125,8 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 			}
 			pcl_correspondences.swap(pcl_correspondences_temp);
 		}
+
+		std::cerr << pcl_correspondences.size() << std::endl;
 
 		CorrespondenceComputationMethod method = correspondencesComputationParameters.method;
 		switch(method)
@@ -238,6 +247,10 @@ void PairwiseRegistration::reinitialize()///////////////////////////////////////
 	
 	if(cloudVisualizer) cloudVisualizer->updateCloud(target->cloudData, "target", 0, 0, 255);
 	if(cloudVisualizer) cloudVisualizer->updateCloud(source->cloudData, "source", 255, 0, 0);
+
+	rmsError_total = 0.0f;
+	squareErrors_total.clear();
+	transformation_inverse = transformation.inverse();
 }
 
 void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)//////////////////////////////////////////////////////////////////
@@ -247,6 +260,10 @@ void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformati
 	CloudDataPtr cloudData_temp(new CloudData);
 	pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_temp, this->transformation);
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_temp, "source", 255, 0, 0);
+
+	rmsError_total = 0.0f;
+	squareErrors_total.clear();
+	transformation_inverse = transformation.inverse();
 }
 
 void PairwiseRegistration::process(QVariantMap parameters)//////////////////////////////////////////////////////////////////////////////////////////
@@ -300,10 +317,39 @@ void PairwiseRegistration::process(QVariantMap parameters)//////////////////////
 		computeSquareErrors(correspondences, squareErrors_total, rmsError_total);		
 		//renderErrorMap();
 	}
+	else if (command == "Export")
+	{
+		exportTransformation();
+	}
 }
 
-void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber){} //////////////////////////
-void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber){} /////////////////////
+void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber)/////////////////////
+{
+	CorrespondencesComputationParameters correspondencesComputationParameters;
+
+	correspondencesComputationParameters.method = POINT_TO_PLANE;
+	correspondencesComputationParameters.distanceThreshold = 0.12f;
+	correspondencesComputationParameters.normalAngleThreshold = 45.0f;
+	correspondencesComputationParameters.boundaryTest = true;
+	correspondencesComputationParameters.biDirectional = true;
+
+	CorrespondencesComputationData correspondencesComputationData;
+	Correspondences correspondences;
+	preCorrespondences(target, source, transformation, 
+		correspondencesComputationParameters, correspondences, correspondencesComputationData);
+
+	float rmsError_total;
+	std::vector<float> squareErrors_total;
+	computeSquareErrors(correspondences, squareErrors_total, rmsError_total);
+
+	rmsError = rmsError_total;
+	ovlNumber = squareErrors_total.size();
+}
+
+void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber)/////////////////////
+{
+
+} 
 
 void PairwiseRegistration::computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total)////////////////////
 {
@@ -327,7 +373,7 @@ void PairwiseRegistration::renderErrorMap()
 	Eigen::Vector3f red(250, 0, 0);
 	Eigen::Vector3f green(0, 250, 0);
 	Eigen::Vector3f blue(0, 0, 250);
-	// float redError = 0.005f;
+ //    float redError = 0.005f;
  //    float greenError = 0.0001f ;
  //    float blueError = 0.0f;
 
@@ -352,8 +398,8 @@ void PairwiseRegistration::renderErrorMap()
 		//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
 	} 
 
-	// qDebug() << QString::number(correspondences_inverse->size());
-	// qDebug() << QString::number(correspondences->size());
+ //    qDebug() << QString::number(correspondences_inverse->size());
+ //    qDebug() << QString::number(correspondences->size());
 
  //    for (int i = 0; i < correspondences_inverse->size(); ++i)
  //    {
@@ -421,6 +467,12 @@ void PairwiseRegistration::renderErrorMap()
 
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target_temp, "target");
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_temp, "source");
+}
+
+void PairwiseRegistration::exportTransformation()/////////////////////////////////////////////////////////////
+{
+	source->cloud->setRegistrationTransformation(transformation * source->cloud->getTransformation());
+	//transformation = Eigen::Matrix4f::Identity();
 }
 
 

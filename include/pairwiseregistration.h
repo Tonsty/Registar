@@ -99,6 +99,7 @@ public:
 
 	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);////////////////////
 	void renderErrorMap();////////////////////////////////////////////////////////////
+	void exportTransformation();///////////////////////////////////////////////////////////////////////
 };
 
 class PairwiseRegistrationManager : public QObject

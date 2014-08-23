@@ -70,7 +70,7 @@
            <item row="1" column="0">
             <widget class="QPushButton" name="initializeCyclePushButton">
              <property name="text">
-              <string>Initialize</string>
+              <string>(Re)Initialize</string>
              </property>
             </widget>
            </item>
@@ -163,7 +163,7 @@
            <item row="0" column="0">
             <widget class="QPushButton" name="initializePairPushButton">
              <property name="text">
-              <string>Initialize</string>
+              <string>(Re)Initialize</string>
              </property>
             </widget>
            </item>

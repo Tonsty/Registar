@@ -1058,6 +1058,14 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 					pairwiseRegistration->squareErrors_total.size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
 			}
+			else
+			{
+				pairwiseRegistration->reinitialize();
+				pairwiseRegistrationDialog->showResults(
+					pairwiseRegistration->transformation, 
+					pairwiseRegistration->rmsError_total,
+					pairwiseRegistration->squareErrors_total.size());
+			}
 		}
 	}
 
@@ -1096,14 +1104,22 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
 
-				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target");
-				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source");
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
 
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->transformation, 
 					pairwiseRegistration->rmsError_total,
 					pairwiseRegistration->squareErrors_total.size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
+			}
+			else
+			{
+				pairwiseRegistration->reinitialize();
+				pairwiseRegistrationDialog->showResults(
+					pairwiseRegistration->transformation, 
+					pairwiseRegistration->rmsError_total,
+					pairwiseRegistration->squareErrors_total.size());
 			}
 			prList.append(pairwiseRegistration);
 		}
@@ -1188,6 +1204,7 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 		if(pairwiseRegistration) 
 		{
+			std::cerr << (transformation_total * transformationList.back().inverse()).inverse() << std::endl;
 			pairwiseRegistration->estimateRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error1, ovlNumber1);
 			pairwiseRegistration->estimateVirtualRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error2, ovlNumber2);
 		}
