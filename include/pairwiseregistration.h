@@ -16,8 +16,14 @@ struct Correspondence
 	PointType targetPoint;
 	PointType sourcePoint;
 };
-
 typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
+
+struct CorrespondenceIndex
+{
+	int targetIndex;
+	int sourceIndex;
+};
+typedef std::vector<CorrespondenceIndex, Eigen::aligned_allocator<CorrespondenceIndex> > CorrespondenceIndices;
 
 struct CorrespondencesComputationData
 {
@@ -72,7 +78,8 @@ public:
 
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
 		Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
-		Correspondences &correspondences, CorrespondencesComputationData &correspondencesComputationData);
+		Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 
+		int &inverseStartIndex, CorrespondencesComputationData &correspondencesComputationData);
 
 	static Eigen::Matrix4f registAr(Correspondences &correspondences, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, 
@@ -98,7 +105,7 @@ public:
 	void estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); /////////////////////
 
 	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);////////////////////
-	void renderErrorMap();////////////////////////////////////////////////////////////
+	void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);////////////////////////////////////////////////////////////
 	void exportTransformation();///////////////////////////////////////////////////////////////////////
 };
 
