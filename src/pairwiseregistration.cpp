@@ -1,9 +1,9 @@
 #include <QtCore/QDebug>
+
 #include <pcl/common/transforms.h>
 
 #include "../include/mathutilities.h"
 #include "../include/pairwiseregistration.h"
-
 #include "../include/cloudvisualizer.h"//////////////////////
 
 PairwiseRegistration::PairwiseRegistration(RegistrationData *target, RegistrationData *source, 

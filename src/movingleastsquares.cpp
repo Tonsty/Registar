@@ -1,9 +1,9 @@
 #include <QtCore/QDebug>
-#include <pcl/search/impl/kdtree.hpp>
 
+#define PCL_NO_PRECOMPILE
 #define _OPENMP
+#include "../pcl_bugfix/mls2.h"
 
-#include "../pcl_bugfix/mls2.hpp"
 #include "../include/movingleastsquares.h"
 
 MovingLeastSquares::MovingLeastSquares(){}

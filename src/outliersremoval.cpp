@@ -1,8 +1,10 @@
 #include <QtCore/QDebug>
+//#include "../include/qtbase.h"
+
+#define PCL_NO_PRECOMPILE
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
-//#include "../include/qtbase.h"
 #include "../include/outliersremoval.h" 
 
 OutliersRemoval::OutliersRemoval(){}

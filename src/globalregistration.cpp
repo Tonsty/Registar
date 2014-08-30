@@ -36,5 +36,12 @@ CycleRegistration* CycleRegistrationManager::getCycleRegistration(QString cloudN
 	return findChild<CycleRegistration*>(cloudNameCycle);
 }
 
+GlobalRegistration::GlobalRegistration(QList<PairwiseRegistration*> prList, QList<CycleRegistration*> crList, QObject *parent)
+{
+	
+}
 
+GlobalRegistration::~GlobalRegistration()
+{
 
+}

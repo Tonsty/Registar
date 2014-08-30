@@ -1,7 +1,7 @@
 #ifndef GLOBALREGISTRATION_H
 #define GLOBALREGISTRATION_H
 
-#include <QtGui/QWidget>
+#include <QtCore/QObject>
 
 #include "pairwiseregistration.h"
 
@@ -29,15 +29,16 @@ public:
 	CycleRegistration* getCycleRegistration(QString cloudNameCycle);
 };
 
-// class GlobalRegistration : public QObject
-// {
-// 	Q_OBJECT
+class GlobalRegistration : public QObject
+{
+	Q_OBJECT
 
-// public:
-// 	GlobalRegistration(QObject *parent = 0);
-// 	~GlobalRegistration();
-// };
+public:
+	GlobalRegistration(QList<PairwiseRegistration*> prList, QList<CycleRegistration*> crList, QObject *parent = 0);
+	~GlobalRegistration();
 
-
+	QList<PairwiseRegistration*> prList;
+	QList<CycleRegistration*> crList;
+};
 
 #endif 

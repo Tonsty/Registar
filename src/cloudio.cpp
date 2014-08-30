@@ -1,9 +1,11 @@
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+
+#define PCL_NO_PRECOMPILE
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 //#include <pcl/io/png_io.h>
 #include <pcl/filters/filter.h>
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
 
 #include "../include/cloudio.h"
 
