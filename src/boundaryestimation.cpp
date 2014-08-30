@@ -1,8 +1,10 @@
 #include <QtCore/QDebug>
+//#include "../include/qtbase.h"
+
+#define PCL_NO_PRECOMPILE
 #include <pcl/features/boundary.h>
 #include <pcl/filters/extract_indices.h>
 
-//#include "../include/qtbase.h"
 #include "../include/boundaryestimation.h" 
 
 BoundaryEstimation::BoundaryEstimation(){}

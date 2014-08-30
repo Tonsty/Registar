@@ -1,9 +1,11 @@
 #include <QtCore/QDebug>
-#include <pcl/segmentation/extract_clusters.h>
+//#include "../include/qtbase.h"
+
+#define PCL_NO_PRECOMPILE
 #include <pcl/common/io.h>
+#include <pcl/segmentation/extract_clusters.h>
 #include <pcl/filters/extract_indices.h>
 
-//#include "../include/qtbase.h"
 #include "../pcl_bugfix/gpu_extract_clusters2.hpp"
 #include "../include/euclideanclusterextraction.h" 
 

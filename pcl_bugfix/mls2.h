@@ -608,7 +608,7 @@ namespace pcl
 }
 
 #ifdef PCL_NO_PRECOMPILE
-#include <mls2.hpp>
+#include  "mls2.hpp"
 #endif
 
 #endif  /* #ifndef PCL_MLS2_H_ */

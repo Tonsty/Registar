@@ -14,15 +14,14 @@ UI_DIR += ui/
 DEPENDPATH += .
 INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
 LIBS += -L/usr/lib/ \
-					-lQVTK \
-					-lboost_system \
-					-lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics\
-		-L/usr/lib/gcc/x85_64-linux-gnu/ \
-					-lgomp \
-		-L/usr/local/lib/ \
-					-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search \
-					-lpcl_filters -lpcl_segmentation -lpcl_features -lpcl_gpu_containers -lpcl_gpu_octree \
-					-lpcl_gpu_utils -lpcl_sample_consensus
+		-lQVTK \
+		-lboost_system \
+		-lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
+	-L/usr/lib/gcc/x85_64-linux-gnu/ \
+		-lgomp \
+	-L/usr/local/lib/ \
+		-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search \
+		-lpcl_gpu_containers -lpcl_gpu_octree -lpcl_gpu_utils 
 
 QMAKE_CXXFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
