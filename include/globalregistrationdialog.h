@@ -17,7 +17,7 @@ public:
 	GlobalRegistrationDialog(QWidget *parent = 0);
 	virtual ~GlobalRegistrationDialog();
 
-	void showEstimation(Eigen::Matrix4f transformation_total, float error1, float error2, int ovlNumber1, int ovlNumber2);
+	void showEstimation(const Eigen::Matrix4f &transformation_total, float error1, float error2, int ovlNumber1, int ovlNumber2);
 signals:
 	void sendParameters(QVariantMap parameters);
 

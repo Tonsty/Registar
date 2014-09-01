@@ -4,7 +4,7 @@
 #include <Eigen/Dense>
 
 
-inline float getScaleFromTransformation(Eigen::Matrix4f transformation)
+inline float getScaleFromTransformation(const Eigen::Matrix4f &transformation)
 {
 	Eigen::Matrix4f T = transformation;
 	Eigen::Matrix3f R = T.block(0,0,3,3);
@@ -13,7 +13,7 @@ inline float getScaleFromTransformation(Eigen::Matrix4f transformation)
 	return c;
 }
 
-inline Eigen::Matrix4f toRigidTransformation(Eigen::Matrix4f nonRigidTransformation)
+inline Eigen::Matrix4f toRigidTransformation(const Eigen::Matrix4f &nonRigidTransformation)
 {
 	Eigen::Matrix4f T = nonRigidTransformation;
 	Eigen::Matrix3f R = T.block(0,0,3,3);

@@ -127,7 +127,7 @@ CloudVisualizer* PairwiseRegistrationDialog::addCloudVisualizerTab(QString targe
 	return cloudVisualizer;
 }
 
-void PairwiseRegistrationDialog::showResults(Eigen::Matrix4f transformation, float rmsError, int corrNumber)
+void PairwiseRegistrationDialog::showResults(const Eigen::Matrix4f &transformation, float rmsError, int corrNumber)
 {
 	std::stringstream temp;
 	Eigen::Matrix4f T = transformation;

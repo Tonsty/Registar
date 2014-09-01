@@ -54,7 +54,7 @@ QString  Cloud::getCloudName()
 	return this->objectName();
 }
 
-void Cloud::setTransformation(Eigen::Matrix4f transformation)
+void Cloud::setTransformation(const Eigen::Matrix4f &transformation)
 {
 	this->transformation = transformation;
 }
@@ -64,7 +64,7 @@ Eigen::Matrix4f Cloud::getTransformation()
 	return this->transformation;
 }
 
-void Cloud::setRegistrationTransformation(Eigen::Matrix4f registrationTransformation)
+void Cloud::setRegistrationTransformation(const Eigen::Matrix4f &registrationTransformation)
 {
 	this->registrationTransformation = registrationTransformation;
 }

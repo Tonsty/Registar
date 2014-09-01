@@ -3,11 +3,13 @@
 
 #include <QtGui/QWidget>
 #include <QtCore/QVariantMap>
+
+#ifndef Q_MOC_RUN
 #include <pcl/features/boundary.h>
 #include <pcl/gpu/octree/octree.hpp>
-
 // #include "pclbase.h"
 #include "cloud.h"
+#endif
 
 class CloudVisualizer;
 
@@ -76,7 +78,7 @@ public:
 	void initialize();
 	void reinitialize();
 
-	void initializeTransformation(Eigen::Matrix4f transformation);
+	void initializeTransformation(const Eigen::Matrix4f &transformation);
 	void buildNearestCorrespondences(
 		CloudDataPtr cloudData_target_dynamic,
 		CloudDataPtr cloudData_source_dynamic,
@@ -110,8 +112,8 @@ public:
 	void icp(int iterationNumber);
 
 	//void buildNearestCorrespondences_GPU();
-	void estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &error1, int &ovlNumber1);
-	void estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &error2, int &ovlNumber2);
+	void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &error1, int &ovlNumber1);
+	void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &error2, int &ovlNumber2);
 
 	void computeSquareErrors(
 		Eigen::Matrix<float, 3, Eigen::Dynamic> &cloud_src,

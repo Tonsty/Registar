@@ -14,7 +14,7 @@ public:
 	virtual ~CloudManager();
 
 	Cloud* addCloud(CloudDataPtr cloudData, Cloud::FromWhere fromWhere,
-		const QString &fileName = "", Eigen::Matrix4f transformation = Eigen::Matrix4f::Identity() );
+		const QString &fileName = "", const Eigen::Matrix4f &transformation = Eigen::Matrix4f::Identity() );
 	void removeCloud(const QString &cloudName);
 	Cloud* getCloud(const QString &cloudName);
 

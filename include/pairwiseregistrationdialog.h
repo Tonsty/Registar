@@ -4,7 +4,10 @@
 #include <QtGui/QDialog>
 #include <Eigen/Eigen>
 
+#ifndef Q_MOC_RUN
 #include "pclbase.h"
+#endif
+
 #include "ui_PairwiseRegistrationDialog.h"
 
 class CloudVisualizer;
@@ -18,7 +21,7 @@ public:
 	virtual ~PairwiseRegistrationDialog();
 
 	CloudVisualizer* addCloudVisualizerTab(QString targetBySource);
-	void showResults(Eigen::Matrix4f transformation, float rmsError, int corrNumber);
+	void showResults(const Eigen::Matrix4f &transformation, float rmsError, int corrNumber);
 
 public slots:
 	void on_tabWidget_currentChanged(int index);

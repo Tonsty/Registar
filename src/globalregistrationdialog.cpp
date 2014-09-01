@@ -203,7 +203,7 @@ void GlobalRegistrationDialog::on_estimatePushButton_clicked()
 	emit sendParameters(parameters);
 }
 
-void GlobalRegistrationDialog::showEstimation(Eigen::Matrix4f transformation_total, float error1, float error2, int ovlNumber1, int ovlNumber2)
+void GlobalRegistrationDialog::showEstimation(const Eigen::Matrix4f &transformation_total, float error1, float error2, int ovlNumber1, int ovlNumber2)
 {
 	Eigen::Matrix4f transformation = transformation_total;
 

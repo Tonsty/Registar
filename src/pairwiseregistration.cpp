@@ -93,7 +93,7 @@ void PairwiseRegistration::reinitialize()
 	if(cloudVisualizer) cloudVisualizer->addCloud(cloudData_source_dynamic, "source");
 }
 
-void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)
+void PairwiseRegistration::initializeTransformation(const Eigen::Matrix4f &transformation)
 {
 	this->transformation = transformation;
 	pcl::transformPointCloudWithNormals(*cloudData_source, *cloudData_source_dynamic, this->transformation);
@@ -551,7 +551,7 @@ void PairwiseRegistration::icp(int iterationNumber)
 }
 
 
-void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &error1, int &ovlNumber1)
+void PairwiseRegistration::estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &error1, int &ovlNumber1)
 {
 	CloudDataPtr cloudData_target_dynamic(new CloudData);
 	CloudDataPtr cloudData_source_dynamic(new CloudData);
@@ -616,7 +616,7 @@ void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f tran
 	ovlNumber1 = squareErrors_total.size();
 }
 
-void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &error2, int &ovlNumber2)
+void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &error2, int &ovlNumber2)
 {
 	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src_virtual(cloud_src);
 	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src_inverse_virtual(cloud_src_inverse);
