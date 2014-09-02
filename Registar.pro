@@ -1,6 +1,6 @@
 VERSION = 1.0.0
 TEMPLATE = app
-CONFIG += debug_and_release_target warn_off
+CONFIG += debug_and_release debug_and_release_target warn_on
 DEPENDPATH += .
 UI_DIR = ui/
 win32{
