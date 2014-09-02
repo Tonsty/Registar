@@ -15,7 +15,7 @@ QString CloudManager::generateCloudName()
 }
 
 Cloud* CloudManager::addCloud(CloudDataPtr cloudData, Cloud::FromWhere fromWhere,
-	const QString &fileName, Eigen::Matrix4f transformation)
+	const QString &fileName, const Eigen::Matrix4f &transformation)
 {
 	QString cloudName = generateCloudName();
 	return new Cloud(cloudData, fromWhere, fileName, transformation, cloudName, this);

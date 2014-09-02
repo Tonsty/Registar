@@ -3,7 +3,9 @@
 
 #include <QtCore/QObject>
 
+#ifndef Q_MOC_RUN
 #include "pairwiseregistration.h"
+#endif 
 
 class CycleRegistration : public QObject
 {

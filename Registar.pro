@@ -1,33 +1,46 @@
+VERSION = 1.0.1
 TEMPLATE = app
-CONFIG += warn_off debug_and_release
-CONFIG(debug, debug|release){
-	TARGET = Registar_debug
-	MOC_DIR += tmp/moc/debug/
-	OBJECTS_DIR += tmp/obj/debug/
-}else{
-	TARGET = Registar_release
-	MOC_DIR += tmp/moc/release/
-	OBJECTS_DIR += tmp/obj/release/
-}
-RCC_DIR += tmp/rcc/
-UI_DIR += ui/
+CONFIG += debug_and_release_target warn_off 
 DEPENDPATH += .
-INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
-LIBS += -L/usr/lib/ \
-		-lQVTK \
+UI_DIR = ui/
+win32{
+	CONFIG += console
+	INCLUDEPATH += . "C:/Program Files/VTK/include/vtk-5.8/" "C:/Program Files/PCL/include/pcl-1.7/" "C:/Program Files/Eigen/include/eigen3/" "C:/Program Files/flann/include/" "D:/boost_1_55_0/"
+	CONFIG(debug, debug|release){
+		LIBS += -L"C:/Program Files/VTK/lib/vtk-5.8/" \
+			QVTK-gd.lib vtkCommon-gd.lib QVTK-gd.lib vtkRendering-gd.lib vtkFiltering-gd.lib vtkGraphics-gd.lib \
+		-L"D:/boost_1_55_0/stage/lib/" \
+			libboost_system-vc100-mt-gd-1_55.lib \
+		-L"C:/Program Files/PCL/lib/" \
+			pcl_visualization_debug.lib pcl_io_debug.lib pcl_common_debug.lib pcl_kdtree_debug.lib pcl_search_debug.lib \
+			pcl_gpu_containers_debug.lib pcl_gpu_octree_debug.lib pcl_gpu_utils_debug.lib \
+		-L"C:/Program Files/flann/lib/" \
+			flann_cpp_s-gd.lib	
+	}else{
+		LIBS += -L"C:/Program Files/VTK/lib/vtk-5.8/" \
+			QVTK.lib vtkCommon.lib QVTK.lib vtkRendering.lib vtkFiltering.lib vtkGraphics.lib \
+		-L"D:/boost_1_55_0/stage/lib/" \
+			libboost_system-vc100-mt-1_55.lib \
+		-L"C:/Program Files/PCL/lib/" \
+			pcl_visualization_release.lib pcl_io_release.lib pcl_common_release.lib pcl_kdtree_release.lib pcl_search_release.lib \
+			pcl_gpu_containers_release.lib pcl_gpu_octree_release.lib pcl_gpu_utils_release.lib \
+		-L"C:/Program Files/flann/lib/" \
+			flann_cpp_s.lib		
+	}
+}
+unix{
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	LIBS += -L/usr/lib/ \
+			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
-			-lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics\
 		-L/usr/lib/gcc/x85_64-linux-gnu/ \
 			-lgomp \
 		-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search \
 			-lpcl_gpu_containers -lpcl_gpu_octree -lpcl_gpu_utils
-
-QMAKE_CXXFLAGS += -fopenmp
-QMAKE_LFLAGS += -fopenmp
-
-
-# Input
+	QMAKE_CXXFLAGS += -fopenmp
+	QMAKE_LFLAGS += -fopenmp 
+}
 HEADERS += include/mainwindow.h \
 			include/pclbase.h \
 			include/qtbase.h \
@@ -62,7 +75,6 @@ HEADERS += include/mainwindow.h \
 			manual_registration/manual_registration.h \
 			include/mathutilities.h \
 			include/registrationdatamanager.h
-
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
 			src/cloud.cpp \
@@ -91,10 +103,8 @@ SOURCES += src/main.cpp \
 			src/globalregistration.cpp \
 			manual_registration/manual_registration.cpp \
 			src/registrationdatamanager.cpp
-
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
-
 FORMS += ui/MainWindow.ui \
 			ui/EuclideanClusterExtractionDialog.ui \
 			ui/VoxelGridDialog.ui \
@@ -106,6 +116,5 @@ FORMS += ui/MainWindow.ui \
 			diagram/propertiesdialog.ui \
 			ui/GlobalRegistrationDialog.ui \
 			manual_registration/manual_registration.ui
-#output
 
 

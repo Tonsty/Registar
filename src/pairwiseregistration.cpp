@@ -31,7 +31,7 @@ PairwiseRegistration::~PairwiseRegistration() {}
 
 
 void PairwiseRegistration::preCorrespondences(RegistrationData *target, RegistrationData *source,
-	Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+	const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 	Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 
 	int &inverseStartIndex, CorrespondencesComputationData &correspondencesComputationData)
 {
@@ -242,7 +242,7 @@ Eigen::Matrix4f PairwiseRegistration::registAr(Correspondences &correspondences,
 }
 
 Eigen::Matrix4f PairwiseRegistration::icp(RegistrationData *target, RegistrationData *source, 
-	Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+	const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 	PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber)
 {
 	CorrespondencesComputationData correspondencesComputationData;
@@ -250,16 +250,17 @@ Eigen::Matrix4f PairwiseRegistration::icp(RegistrationData *target, Registration
 	Correspondences correspondences;
 	CorrespondenceIndices correspondenceIndices;
 	int inverseStartIndex;
+	Eigen::Matrix4f transformation_temp = initialTransformation;
 	for (int i = 0; i < iterationNumber; ++i)
 	{
 		correspondences.clear();
-		preCorrespondences(target, source, initialTransformation, 
+		preCorrespondences(target, source, transformation_temp, 
 			correspondencesComputationParameters, correspondences, 
 			correspondenceIndices, inverseStartIndex, correspondencesComputationData);
-		initialTransformation = registAr(correspondences, pairwiseRegistrationComputationParameters, 
+		transformation_temp = registAr(correspondences, pairwiseRegistrationComputationParameters, 
 			pairwiseRegistrationComputationData) * initialTransformation;
 	}
-	return initialTransformation;
+	return transformation_temp;
 }
 
 QString PairwiseRegistration::generateName(QString targetName, QString sourceName)
@@ -279,7 +280,7 @@ void PairwiseRegistration::reinitialize()///////////////////////////////////////
 	transformation_inverse = transformation.inverse();
 }
 
-void PairwiseRegistration::initializeTransformation(Eigen::Matrix4f transformation)//////////////////////////////////////////////////////////////////
+void PairwiseRegistration::initializeTransformation(const Eigen::Matrix4f &transformation)//////////////////////////////////////////////////////////////////
 {
 	this->transformation = transformation;
 
@@ -355,7 +356,7 @@ void PairwiseRegistration::process(QVariantMap parameters)//////////////////////
 	}
 }
 
-void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber)/////////////////////
+void PairwiseRegistration::estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber)/////////////////////
 {
 	CorrespondencesComputationParameters correspondencesComputationParameters;
 
@@ -381,7 +382,7 @@ void PairwiseRegistration::estimateRMSErrorByTransformation(Eigen::Matrix4f tran
 	ovlNumber = squareErrors_total.size();
 }
 
-void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber)/////////////////////
+void PairwiseRegistration::estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber)/////////////////////
 {
 	CorrespondencesComputationParameters correspondencesComputationParameters;
 

@@ -1,12 +1,14 @@
 #ifndef PAIRWISEREGISTRATION_H
 #define PAIRWISEREGISTRATION_H
 
-#include <vector>
-#include <Eigen/Dense>
 #include <QtCore/QObject>
 
+#ifndef Q_MOC_RUNC
+#include <vector>
+#include <Eigen/Dense>
 #include "pclbase.h"
 #include "registrationdatamanager.h"
+#endif
 
 #include <QtCore/QVariantMap>  ///////////////////
 class CloudVisualizer;   ///////////////////////
@@ -77,7 +79,7 @@ public:
 	RegistrationData *source;
 
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
-		Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 		Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 
 		int &inverseStartIndex, CorrespondencesComputationData &correspondencesComputationData);
 
@@ -86,7 +88,7 @@ public:
 		PairwiseRegistrationComputationData &pairwiseRegistrationComputationData);
 
 	static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
-		Eigen::Matrix4f initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
 
 	static QString generateName(QString targetName, QString sourceName);
@@ -98,11 +100,11 @@ public:
 
 	void reinitialize();  //////////////////////////////////////////////
 	void process(QVariantMap parameters); //////////////////////////////////
-	void initializeTransformation(Eigen::Matrix4f transformation);///////////////////////
+	void initializeTransformation(const Eigen::Matrix4f &transformation);///////////////////////
 	bool correspondencesOK;/////////////////////////////////////////////////////////////////
 	Eigen::Matrix4f transformation_inverse;////////////////////////////////////////////////////
-	void estimateRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); //////////////////////////
-	void estimateVirtualRMSErrorByTransformation(Eigen::Matrix4f transformation, float &rmsError, int &ovlNumber); /////////////////////
+	void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); //////////////////////////
+	void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); /////////////////////
 
 	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);////////////////////
 	void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);////////////////////////////////////////////////////////////

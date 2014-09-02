@@ -41,6 +41,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QTimer>
 
+#ifndef Q_MOC_RUN
 // Boost
 #include <boost/thread/thread.hpp>
 
@@ -63,6 +64,8 @@
 #include <pcl/visualization/point_cloud_handlers.h>
 
 #include <pcl/registration/transformation_estimation_svd.h>
+
+#endif
 
 typedef pcl::PointXYZRGBNormal PointT;
 

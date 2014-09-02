@@ -2,9 +2,11 @@
 #define CLOUD_H
 
 #include <QtCore/QObject>
-// #include <boost/shared_ptr.hpp>
 
+#ifndef Q_MOC_RUN
 #include "pclbase.h"
+// #include <boost/shared_ptr.hpp>
+#endif
 
 class Cloud : public QObject
 {
@@ -36,10 +38,10 @@ public:
 	void setCloudName(const QString &cloudName);
 	QString  getCloudName();
 
-	void setTransformation(Eigen::Matrix4f transformation);
+	void setTransformation(const Eigen::Matrix4f &transformation);
 	Eigen::Matrix4f getTransformation();
 
-	void setRegistrationTransformation(Eigen::Matrix4f registrationTransformation);
+	void setRegistrationTransformation(const Eigen::Matrix4f &registrationTransformation);
 	Eigen::Matrix4f getRegistrationTransformation();
 
 	void setBoundaries(BoundariesPtr boundaries);

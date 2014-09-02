@@ -2,9 +2,11 @@
 #define CLOUDVISUALIZER_H
 
 #include <QVTKWidget.h>
-#include <pcl/visualization/pcl_visualizer.h>
 
+#ifndef Q_MOC_RUN
+#include <pcl/visualization/pcl_visualizer.h>
 #include "pclbase.h"
+#endif
 
 class Cloud;
 
