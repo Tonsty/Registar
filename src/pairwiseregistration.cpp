@@ -16,6 +16,8 @@ PairwiseRegistration::PairwiseRegistration(RegistrationData *target, Registratio
 
 	transformation = Eigen::Matrix4f::Identity();
 
+	freezed = false;
+
 	rmsError_total = 0.0f; /////////////////////////////////////////////////////////
 	transformation_inverse = transformation.inverse();//////////////////////////////////
 
@@ -99,7 +101,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		}
 		pcl_correspondences.swap(pcl_correspondences_temp);
 
-		std::cerr << pcl_correspondences.size() << std::endl;
+		//std::cerr << pcl_correspondences.size() << std::endl;
 
 		float normalAngleThreshold = correspondencesComputationParameters.normalAngleThreshold;
 		float NAthreshold = cosf(normalAngleThreshold / 180.0f * M_PI);
@@ -124,7 +126,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		}
 		pcl_correspondences.swap(pcl_correspondences_temp);
 
-		std::cerr << pcl_correspondences.size() << std::endl;
+		//std::cerr << pcl_correspondences.size() << std::endl;
 
 		if (correspondencesComputationParameters.boundaryTest)
 		{
@@ -138,7 +140,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 			pcl_correspondences.swap(pcl_correspondences_temp);
 		}
 
-		std::cerr << pcl_correspondences.size() << std::endl;
+		//std::cerr << pcl_correspondences.size() << std::endl;
 
 		CorrespondenceComputationMethod method = correspondencesComputationParameters.method;
 		switch(method)
@@ -284,9 +286,13 @@ void PairwiseRegistration::initializeTransformation(const Eigen::Matrix4f &trans
 {
 	this->transformation = transformation;
 
-	CloudDataPtr cloudData_temp(new CloudData);
-	pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_temp, this->transformation);
-	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_temp, "source", 255, 0, 0);
+    CloudDataPtr cloudData_target_temp(new CloudData);
+    pcl::copyPointCloud(*target->cloudData, *cloudData_target_temp);
+	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target_temp, "target", 0, 0, 255);
+
+	CloudDataPtr cloudData_source_temp(new CloudData);
+	pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_source_temp, this->transformation);
+	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_temp, "source", 255, 0, 0);
 
 	rmsError_total = 0.0f;
 	squareErrors_total.clear();
@@ -334,10 +340,10 @@ void PairwiseRegistration::process(QVariantMap parameters)//////////////////////
 		pairwiseRegistrationComputationParameters.allowScaling = parameters["allowScaling"].toBool();
 		int iterationNumber = parameters["icpNumber"].toInt();
 
-		transformation = icp(target, source, transformation, 
+		Eigen::Matrix4f transformation_temp = icp(target, source, transformation, 
 			correspondencesComputationParameters, pairwiseRegistrationComputationParameters, iterationNumber);
 
-		initializeTransformation(transformation);
+		initializeTransformation(transformation_temp);
 
 		CorrespondencesComputationData correspondencesComputationData;
 		Correspondences correspondences;
@@ -465,8 +471,8 @@ void PairwiseRegistration::renderErrorMap(CorrespondenceIndices &correspondenceI
 		//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
 	} 
 
-    qDebug() << QString::number(inverseStartIndex);
-    qDebug() << QString::number(correspondenceIndices.size() - inverseStartIndex);
+    //qDebug() << QString::number(inverseStartIndex);
+    //qDebug() << QString::number(correspondenceIndices.size() - inverseStartIndex);
 
     for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
     {
@@ -547,8 +553,7 @@ PairwiseRegistrationManager::PairwiseRegistrationManager(QObject *parent) {}
 
 PairwiseRegistrationManager::~PairwiseRegistrationManager() {}
 
-PairwiseRegistration *PairwiseRegistrationManager::addPairwiseRegistration(RegistrationData *target, 
-	RegistrationData *source, QString registrationName)
+PairwiseRegistration *PairwiseRegistrationManager::addPairwiseRegistration(RegistrationData *target, RegistrationData *source, QString registrationName)
 {
 	return new PairwiseRegistration(target, source, registrationName, this);
 }

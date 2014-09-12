@@ -141,10 +141,10 @@ void GlobalRegistrationDialog::on_initializeCyclePushButton_clicked()
 	emit sendParameters(parameters);
 }
 
-void GlobalRegistrationDialog::on_consistentPushButton_clicked()
+void GlobalRegistrationDialog::on_uniformRefinePushButton_clicked()
 {
 	QVariantMap parameters;
-	parameters["command"] = QString("Consistent");
+	parameters["command"] = QString("UniformRefine");
 
 	int offset = cycleComboBox->currentIndex();
 
@@ -170,6 +170,11 @@ void GlobalRegistrationDialog::on_consistentPushButton_clicked()
 	//qDebug() << sources;
 
 	emit sendParameters(parameters);
+}
+
+void GlobalRegistrationDialog::on_nonUniformRefinePushButton_clicked()
+{
+
 }
 
 void GlobalRegistrationDialog::on_estimatePushButton_clicked()

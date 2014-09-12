@@ -29,8 +29,6 @@ void EuclideanClusterExtraction::filter(CloudDataPtr cloudData, QVariantMap para
 	qDebug() << "MinClusterSize : " << QString::number(minClusterSize);
 	qDebug() << "MaxClusterSize : " << QString::number(maxClusterSize);
 
-	qDebug() << "MaxClusterSize : " << QString::number(maxClusterSize);
-
 	qDebug() << "use_cpu : " << use_cpu;
 	qDebug() << "use_gpu : " << use_gpu;
 

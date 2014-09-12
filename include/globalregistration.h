@@ -7,6 +7,13 @@
 #include "pairwiseregistration.h"
 #endif 
 
+enum CycleRegistrationRefineMethod
+{
+	UNIFORM_REFINE,
+	NON_UNIFORM_REFINE,
+	MINIMIZE_REFINE
+};
+
 class CycleRegistration : public QObject
 {
 	Q_OBJECT
@@ -16,7 +23,11 @@ public:
 	~CycleRegistration();
 	
 	QList<PairwiseRegistration*> prList;
+	void refine(CycleRegistrationRefineMethod method = UNIFORM_REFINE);
 
+	void uniform_refine();
+	void non_uniform_refine();
+	void minimize_refine();
 };
 
 class CycleRegistrationManager : public QObject

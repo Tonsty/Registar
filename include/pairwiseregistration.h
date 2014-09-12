@@ -78,6 +78,8 @@ public:
 	RegistrationData *target;
 	RegistrationData *source;
 
+	bool freezed;
+
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
 		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 		Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 

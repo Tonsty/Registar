@@ -24,14 +24,14 @@ public:
 
 public slots:
 	void on_tabWidget_currentChanged(int index);
-	void on_prePushButton_clicked();
+	//void on_prePushButton_clicked();
 
 signals:
 	void sendParameters(QVariantMap parameters);
 
 private slots:
 	void on_initializePushButton_clicked();
-	//void on_prePushButton_clicked();
+	void on_prePushButton_clicked();
 	void on_icpPushButton_clicked();
 	void on_exportPushButton_clicked();
 	void on_manualPushButton_clicked();

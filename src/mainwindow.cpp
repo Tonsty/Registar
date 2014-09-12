@@ -1127,7 +1127,7 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		cycleRegistrationManager->addCycleRegistration(prList);
 	}
 
-	if (parameters["command"] == "Consistent")
+	if (parameters["command"] == "UniformRefine")
 	{
 		//qDebug() << "make circle consistent";
 
@@ -1141,7 +1141,7 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 			cloudNameCycle.append(targets[i]).append(",");
 		}
 		cloudNameCycle.append(targets.back());
-		qDebug() << cloudNameCycle;
+		//qDebug() << cloudNameCycle;
 
 		CycleRegistration* cycleRegistration = cycleRegistrationManager->getCycleRegistration(cloudNameCycle);
 		if (cycleRegistration == NULL)
@@ -1150,25 +1150,8 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 		}
 		else
 		{
-
+			cycleRegistration->uniform_refine();
 		}
-		
-		// QList<PairwiseRegistration*> prList;
-		// for (int i = 0; i < targets.size(); ++i)
-		// {
-		// 	QString cloudName_target = targets[i];
-		// 	QString cloudName_source = sources[i];
-		// 	PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(cloudName_target, cloudName_source);
-		// 	if(pairwiseRegistration == NULL)
-		// 	{
-		// 		qDebug() << cloudName_target << "<-" << cloudName_source << " not ready yet!!!";
-		// 		return;				
-		// 	}
-		// 	else
-		// 	{
-		// 		prList.append(pairwiseRegistration);
-		// 	}
-		// }
 	}
 
 	if (parameters["command"] == "ShowEstimation")
@@ -1204,7 +1187,7 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 		if(pairwiseRegistration) 
 		{
-			std::cerr << (transformation_total * transformationList.back().inverse()).inverse() << std::endl;
+			//std::cerr << (transformation_total * transformationList.back().inverse()).inverse() << std::endl;
 			pairwiseRegistration->estimateRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error1, ovlNumber1);
 			pairwiseRegistration->estimateVirtualRMSErrorByTransformation((transformation_total * transformationList.back().inverse()).inverse(), error2, ovlNumber2);
 		}
@@ -1259,17 +1242,6 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 			}
 
 		}
-		// if (pairwiseRegistration == NULL)
-		// {
-		// 	qDebug() << "Still Uninitialized";
-		// }
-		// else 
-		// {
-		// 	pairwiseRegistration->process(parameters);
-		// 	Cloud *cloud_source= cloudManager->getCloud(cloudName_source);
-		// 	cloudVisualizer->updateCloud(cloud_source);
-		// 	pairwiseRegistrationDialog->showResults(pairwiseRegistration->transformation, pairwiseRegistration->squareErrors);
-		// }
 	}
 }
 

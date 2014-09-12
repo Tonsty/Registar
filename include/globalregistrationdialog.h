@@ -34,7 +34,8 @@ private slots:
 	void on_initializeCyclePushButton_clicked();
 
 	void on_estimatePushButton_clicked();
-	void on_consistentPushButton_clicked();
+	void on_uniformRefinePushButton_clicked();
+	void on_nonUniformRefinePushButton_clicked();
 	void on_sendRelationPushButton_clicked();
 	void on_exportPushButton_clicked();
 
