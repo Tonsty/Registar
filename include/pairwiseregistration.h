@@ -2,6 +2,7 @@
 #define PAIRWISEREGISTRATION_H
 
 #include <QtCore/QObject>
+#include <QtCore/QVariantMap>
 
 #ifndef Q_MOC_RUNC
 #include <vector>
@@ -10,14 +11,12 @@
 #include "registrationdatamanager.h"
 #endif
 
-#include <QtCore/QVariantMap>  ///////////////////
-class CloudVisualizer;   ///////////////////////
-
 struct Correspondence
 {
 	PointType targetPoint;
 	PointType sourcePoint;
 };
+
 typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
 
 struct CorrespondenceIndex
@@ -38,6 +37,7 @@ enum CorrespondenceComputationMethod
 {
 	POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
 };
+
 struct CorrespondencesComputationParameters
 {
 	CorrespondenceComputationMethod method;
@@ -57,6 +57,7 @@ enum PairwiseRegistrationComputationMethod
 {
 	SVD, UMEYAMA
 };
+
 struct PairwiseRegistrationComputationParameters
 {
 	PairwiseRegistrationComputationMethod method;
@@ -73,12 +74,27 @@ public:
 		QString registrationName, QObject *parent = 0);
 	virtual ~PairwiseRegistration();
 
-	Eigen::Matrix4f transformation;
+	virtual void initialize();
+	virtual void initializeTransformation(const Eigen::Matrix4f &transformation);
+	virtual void process(QVariantMap parameters);
 
-	RegistrationData *target;
-	RegistrationData *source;
+	void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); 
+	void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber);
 
-	bool freezed;
+	inline RegistrationData* getTarget() {return target;}
+	inline RegistrationData* getSource() {return source;}
+	
+	inline Eigen::Matrix4f getTransformation() {return transformation;}
+
+	inline void setFreezed(bool freezed) {this->freezed = freezed;}
+	inline bool getFreezed() {return freezed;}
+
+	inline bool getErrorPrecomputed() {return errorPrecomputed;}
+
+	inline float getRMSError() {return rmsError_total;}
+	inline std::vector<float> getSquareErrors() {return squareErrors_total;}
+
+	static inline QString generateName(QString targetName, QString sourceName) {return targetName + "<-" + sourceName;}
 
 	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
 		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
@@ -93,24 +109,19 @@ public:
 		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
 
-	static QString generateName(QString targetName, QString sourceName);
+	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);
 
-	CloudVisualizer *cloudVisualizer;  //////////////////////////////
+protected:
+	Eigen::Matrix4f transformation;
 
-	float rmsError_total;  /////////////////////////////////////////////
-	std::vector<float> squareErrors_total; /////////////////////////////
+	RegistrationData *target;
+	RegistrationData *source;
 
-	void reinitialize();  //////////////////////////////////////////////
-	void process(QVariantMap parameters); //////////////////////////////////
-	void initializeTransformation(const Eigen::Matrix4f &transformation);///////////////////////
-	bool correspondencesOK;/////////////////////////////////////////////////////////////////
-	Eigen::Matrix4f transformation_inverse;////////////////////////////////////////////////////
-	void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); //////////////////////////
-	void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); /////////////////////
-
-	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);////////////////////
-	void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);////////////////////////////////////////////////////////////
-	void exportTransformation();///////////////////////////////////////////////////////////////////////
+	bool freezed;
+	
+	bool errorPrecomputed;
+	float rmsError_total;
+	std::vector<float> squareErrors_total;
 };
 
 class PairwiseRegistrationManager : public QObject
@@ -120,10 +131,13 @@ class PairwiseRegistrationManager : public QObject
 public:
 	PairwiseRegistrationManager(QObject *parent = 0);
 	virtual ~PairwiseRegistrationManager();
-	PairwiseRegistration *addPairwiseRegistration(RegistrationData *target, RegistrationData *source, 
-		QString registrationName);
+	PairwiseRegistration *addPairwiseRegistration(RegistrationData *target, RegistrationData *source, QString registrationName);
+	void addPairwiseRegistration(PairwiseRegistration *pairwiseRegistration);
 	void removePairwiseRegistration(QString registrationName);
 	PairwiseRegistration *getPairwiseRegistration(QString registrationName);
+
+	QList<PairwiseRegistration*> getAllPairwiseRegistrations();
+	QStringList getAllPairwiseRegistrationNames();	
 };
 
 

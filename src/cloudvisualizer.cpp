@@ -25,7 +25,7 @@ CloudVisualizer::~CloudVisualizer(){}
 void CloudVisualizer::createPCLVisualizer()
 {
 	visualizer.reset(new Visualizer("", false));
-	//visualizer->setBackgroundColor(1.0, 1.0, 1.0);
+	visualizer->setBackgroundColor(1.0, 1.0, 1.0);
 }
 
 void CloudVisualizer::connectPCLVisualizerandQVTK()

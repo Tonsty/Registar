@@ -30,6 +30,8 @@ public:
 	void removeRegistrationData(QString dataName);
 	RegistrationData* getRegistrationData(QString dataName);
 
+	QList<RegistrationData*> getAllRegistrationDatas();
+	QStringList getAllRegistrationDataNames();
 };
 
 #endif

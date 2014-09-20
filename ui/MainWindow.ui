@@ -474,7 +474,7 @@
   <customwidget>
    <class>CloudBrowser</class>
    <extends>QTreeWidget</extends>
-   <header>../include/cloudbrowser.h</header>
+   <header>include/cloudbrowser.h</header>
   </customwidget>
  </customwidgets>
  <resources>

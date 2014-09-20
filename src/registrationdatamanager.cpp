@@ -1,3 +1,4 @@
+#include <QtCore/QStringList>
 #include <pcl/common/transforms.h>
 
 #include "../include/registrationdatamanager.h"
@@ -37,4 +38,20 @@ void RegistrationDataManager::removeRegistrationData(QString dataName)
 RegistrationData* RegistrationDataManager::getRegistrationData(QString dataName)
 {
 	return findChild<RegistrationData*>(dataName);
+}
+
+QList<RegistrationData*> RegistrationDataManager::getAllRegistrationDatas()
+{
+	return findChildren<RegistrationData*>();
+}
+
+QStringList RegistrationDataManager::getAllRegistrationDataNames()
+{
+	QStringList allRegistrationDataNames;
+	QList<RegistrationData*> allRegistrationDatas = getAllRegistrationDatas();
+	for (int i = 0; i < allRegistrationDatas.size(); ++i)
+	{
+		allRegistrationDataNames << allRegistrationDatas[i]->objectName();
+	}
+	return allRegistrationDataNames;	
 }

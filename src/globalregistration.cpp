@@ -40,7 +40,7 @@ void CycleRegistration::uniform_refine()
 	std::vector< Eigen::AngleAxisf > R(prList.size());
 	std::vector< Eigen::AngleAxisf > E(prList.size());
 
-	for (int i = 0; i < prList.size(); ++i) R[i] = Eigen::AngleAxisf(toRigidTransformation(prList[i]->transformation).block<3, 3>(0, 0)); // normalize to rigid
+	for (int i = 0; i < prList.size(); ++i) R[i] = Eigen::AngleAxisf(toRigidTransformation(prList[i]->getTransformation()).block<3, 3>(0, 0)); // normalize to rigid
 	for (int i = 0; i < E.size(); ++i)
 	{
 		E[i] = Eigen::AngleAxisf(Eigen::Matrix3f::Identity());
@@ -80,7 +80,7 @@ void CycleRegistration::uniform_refine()
 	//std::cout << A << std::endl;
 
 	std::vector<Eigen::Vector3f> t(prList.size());
-	for (int i = 0; i < t.size(); ++i) t[i] = toRigidTransformation(prList[i]->transformation).block<3, 1>(0, 3);
+	for (int i = 0; i < t.size(); ++i) t[i] = toRigidTransformation(prList[i]->getTransformation()).block<3, 1>(0, 3);
 
 	Eigen::VectorXf b= Eigen::VectorXf::Zero(3*M.size()+3);
 	for (int i = 0; i < t.size(); ++i) b.block<3, 1>(3*i, 0) = t[i] * 2.0f;
@@ -126,9 +126,9 @@ CycleRegistration* CycleRegistrationManager::addCycleRegistration(QList<Pairwise
 	QString cloudNameCycle = "";
 	for (int i = 0; i < prList.size()-1; ++i)
 	{
-		cloudNameCycle.append(prList[i]->target->objectName()).append(",");
+		cloudNameCycle.append(prList[i]->getTarget()->objectName()).append(",");
 	}
-	cloudNameCycle.append(prList.back()->target->objectName());
+	cloudNameCycle.append(prList.back()->getTarget()->objectName());
 	//qDebug() << cloudNameCycle;
 	cycleRegistration->setObjectName(cloudNameCycle);
 	return cycleRegistration;

@@ -21,6 +21,7 @@
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
+#include "../include/pairwiseregistrationinteractor.h"
 #include "../include/registrationdatamanager.h"
 
 #include "../diagram/diagramwindow.h"
@@ -228,20 +229,20 @@ bool MainWindow::on_saveAsAction_triggered()
 		Eigen::Matrix4f transformation = cloud->getTransformation();
 		BoundariesPtr boundaries = cloud->getBoundaries();
 		QString fileName = cloud->getFileName();
-		QString newfileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as PointCloud").arg(cloudName).arg(strippedName(fileName)), ".", tr("PointCloud files (*.ply)"));
-		if (newfileName.isEmpty())
+		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as PointCloud").arg(cloudName).arg(strippedName(fileName)), ".", tr("PointCloud files (*.ply)"));
+		if (newFileName.isEmpty())
 		{
 			qDebug() << cloudName << "cancel saveAs!";
 			it++;
 			continue;
 		}
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		CloudIO::exportCloudData(newfileName, cloudData);
-		CloudIO::exportTransformation(newfileName, transformation);
-		CloudIO::exportBoundaries(fileName, boundaries);
+		CloudIO::exportCloudData(newFileName, cloudData);
+		CloudIO::exportTransformation(newFileName, transformation);
+		CloudIO::exportBoundaries(newFileName, boundaries);
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
-		qDebug() << cloudName << " saved as " << newfileName;
+		qDebug() << cloudName << " saved as " << newFileName;
 		it++;
 	}
 
@@ -860,9 +861,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 		if (pairwiseRegistration != NULL)
 		{
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 		}
 	}
 
@@ -882,27 +883,29 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 				Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 				registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
 			}
-			pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+			//pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+			pairwiseRegistration = new PairwiseRegistrationInteractor(registrationData_target, registrationData_source, prName);
+			pairwiseRegistrationManager->addPairwiseRegistration(pairwiseRegistration);
 
 			CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-			pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+			dynamic_cast<PairwiseRegistrationInteractor*>(pairwiseRegistration)->setCloudVisualizer(cloudVisualizer);
 
 			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
 			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
 
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 			//pairwiseRegistration->cloudVisualizer->repaint();
 		}
 		else 
 		{
-			pairwiseRegistration->reinitialize();
+			pairwiseRegistration->initialize();
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 		}	
 	}
 
@@ -921,9 +924,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			QApplication::restoreOverrideCursor();
 			QApplication::beep();
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total, 
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(), 
+				pairwiseRegistration->getSquareErrors().size());
 		}
 	}
 
@@ -942,9 +945,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			QApplication::restoreOverrideCursor();
 			QApplication::beep();
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 
 		}
 	}
@@ -961,9 +964,9 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			Cloud *cloud_source= cloudManager->getCloud(cloudName_source);
 			cloudVisualizer->updateCloud(cloud_source);
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 		}
 	}
 
@@ -982,8 +985,8 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 					this, SLOT(on_pairwiseRegistrationDialog_sendParameters(QVariantMap)));
 			}
 			manualRegistration->setWindowTitle(cloudName_source + "->" + cloudName_target);
-			manualRegistration->setSrcCloud(pairwiseRegistration->source->cloudData, cloudName_source);
-			manualRegistration->setDstCloud(pairwiseRegistration->target->cloudData, cloudName_target);
+			manualRegistration->setSrcCloud(pairwiseRegistration->getSource()->cloudData, cloudName_source);
+			manualRegistration->setDstCloud(pairwiseRegistration->getTarget()->cloudData, cloudName_target);
 			manualRegistration->clearSrcVis();
 			manualRegistration->clearDstVis();
 			manualRegistration->showSrcCloud();
@@ -1004,12 +1007,10 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 		{
 			qDebug() << "OK";
 			pairwiseRegistration->initializeTransformation(parameters["transformation"].value<Eigen::Matrix4f>());
-			pairwiseRegistration->correspondencesOK = false;
-			//pairwiseRegistrationDialog->on_prePushButton_clicked();
 			pairwiseRegistrationDialog->showResults(
-				pairwiseRegistration->transformation, 
-				pairwiseRegistration->rmsError_total,
-				pairwiseRegistration->squareErrors_total.size());
+				pairwiseRegistration->getTransformation(), 
+				pairwiseRegistration->getRMSError(),
+				pairwiseRegistration->getSquareErrors().size());
 		}
 	}
 }
@@ -1044,27 +1045,29 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 					registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
 				}
-				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+				//pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+				pairwiseRegistration = new PairwiseRegistrationInteractor(registrationData_target, registrationData_source, prName);
+				pairwiseRegistrationManager->addPairwiseRegistration(pairwiseRegistration);
 
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+				dynamic_cast<PairwiseRegistrationInteractor*>(pairwiseRegistration)->setCloudVisualizer(cloudVisualizer);
 
 				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
 				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
 
 				pairwiseRegistrationDialog->showResults(
-					pairwiseRegistration->transformation, 
-					pairwiseRegistration->rmsError_total,
-					pairwiseRegistration->squareErrors_total.size());
+					pairwiseRegistration->getTransformation(), 
+					pairwiseRegistration->getRMSError(),
+					pairwiseRegistration->getSquareErrors().size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
 			}
 			else
 			{
-				pairwiseRegistration->reinitialize();
+				pairwiseRegistration->initialize();
 				pairwiseRegistrationDialog->showResults(
-					pairwiseRegistration->transformation, 
-					pairwiseRegistration->rmsError_total,
-					pairwiseRegistration->squareErrors_total.size());
+					pairwiseRegistration->getTransformation(), 
+					pairwiseRegistration->getRMSError(),
+					pairwiseRegistration->getSquareErrors().size());
 			}
 		}
 	}
@@ -1099,27 +1102,29 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 					registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
 				}
-				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
-
+				//pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+				pairwiseRegistration = new PairwiseRegistrationInteractor(registrationData_target, registrationData_source, prName);
+				pairwiseRegistrationManager->addPairwiseRegistration(pairwiseRegistration);
+				
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
-				pairwiseRegistration->cloudVisualizer = cloudVisualizer;
+				dynamic_cast<PairwiseRegistrationInteractor*>(pairwiseRegistration)->setCloudVisualizer(cloudVisualizer);
 
 				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
 				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
 
 				pairwiseRegistrationDialog->showResults(
-					pairwiseRegistration->transformation, 
-					pairwiseRegistration->rmsError_total,
-					pairwiseRegistration->squareErrors_total.size());
+					pairwiseRegistration->getTransformation(), 
+					pairwiseRegistration->getRMSError(),
+					pairwiseRegistration->getSquareErrors().size());
 				//pairwiseRegistration->cloudVisualizer->repaint();
 			}
 			else
 			{
-				pairwiseRegistration->reinitialize();
+				pairwiseRegistration->initialize();
 				pairwiseRegistrationDialog->showResults(
-					pairwiseRegistration->transformation, 
-					pairwiseRegistration->rmsError_total,
-					pairwiseRegistration->squareErrors_total.size());
+					pairwiseRegistration->getTransformation(), 
+					pairwiseRegistration->getRMSError(),
+					pairwiseRegistration->getSquareErrors().size());
 			}
 			prList.append(pairwiseRegistration);
 		}
@@ -1172,8 +1177,8 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 				qDebug() << cloudName_target << "<-" << cloudName_source << " not ready yet!!!";
 				return;				
 			}
-			if(pairwiseRegistration) transformationList.append(pairwiseRegistration->transformation);
-			else transformationList.append(reversePairwiseRegistration->transformation_inverse);
+			if(pairwiseRegistration) transformationList.append(pairwiseRegistration->getTransformation());
+			else transformationList.append(reversePairwiseRegistration->getTransformation().inverse());
 		}
 		Eigen::Matrix4f transformation_total = Eigen::Matrix4f::Identity();
 		for (int i = 0; i < transformationList.size(); ++i) transformation_total *= transformationList[i];
@@ -1232,8 +1237,8 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 						qDebug() << cloudName_target << "<-" << cloudName_source << " not ready yet!!!";
 						return;				
 					}
-					if(pairwiseRegistration) transformation_temp *= pairwiseRegistration->transformation;
-					else transformation_temp *= reversePairwiseRegistration->transformation_inverse;
+					if(pairwiseRegistration) transformation_temp *= pairwiseRegistration->getTransformation();
+					else transformation_temp *= reversePairwiseRegistration->getTransformation().inverse();
 
 					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
 					cloud_source->setRegistrationTransformation( transformation_temp * cloud_source->getTransformation());

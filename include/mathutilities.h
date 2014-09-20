@@ -2,6 +2,7 @@
 #define MATHUTILITIES_H
 
 #include <Eigen/Dense>
+#include <time.h>
 
 #include "pclbase.h"
 
@@ -43,6 +44,56 @@ inline PointType transformPointWithNormal(const PointType &point, const Eigen::M
 	return ret;
 }
 
+inline float randomFloat(float min = 0.0f, float max = 1.0f)
+{
+	//srand((unsigned int)time(0));
 
+	int a = rand() % 65536;
+	float b = ((float)a)/65535;
+
+	return min + ( max - min ) * b;
+}
+
+inline Eigen::Vector3f randomUnitVector()
+{
+	float u0;
+	float u1;
+	do{
+		u0 = randomFloat(-1.0f, 1.0f);
+		u1 = randomFloat(-1.0f, 1.0f);
+	}while( (u0 * u0 + u1 * u1 ) > 1.0f );
+
+	float x0 = 2 * u0 * sqrt(1 - u0 * u0 - u1 * u1);
+	float x1 = 2 * u1 * sqrt(1 - u0 * u0 - u1 * u1);
+	float x2 = 1 - 2 * (u0 * u0 + u1 * u1);
+
+	return Eigen::Vector3f( x0, x1, x2 );	
+}
+
+inline Eigen::AngleAxisf randomRotation( float angleScale = 1.0f * M_PI)
+{
+	return Eigen::AngleAxisf( randomFloat() * angleScale, randomUnitVector() );
+}
+
+inline Eigen::Vector3f randomTranslation( float translationScale = 1.0f )
+{
+	float u0;
+	float u1;
+	float u2;
+	do{
+		u0 = randomFloat(-1.0f, 1.0f);
+		u1 = randomFloat(-1.0f, 1.0f);
+		u2 = randomFloat(-1.0f, 1.0f);
+	}while( (u0 * u0 + u1 * u1 + u2 * u2) > 1.0f );
+	return Eigen::Vector3f(u0, u1, u2) * translationScale;
+}
+
+inline Eigen::Matrix4f randomRigidTransformation(float angleScale = 1.0f * M_PI, float translationScale = 1.0f )
+{
+	Eigen::Matrix4f randomRigidTransf = Eigen::Matrix4f::Identity();
+	randomRigidTransf.block<3,3>(0,0) = randomRotation( angleScale ).toRotationMatrix();
+	randomRigidTransf.block<3,1>(0,3) = randomTranslation( translationScale );
+	return randomRigidTransf;
+}
 
 #endif

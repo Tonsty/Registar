@@ -74,7 +74,9 @@ HEADERS += include/mainwindow.h \
 			include/globalregistration.h \
 			manual_registration/manual_registration.h \
 			include/mathutilities.h \
-			include/registrationdatamanager.h
+			include/registrationdatamanager.h \
+			include/pairwiseregistrationinteractor.h
+#			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
 			src/cloud.cpp \
@@ -102,7 +104,9 @@ SOURCES += src/main.cpp \
 			src/globalregistrationdialog.cpp \
 			src/globalregistration.cpp \
 			manual_registration/manual_registration.cpp \
-			src/registrationdatamanager.cpp
+			src/registrationdatamanager.cpp \
+			src/pairwiseregistrationinteractor.cpp
+#			src/globalregistrationinteractor.cpp \
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
 FORMS += ui/MainWindow.ui \
