@@ -37,7 +37,7 @@ bool CloudIO::importCloudData(const QString &fileName, CloudDataPtr &cloudData)
 bool CloudIO::importTransformation(const QString &fileName, Eigen::Matrix4f &transformation)
 {
 	QFileInfo fileInfo(fileName);
-	QString tfFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".tf";
+	QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
 
 	qDebug() << tfFileName;
 
@@ -64,7 +64,7 @@ bool CloudIO::importTransformation(const QString &fileName, Eigen::Matrix4f &tra
 bool CloudIO::importBoundaries(const QString &fileName, BoundariesPtr &boundaries)
 {
 	QFileInfo fileInfo(fileName);
-	QString bdFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".bd";
+	QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
 
 	qDebug() << bdFileName;
 
@@ -94,7 +94,7 @@ bool CloudIO::exportCloudData(const QString &fileName, CloudDataPtr &cloudData)
 bool CloudIO::exportTransformation(const QString &fileName, Eigen::Matrix4f &transformation)
 {
 	QFileInfo fileInfo(fileName);
-	QString tfFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".tf";
+	QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
 
 	qDebug() << tfFileName;
 
@@ -121,7 +121,7 @@ bool CloudIO::exportTransformation(const QString &fileName, Eigen::Matrix4f &tra
 bool CloudIO::exportBoundaries(const QString &fileName, BoundariesPtr &boundaries)
 {
 	QFileInfo fileInfo(fileName);
-	QString bdFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".bd";
+	QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
 
 	qDebug() << bdFileName;
 
