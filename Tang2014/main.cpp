@@ -1,363 +1,278 @@
-#include <iostream>
-#include <vector>
-#include <Eigen/Dense>
-#include <Eigen/SVD>
+#include <QtCore/QFileInfo>
+
+#include <pcl/io/ply_io.h>
+#include <pcl/console/parse.h>
+#include <pcl/visualization/pcl_plotter.h>
+//#include <math.h>
+
+#include "../include/pclbase.h"
+#include "../include/qtbase.h"
+#include "../include/cloud.h"
+#include "../include/cloudmanager.h"
+#include "../include/cloudio.h"
+#include "../include/pairwiseregistration.h"
+#include "../include/globalregistration.h"
+#include "../include/mathutilities.h"
 
 #include "SRoMCPS.h"
 
-int main(int argc, char**argv)
+int main(int argc, char **argv)
 {
-	ScanIndexPairs sipairs;
-	sipairs.push_back(ScanIndexPair(0,1));
-
-	std::vector<PointPairWithWeights> ppairwwss;
-	PointPairWithWeights ppairwws;
-
-	Eigen::AngleAxis<Scalar> angleAxis = Eigen::AngleAxis<Scalar>(0.5 * M_PI, Eigen::Matrix<Scalar, 3, 1>::UnitZ());
-	Eigen::Matrix<Scalar, 3, 1> translation = Eigen::Matrix<Scalar, 3, 1>(10.0, 0.0, 0.0);
-
-	PointPairWithWeight ppairww1;
-	ppairww1.w = 1.0;
-	ppairww1.ppair.first = Eigen::Matrix<Scalar, 3, 1>(-1.0, 0, 0);
-	ppairww1.ppair.second = angleAxis.toRotationMatrix() * ppairww1.ppair.first + translation;
-	ppairwws.push_back(ppairww1);
-
-	PointPairWithWeight ppairww2;
-	ppairww2.w = 1.0;
-	ppairww2.ppair.first = Eigen::Matrix<Scalar, 3, 1>(0, 1.5, 0);
-	ppairww2.ppair.second = angleAxis.toRotationMatrix() * ppairww2.ppair.first + translation;
-	ppairwws.push_back(ppairww2);
-
-	PointPairWithWeight ppairww3;
-	ppairww3.w = 1.0;
-	ppairww3.ppair.first = Eigen::Matrix<Scalar, 3, 1>(1.0, 0, 0);
-	ppairww3.ppair.second = angleAxis.toRotationMatrix() * ppairww3.ppair.first + translation;
-	ppairwws.push_back(ppairww3);
-
-
-	PointPairWithWeight ppairww4;
-	ppairww4.w = 1.0;
-	ppairww4.ppair.first = Eigen::Matrix<Scalar, 3, 1>(0.0, 0.75, 1.0);
-	ppairww4.ppair.second = angleAxis.toRotationMatrix() * ppairww4.ppair.first + translation;
-	ppairwws.push_back(ppairww4);
-
-	PointPairWithWeight ppairww5;
-	ppairww5.w = 1.0;
-	ppairww5.ppair.first = Eigen::Matrix<Scalar, 3, 1>(0.3, -0.5, 0.7);
-	ppairww5.ppair.second = angleAxis.toRotationMatrix() * ppairww5.ppair.first + translation;
-	ppairwws.push_back(ppairww5);	
-
-	PointPairWithWeight ppairww6;
-	ppairww6.w = 1.0;
-	ppairww6.ppair.first = Eigen::Matrix<Scalar, 3, 1>(-0.4, -0.8, -0.6);
-	ppairww6.ppair.second = angleAxis.toRotationMatrix() * ppairww6.ppair.first + translation;
-	ppairwws.push_back(ppairww6);	
-
-	ppairwwss.push_back(ppairwws);
-
-	int M = 2;
-	SRoMCPS sromcps(sipairs, ppairwwss, M);
-
-	Scalar sum_error = 0.0;
-	for (int u = 0; u < ppairwwss.size(); ++u)
+	CloudManager* cloudManager = new CloudManager();
+	PairwiseRegistrationManager* pairwiseRegistrationManager = new PairwiseRegistrationManager();
+	RegistrationDataManager* registrationDataManager = new RegistrationDataManager();
+	//CycleRegistrationManager *cycleRegistrationManager = new CycleRegistrationManager();
+	
+  	std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");	
+	for (int i = 0; i < p_file_indices_ply.size(); ++i)
 	{
-		Eigen::Matrix<Scalar, 3, 3> Ra = sromcps.R.block<3,3>(0, sipairs[u].first * 3);
-		Eigen::Matrix<Scalar, 3, 3> Rb = sromcps.R.block<3,3>(0, sipairs[u].second * 3);
+		CloudDataPtr cloudData(new CloudData);
+		Eigen::Matrix4f transformation;
+		BoundariesPtr boundaries(new Boundaries);
 
-		Eigen::Matrix<Scalar, 3, 1> ta = sromcps.T.block<3,1>(sipairs[u].first * 3, 0);
-		Eigen::Matrix<Scalar, 3, 1> tb = sromcps.T.block<3,1>(sipairs[u].second * 3, 0);	
-		for (int i = 0; i < ppairwwss[u].size(); ++i)
+		QString fileName = QString(argv[p_file_indices_ply[i]]);
+		CloudIO::importCloudData(fileName, cloudData);
+		CloudIO::importTransformation(fileName, transformation);
+		CloudIO::importBoundaries(fileName, boundaries);
+		Cloud* cloud = cloudManager->addCloud(cloudData, Cloud::fromIO, fileName, transformation);
+		cloud->setBoundaries(boundaries);
+	}
+
+	std::vector< std::vector<int> > overlapRelations( cloudManager->getAllClouds().size() );
+	
+	overlapRelations[0].push_back(1);
+	overlapRelations[1].push_back(2);
+	overlapRelations[2].push_back(0);
+
+	overlapRelations[0].push_back(1);
+	overlapRelations[0].push_back(2);
+	overlapRelations[0].push_back(5);
+	overlapRelations[0].push_back(6);
+	overlapRelations[0].push_back(9);
+
+	overlapRelations[1].push_back(0);
+	overlapRelations[1].push_back(2);	
+	overlapRelations[1].push_back(5);
+	overlapRelations[1].push_back(6);
+	overlapRelations[1].push_back(8);	
+	overlapRelations[1].push_back(9);
+
+	overlapRelations[2].push_back(0);
+	overlapRelations[2].push_back(1);	
+	overlapRelations[2].push_back(3);
+	overlapRelations[2].push_back(7);
+	overlapRelations[2].push_back(8);	
+	overlapRelations[2].push_back(9);
+
+	overlapRelations[3].push_back(2);
+	overlapRelations[3].push_back(4);	
+	overlapRelations[3].push_back(7);
+	overlapRelations[3].push_back(8);	
+	overlapRelations[3].push_back(9);	
+
+	overlapRelations[4].push_back(3);
+	overlapRelations[4].push_back(5);	
+	overlapRelations[4].push_back(6);
+
+	overlapRelations[5].push_back(0);
+	overlapRelations[5].push_back(1);	
+	overlapRelations[5].push_back(4);
+	overlapRelations[5].push_back(6);
+	overlapRelations[5].push_back(9);	
+
+	overlapRelations[6].push_back(0);
+	overlapRelations[6].push_back(1);	
+	overlapRelations[6].push_back(4);
+	overlapRelations[6].push_back(5);
+
+	overlapRelations[7].push_back(2);
+	overlapRelations[7].push_back(3);	
+	overlapRelations[7].push_back(8);
+	overlapRelations[7].push_back(9);
+
+	overlapRelations[8].push_back(1);
+	overlapRelations[8].push_back(2);	
+	overlapRelations[8].push_back(3);
+	overlapRelations[8].push_back(7);
+	overlapRelations[8].push_back(9);	
+
+	overlapRelations[9].push_back(0);
+	overlapRelations[9].push_back(1);	
+	overlapRelations[9].push_back(2);
+	overlapRelations[9].push_back(3);
+	overlapRelations[9].push_back(5);	
+	overlapRelations[9].push_back(7);
+	overlapRelations[9].push_back(8);	
+
+	for (int i = 0; i < overlapRelations.size(); ++i)
+	{
+		for (int j = 0; j < overlapRelations[i].size(); ++j)
 		{
-			sum_error += (Ra * ppairwwss[u][i].ppair.first + ta - Rb * ppairwwss[u][i].ppair.second - tb).squaredNorm();
+			QString cloudName_target = QString::number(i);
+			QString cloudName_source = QString::number(overlapRelations[i][j]);
+
+			QString prName = PairwiseRegistration::generateName(cloudName_target, cloudName_source);
+			PairwiseRegistration *pairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(prName);
+			QString reversePrName = PairwiseRegistration::generateName(cloudName_source, cloudName_target);
+			PairwiseRegistration *reversePairwiseRegistration = pairwiseRegistrationManager->getPairwiseRegistration(reversePrName);
+
+			std::cout << i << " " << overlapRelations[i][j] << std::endl;
+
+			if (pairwiseRegistration == NULL && reversePairwiseRegistration == NULL)
+			{
+				RegistrationData *registrationData_target = registrationDataManager->getRegistrationData(cloudName_target);
+				if ( registrationData_target == NULL)
+				{
+					Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
+					registrationData_target = registrationDataManager->addRegistrationData(cloud_target, cloudName_target);
+				}
+				RegistrationData *registrationData_source = registrationDataManager->getRegistrationData(cloudName_source);
+				if ( registrationData_source == NULL)
+				{
+					Cloud *cloud_source = cloudManager->getCloud(cloudName_source);
+					registrationData_source = registrationDataManager->addRegistrationData(cloud_source, cloudName_source);
+				}
+				pairwiseRegistration = pairwiseRegistrationManager->addPairwiseRegistration(registrationData_target, registrationData_source, prName);
+			}		
 		}
 	}
-	std::cout << "sum_error: " << sum_error << std::endl;
 
-	Eigen::Matrix<Scalar, 3, 3> R1 = sromcps.R.block<3,3>(0,0);
-	Eigen::Matrix<Scalar, 3, 3> R2 = sromcps.R.block<3,3>(0,3);
+	std::string output_directory = ".";
+	pcl::console::parse_argument (argc, argv, "--directory", output_directory);
 
-	Eigen::Matrix<Scalar, 3, 1> t1 = sromcps.T.block<3,1>(0,0);
-	Eigen::Matrix<Scalar, 3, 1> t2 = sromcps.T.block<3,1>(3,0);	
+	ScanIndexPairs sipairs;
+	std::vector<PointPairWithWeights> ppairwwss;
+	int M = cloudManager->getAllClouds().size();
+	Eigen::MatrixXd R(3, 3*M);
+	Eigen::MatrixXd T(3*M, 1);
 
-	std::cout << Eigen::AngleAxis<Scalar>(R2.transpose() * R1).axis() << std::endl;
-	std::cout << Eigen::AngleAxis<Scalar>(R2.transpose() * R1).angle() << std::endl;
-	std::cout << R2.transpose() * (t1 - t2) << std::endl;
+	QList<PairwiseRegistration*> pairwiseRegistrationList = pairwiseRegistrationManager->getAllPairwiseRegistrations();
+
+	for (int iter = 0; iter < 1; ++iter)
+	{
+		sipairs.clear();
+		ppairwwss.clear();
+
+		for (int i = 0; i < pairwiseRegistrationList.size(); ++i)
+		{
+			CorrespondencesComputationParameters correspondencesComputationParameters;
+			correspondencesComputationParameters.method = POINT_TO_PLANE;
+			correspondencesComputationParameters.distanceThreshold = 0.1f;    // FOR bunny
+			correspondencesComputationParameters.normalAngleThreshold = 45.0f;  // FOR bunny
+
+			// correspondencesComputationParameters.distanceThreshold = 1.0f;       //FOR buste
+			// correspondencesComputationParameters.normalAngleThreshold = 45.0f;     //FOR buste
+
+			correspondencesComputationParameters.boundaryTest = true;
+			correspondencesComputationParameters.biDirectional = true;
+
+			CorrespondencesComputationData correspondencesComputationData;
+			Correspondences correspondences;
+			CorrespondenceIndices correspondenceIndices;
+			int inverseStartIndex;
+			PairwiseRegistration::preCorrespondences(pairwiseRegistrationList[i]->getTarget(), pairwiseRegistrationList[i]->getSource(), Eigen::Matrix4f::Identity(), 
+				correspondencesComputationParameters, correspondences, correspondenceIndices, inverseStartIndex, correspondencesComputationData);
+
+			float rmsError_total;
+			std::vector<float> squareErrors_total;
+			PairwiseRegistration::computeSquareErrors(correspondences, squareErrors_total, rmsError_total);
+
+			int targetErrorCloudIndex = pairwiseRegistrationList[i]->getTarget()->objectName().toInt();
+			int sourceErrorCloudIndex = pairwiseRegistrationList[i]->getSource()->objectName().toInt();
+
+			sipairs.push_back(ScanIndexPair(targetErrorCloudIndex, sourceErrorCloudIndex));
+			PointPairWithWeights ppairwws_ts;
+			for (int j = 0; j < correspondences.size(); ++j)
+			{
+				PointPairWithWeight ppairww;
+				Point targetPoint;
+				targetPoint.x() = static_cast<Scalar>( correspondences[j].targetPoint.getVector3fMap().x() );
+				targetPoint.y() = static_cast<Scalar>( correspondences[j].targetPoint.getVector3fMap().y() );
+				targetPoint.z() = static_cast<Scalar>( correspondences[j].targetPoint.getVector3fMap().z() );
+				Point sourcePoint;
+				sourcePoint.x() = static_cast<Scalar>( correspondences[j].sourcePoint.getVector3fMap().x() );
+				sourcePoint.y() = static_cast<Scalar>( correspondences[j].sourcePoint.getVector3fMap().y() );
+				sourcePoint.z() = static_cast<Scalar>( correspondences[j].sourcePoint.getVector3fMap().z() );
+
+				ppairww.ppair = PointPair(targetPoint, sourcePoint);
+				ppairww.w = 1.0f;
+				ppairwws_ts.push_back(ppairww);
+			}
+			ppairwwss.push_back(ppairwws_ts);		
+
+			// QString targetFileName = pairwiseRegistrationList[i]->getTarget()->cloud->getFileName();
+			// QString sourceFileName = pairwiseRegistrationList[i]->getSource()->cloud->getFileName();
+
+			std::cout << targetErrorCloudIndex << "<-" << sourceErrorCloudIndex
+				<< "\t" << rmsError_total << "\t" << squareErrors_total.size() << std::endl;
+		}
+
+		SRoMCPS sromcps(sipairs, ppairwwss, M);
+		// R = sromcps.R;
+		// T = sromcps.T;
+		// for (int j = 0; j < M; ++j)
+		// {
+		// 	std::cout << sromcps.R.block<3,3>(0, 3*j) << std::endl;
+		// }
+		// for (int j = 0; j < M; ++j)
+		// {
+		// 	std::cout << sromcps.T.block<3,1>(3*j, 0) << std::endl;
+		// }
+		// Eigen::Matrix3d R0 = sromcps.R.block<3,3>(0, 0);
+		// Eigen::Matrix3d R1 = sromcps.R.block<3,3>(0, 3);
+		// Eigen::Matrix3d R2 = sromcps.R.block<3,3>(0, 6);
+		// Eigen::Vector3d T0 = sromcps.T.block<3,1>(0, 0);
+		// Eigen::Vector3d T1 = sromcps.T.block<3,1>(3, 0);
+		// Eigen::Vector3d T2 = sromcps.T.block<3,1>(6, 0);
+
+		// std::cout << R0.transpose() * R1 << std::endl;
+		// std::cout << R0.transpose() * ( T1 - T0 ) << std::endl;
+
+		// std::cout << R0.transpose() * R2 << std::endl;
+		// std::cout << R0.transpose() * ( T2 - T0 ) << std::endl;
 
 
+		Scalar sum_error_before = 0.0;
+		for (int u = 0; u < ppairwwss.size(); ++u)
+		{	
+			for (int i = 0; i < ppairwwss[u].size(); ++i)
+			{
+				sum_error_before += ( ppairwwss[u][i].ppair.first - ppairwwss[u][i].ppair.second ).squaredNorm();
+			}
+		}
+		std::cout << "sum_error_before: " << sum_error_before << std::endl;		
+
+		Scalar sum_error = 0.0;
+		for (int u = 0; u < ppairwwss.size(); ++u)
+		{
+			Eigen::Matrix<Scalar, 3, 3> Ra = sromcps.R.block<3,3>(0, sipairs[u].first * 3);
+			Eigen::Matrix<Scalar, 3, 3> Rb = sromcps.R.block<3,3>(0, sipairs[u].second * 3);
+
+			Eigen::Matrix<Scalar, 3, 1> ta = sromcps.T.block<3,1>(sipairs[u].first * 3, 0);
+			Eigen::Matrix<Scalar, 3, 1> tb = sromcps.T.block<3,1>(sipairs[u].second * 3, 0);	
+			for (int i = 0; i < ppairwwss[u].size(); ++i)
+			{
+				sum_error += (Ra * ppairwwss[u][i].ppair.first + ta - Rb * ppairwwss[u][i].ppair.second - tb).squaredNorm();
+			}
+		}
+		std::cout << "sum_error: " << sum_error << std::endl;	
+
+		R = sromcps.R;
+		T = sromcps.T;						
+
+		for (int i = 0; i < M; ++i)
+		{
+			QString cloudName = QString::number(i);
+			Cloud* cloud = cloudManager->getCloud(cloudName);
+
+			QString fileName = cloud->getFileName();
+			Eigen::Matrix4d transformation = Eigen::Matrix4d::Identity();
+			transformation.block<3,3>(0, 0) = R.block<3,3>(0, 3*i);
+			transformation.block<3,1>(0, 3) = T.block<3,1>(3*i, 0);
+			Eigen::Matrix4f transformationf = transformation.cast<float>();	
+			CloudIO::exportTransformation(fileName, transformationf);
+		}	
+	}
 	return 0;
 }
 
-
-	// Eigen::Matrix<Scalar, 3, 3> R1 = sromcps.R.block<3,3>(0,0);
-	// Eigen::Matrix<Scalar, 3, 3> R2 = sromcps.R.block<3,3>(0,3);
-
-	// Eigen::Matrix<Scalar, 3, 1> t1 = sromcps.T.block<3,1>(0,0);
-	// Eigen::Matrix<Scalar, 3, 1> t2 = sromcps.T.block<3,1>(3,0);	
-
-	// std::cout << R1 << std::endl;
-	// std::cout << R2 << std::endl;	
-
-	// std::cout << t1 << std::endl;
-	// std::cout << t2 << std::endl;
-
-	// Eigen::AngleAxis<Scalar> angleAxis1(R1);
-	// Eigen::AngleAxis<Scalar> angleAxis2(R2);
-
-	// Eigen::Matrix<Scalar, 4, 4> T1 = Eigen::Matrix<Scalar, 4, 4>::Identity(), T2 = Eigen::Matrix<Scalar, 4, 4>::Identity();
-	// T1.block<3,3>(0,0) = R1;
-	// T2.block<3,3>(0,0) = R2;
-
-	// T1.block<3,1>(0,3) = t1;
-	// T2.block<3,1>(0,3) = t2;
-
-	// Eigen::Matrix<Scalar, 3, 3> R21 = (T1.inverse() * T2).block<3, 3>(0, 0);
-	// Eigen::Matrix<Scalar, 3, 1> t21 = (T1.inverse() * T2).block<3, 1>(0, 3);
-
-	// Eigen::AngleAxis<Scalar> angleAxis21(R21);
-
-	// std::cout << "axis: \n" << angleAxis21.axis() << std::endl;
-	// std::cout << "angle: \n" << angleAxis21.angle() << std::endl;
-	// std::cout << "translation: \n" << t21 << std::endl;
-
-
-// struct Pair
-// {
-// 	int a;
-// 	int b;
-// };
-// Pair S[] = { {1,2}, {2,3}, {3,4}, {4,1}, {1,5}, {2,5}, {3,5}, {4,5}, {1,6}, {2,6}, {3,6}, {4,6} };
-
-
-// typedef double Scalar;
-// typedef Eigen::Matrix<Scalar, 3, 1> Point;
-// typedef Point SPoint;
-// typedef Point TPoint;
-// typedef std::pair<SPoint, TPoint> PointPair;
-// typedef Scalar Weight;
-// struct PointPairWithWeight
-// {
-// 	PointPair ppair;
-// 	Weight w;
-// };
-// typedef std::vector<PointPairWithWeight, Eigen::aligned_allocator<PointPairWithWeight> > PointPairWithWeights;
-// typedef unsigned int ScanIndex; 
-// typedef std::pair<ScanIndex, ScanIndex> ScanIndexPair;
-// typedef std::vector<ScanIndexPair> ScanIndexPairs;
-
-// class SRoMCPS
-// {
-// public:
-
-// 	SRoMCPS(ScanIndexPairs &_sipairs, std::vector<PointPairWithWeights> &_ppairwwss, int _M) : sipairs(_sipairs), ppairwwss(_ppairwwss), M(_M)
-// 	{
-// 		P = sipairs.size(); 
-
-// 		createViewSelectionMatrices();
-
-// 		createQ();
-
-// 		solve_RT();
-// 	}
-
-// 	void createViewSelectionMatrices()
-// 	{
-// 		C_a = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*M, 3*P);
-// 		C_b = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*M, 3*P);
-
-// 		for (int u = 0; u < P; ++u)
-// 		{
-// 			C_a.block<3,3>( sipairs[u].first*3, u*3 ) = Eigen::Matrix<Scalar, 3, 3>::Identity();	
-// 			C_b.block<3,3>( sipairs[u].second*3, u*3 ) = Eigen::Matrix<Scalar, 3, 3>::Identity();			
-// 		}
-// 	}
-
-// 	void createQ()
-// 	{
-// 		createQ_R();
-// 		createQ_RT();
-// 		Q = Q_R + Q_RT;
-// 	}
-
-// 	void createQ_R()
-// 	{
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Hxx = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Hyy = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Hxy = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Hyx = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-
-// 		for (int u = 0; u < P; ++u)
-// 		{
-// 			Eigen::Matrix<Scalar, 3, 3> Hxx_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3,3);
-// 			Eigen::Matrix<Scalar, 3, 3> Hyy_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3,3);
-// 			Eigen::Matrix<Scalar, 3, 3> Hxy_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3,3);
-// 			Eigen::Matrix<Scalar, 3, 3> Hyx_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3,3);
-
-// 			int N_u = ppairwwss[u].size();
-// 			for (int i = 0; i < N_u; ++i)
-// 			{
-// 				Hxx_u += ppairwwss[u][i].w * ppairwwss[u][i].ppair.first * ppairwwss[u][i].ppair.first.transpose();
-// 				Hyy_u += ppairwwss[u][i].w * ppairwwss[u][i].ppair.second * ppairwwss[u][i].ppair.second.transpose();
-// 				Hxy_u += ppairwwss[u][i].w * ppairwwss[u][i].ppair.first * ppairwwss[u][i].ppair.second.transpose();
-// 				Hyx_u += ppairwwss[u][i].w * ppairwwss[u][i].ppair.second * ppairwwss[u][i].ppair.first.transpose();
-// 			}
-
-// 			Hxx.block<3,3>(3*u, 3*u) = Hxx_u;
-// 			Hyy.block<3,3>(3*u, 3*u) = Hyy_u;
-// 			Hxy.block<3,3>(3*u, 3*u) = Hxy_u;
-// 			Hyx.block<3,3>(3*u, 3*u) = Hyx_u;				
-// 		}
-
-// 		Q_R = C_a * Hxx * C_a.transpose() + C_b * Hyy * C_b.transpose() - C_a * Hxy * C_b.transpose() - C_b * Hyx * C_a.transpose();
-
-// 	}
-
-// 	void createQ_RT()
-// 	{
-// 		W = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-// 		std::vector<Weight> ws(P);
-
-// 		for (int u = 0; u < P; ++u)
-// 		{
-// 			int N_u = ppairwwss[u].size();
-// 			Weight w_u = 0.0;
-// 			for (int i = 0; i < N_u; ++i) w_u += ppairwwss[u][i].w;
-// 			Eigen::Matrix<Scalar, 3, 3> W_u = Eigen::Matrix<Scalar, 3, 3>::Identity() * w_u;
-// 			W.block<3,3>(3*u, 3*u) = W_u;
-// 			ws[u] = w_u;
-// 		}
-
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> g = W * (C_a - C_b).transpose() * pseudo_inverse( (C_a - C_b) * W * (C_a - C_b).transpose(), 1e-6 ) * (C_a - C_b) * W;
-
-// 		x_mean.resize(P);
-// 		y_mean.resize(P);
-// 		for (int u = 0; u < P; ++u)
-// 		{
-// 			Eigen::Matrix<Scalar, 3, 1> x_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
-// 			Eigen::Matrix<Scalar, 3, 1> y_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
-
-// 			int N_u = ppairwwss[u].size();
-// 			for (int i = 0; i < N_u; ++i)
-// 			{
-// 				x_mean_u += ppairwwss[u][i].ppair.first * ppairwwss[u][i].w;
-// 				y_mean_u += ppairwwss[u][i].ppair.second * ppairwwss[u][i].w;
-// 			}
-// 			x_mean_u /= ws[u];
-// 			y_mean_u /= ws[u];
-
-// 			x_mean[u] = x_mean_u;
-// 			y_mean[u] = y_mean_u;
-// 		}
-
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Gxx(3*P,3*P), Gxy(3*P,3*P), Gyx(3*P,3*P), Gyy(3*P,3*P);
-
-// 		for (int u = 0; u < P; ++u)
-// 		{
-// 			for (int h = 0; h < P; ++h)
-// 			{
-// 				Eigen::Matrix<Scalar, 3, 3> Gxx_uh = g.block<3,3>(3*u,3*h).diagonal().mean() * x_mean[u] * x_mean[h].transpose();
-// 				Eigen::Matrix<Scalar, 3, 3> Gxy_uh = g.block<3,3>(3*u,3*h).diagonal().mean() * x_mean[u] * y_mean[h].transpose();
-// 				Eigen::Matrix<Scalar, 3, 3> Gyx_uh = g.block<3,3>(3*u,3*h).diagonal().mean() * y_mean[u] * x_mean[h].transpose();
-// 				Eigen::Matrix<Scalar, 3, 3> Gyy_uh = g.block<3,3>(3*u,3*h).diagonal().mean() * y_mean[u] * y_mean[h].transpose();
-
-// 				Gxx.block<3,3>(3*u, 3*h) = Gxx_uh;
-// 				Gxy.block<3,3>(3*u, 3*h) = Gxy_uh;
-// 				Gyx.block<3,3>(3*u, 3*h) = Gyx_uh;
-// 				Gyy.block<3,3>(3*u, 3*h) = Gyy_uh;				
-// 			}
-// 		}
-
-// 		Q_RT = -C_a * Gxx * C_a.transpose() + C_a * Gxy * C_b.transpose() + C_b * Gyx * C_a.transpose() - C_b * Gyy * C_b.transpose();
-// 	}
-
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> pseudo_inverse(Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> squareMatrix, const Scalar pinvtoler = Eigen::NumTraits<Scalar>::epsilon())
-// 	{
-// 		Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> > svd(squareMatrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
-// 		Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> >::SingularValuesType singleValues_inv = svd.singularValues();	
-
-// 		for (int i = 0; i < squareMatrix.cols(); ++i)
-// 		{
-// 			if (singleValues_inv(i) > pinvtoler) singleValues_inv(i) = 1.0/singleValues_inv(i);
-// 			else singleValues_inv(i) = 0.0;
-// 		}
-
-// 		return svd.matrixV() * singleValues_inv.asDiagonal() * svd.matrixU().transpose(); 
-// 	}
-
-// 	void solve_RT()
-// 	{
-// 		solve_R();
-// 		solve_T();
-// 	}
-
-// 	void solve_R() 
-// 	{
-// 		Eigen::Matrix<Scalar, 3, Eigen::Dynamic> R_initial;
-// 		R_initial.resize(Eigen::NoChange, 3*M); 
-// 		for (int j = 0; j < M; ++j) R_initial.block<3,3>(0, 3*j) = Eigen::Matrix<Scalar, 3, 3>::Identity(); // R_initial could be set by the uniform angle refine method
-
-// 		Eigen::Matrix<Scalar, 3, Eigen::Dynamic> R_current = R_initial;
-// 		const int max_iter = 1000;
-// 		for (int iter = 0; iter < max_iter; ++iter)
-// 		{
-// 			for (int j = 0; j < M; ++j)
-// 			{
-// 				Eigen::Matrix<Scalar, 3, 3> Sj;
-// 				if (j == 0)
-// 				{
-// 					//Sj = Q.block<3, 3*(M-1-j)>(j*3, (j+1)*3) * R_current.block<3, 3*(M-j-1)>(0, (j+1)*3).transpose();
-// 					Sj = Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();					
-// 				}
-// 				else if (j == M-1)
-// 				{
-// 					// Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose() + Q.block<3, 3*(M-1-j)>(j*3, (j+1)*3) * R_current.block<3, 3*(M-j-1)>(0, (j+1)*3).transpose();
-// 					Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose() + Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();
-// 				}
-// 				else
-// 				{
-// 					//Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose();
-// 					Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose();
-// 				}
-// 				Eigen::JacobiSVD< Eigen::Matrix<Scalar, 3, 3> > svd(-Sj, Eigen::ComputeFullU | Eigen::ComputeFullV);
-// 				Eigen::Matrix<Scalar, 3, 3> Rj = svd.matrixV() * svd.matrixU().transpose();
-// 				R_current.block<3,3>(0, j*3) = Rj;
-// 			}
-// 		}
-// 		R = R_current;
-// 	}
-
-// 	void solve_T()
-// 	{
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> A = (C_a - C_b) * W * (C_a - C_b).transpose();
-
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Z;
-// 		Z.resize(3*P, 1);
-// 		for (int u = 0; u < P; ++u)	
-// 		{
-// 			Z.block<3,1>(u*3,0) = R.block<3,3>(0, sipairs[u].first * 3) * x_mean[u] - R.block<3,3>(0, sipairs[u].second * 3) * y_mean[u];
-// 		}
-// 		Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> B = (C_a - C_b) * W * Z ;
-
-// 		T = -pseudo_inverse(A, 1e-6) * B;
-// 	}
-
-// 	ScanIndexPairs sipairs;
-// 	std::vector<PointPairWithWeights> ppairwwss;
-
-// 	int M;
-// 	Eigen::Matrix<Scalar, 3, Eigen::Dynamic> R;
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, 1> T;
-
-// 	int P;
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> C_a;
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> C_b;
-
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Q;
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Q_R;
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Q_RT;
-
-// 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> W;
-
-// 	std::vector< Eigen::Matrix<Scalar, 3, 1> > x_mean, y_mean;
-
-
-// };

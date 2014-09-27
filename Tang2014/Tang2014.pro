@@ -33,24 +33,24 @@ unix{
 			-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
 }
-HEADERS += SRoMCPS.h
-#			../include/pclbase.h \
-#			../include/qtbase.h \
-#			../include/cloud.h \
-#			../include/cloudio.h \     
-#			../include/cloudmanager.h \
-#			../include/pairwiseregistration.h \
-#			../include/globalregistration.h \
-#			../include/mathutilities.h \
-#			../include/registrationdatamanager.h 
+HEADERS += SRoMCPS.h \
+			../include/pclbase.h \
+			../include/qtbase.h \
+			../include/cloud.h \
+			../include/cloudio.h \     
+			../include/cloudmanager.h \
+			../include/pairwiseregistration.h \
+			../include/globalregistration.h \
+			../include/mathutilities.h \
+			../include/registrationdatamanager.h 
 SOURCES += main.cpp \
-			SRoMCPS.cpp
-#			../src/cloud.cpp \
-#			../src/cloudio.cpp \
-#			../src/cloudmanager.cpp \
-#			../src/pairwiseregistration.cpp \
-#			../src/globalregistration.cpp \
-#			../src/registrationdatamanager.cpp
+			SRoMCPS.cpp \
+			../src/cloud.cpp \
+			../src/cloudio.cpp \
+			../src/cloudmanager.cpp \
+			../src/pairwiseregistration.cpp \
+			../src/globalregistration.cpp \
+			../src/registrationdatamanager.cpp
 
 
  

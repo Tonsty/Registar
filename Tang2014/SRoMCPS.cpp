@@ -11,8 +11,68 @@ SRoMCPS::SRoMCPS(ScanIndexPairs &_sipairs, std::vector<PointPairWithWeights> &_p
 {
 	P = sipairs.size(); 
 	createViewSelectionMatrices();
+
+	std::cout << "C_a = \n" << C_a << std::endl;
+	std::cout << "C_b = \n" << C_b << std::endl;
+
+	create_W_ws();
+	std::cout << "W = \n" << W << std::endl;
+	for (int i = 0; i < ws.size(); ++i)
+	{
+		std::cout << "ws[" << i << "] = " << ws[i] << std::endl;
+	}
+	create_xymean();
+	for (int i = 0; i < x_mean.size(); ++i)
+	{
+		std::cout << "x_mean[" << i << "] = \n" << x_mean[i] << std::endl;
+	}
+	for (int i = 0; i < y_mean.size(); ++i)
+	{
+		std::cout << "y_mean[" << i << "] = \n" << y_mean[i] << std::endl;
+	}
+
 	createQ();
+	//std::cout << "Q = \n" << Q_RT << std::endl;	
 	solve_RT();
+}
+
+void SRoMCPS::create_xymean()
+{
+	x_mean.resize(P);
+	y_mean.resize(P);
+	for (int u = 0; u < P; ++u)
+	{
+		Eigen::Matrix<Scalar, 3, 1> x_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
+		Eigen::Matrix<Scalar, 3, 1> y_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
+
+		int N_u = ppairwwss[u].size();
+		for (int i = 0; i < N_u; ++i)
+		{
+			x_mean_u += ppairwwss[u][i].ppair.first * ppairwwss[u][i].w;
+			y_mean_u += ppairwwss[u][i].ppair.second * ppairwwss[u][i].w;
+		}
+		x_mean_u /= ws[u];
+		y_mean_u /= ws[u];
+
+		x_mean[u] = x_mean_u;
+		y_mean[u] = y_mean_u;
+	}	
+}
+
+
+void SRoMCPS::create_W_ws()
+{
+	W = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
+	ws.resize(P);
+	for (int u = 0; u < P; ++u)
+	{
+		int N_u = ppairwwss[u].size();
+		Weight w_u = 0.0;
+		for (int i = 0; i < N_u; ++i) w_u += ppairwwss[u][i].w;
+		Eigen::Matrix<Scalar, 3, 3> W_u = Eigen::Matrix<Scalar, 3, 3>::Identity() * w_u;
+		W.block<3,3>(3*u, 3*u) = W_u;
+		ws[u] = w_u;
+	}
 }
 
 void SRoMCPS::createViewSelectionMatrices()
@@ -30,8 +90,11 @@ void SRoMCPS::createViewSelectionMatrices()
 void SRoMCPS::createQ()
 {
 	createQ_R();
+	//std::cout << "Q_R = \n" << Q_R << std::endl;
 	createQ_RT();
+	//std::cout << "Q_RT = \n" << Q_RT << std::endl;	
 	Q = Q_R + Q_RT;
+	std::cout << "Q = \n" << Q << std::endl;
 }
 
 void SRoMCPS::createQ_R()
@@ -69,40 +132,10 @@ void SRoMCPS::createQ_R()
 
 void SRoMCPS::createQ_RT()
 {
-	W = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3*P,3*P);
-	std::vector<Weight> ws(P);
-
-	for (int u = 0; u < P; ++u)
-	{
-		int N_u = ppairwwss[u].size();
-		Weight w_u = 0.0;
-		for (int i = 0; i < N_u; ++i) w_u += ppairwwss[u][i].w;
-		Eigen::Matrix<Scalar, 3, 3> W_u = Eigen::Matrix<Scalar, 3, 3>::Identity() * w_u;
-		W.block<3,3>(3*u, 3*u) = W_u;
-		ws[u] = w_u;
-	}
 
 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> g = W * (C_a - C_b).transpose() * pseudo_inverse( (C_a - C_b) * W * (C_a - C_b).transpose() ) * (C_a - C_b) * W;
-		
-	x_mean.resize(P);
-	y_mean.resize(P);
-	for (int u = 0; u < P; ++u)
-	{
-		Eigen::Matrix<Scalar, 3, 1> x_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
-		Eigen::Matrix<Scalar, 3, 1> y_mean_u = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(3, 1);
 
-		int N_u = ppairwwss[u].size();
-		for (int i = 0; i < N_u; ++i)
-		{
-			x_mean_u += ppairwwss[u][i].ppair.first * ppairwwss[u][i].w;
-			y_mean_u += ppairwwss[u][i].ppair.second * ppairwwss[u][i].w;
-		}
-		x_mean_u /= ws[u];
-		y_mean_u /= ws[u];
-
-		x_mean[u] = x_mean_u;
-		y_mean[u] = y_mean_u;
-	}
+	std::cout << "gamma = \n" << g << std::endl;
 
 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Gxx(3*P,3*P), Gxy(3*P,3*P), Gyx(3*P,3*P), Gyy(3*P,3*P);
 
@@ -125,10 +158,13 @@ void SRoMCPS::createQ_RT()
 	Q_RT = -C_a * Gxx * C_a.transpose() + C_a * Gxy * C_b.transpose() + C_b * Gyx * C_a.transpose() - C_b * Gyy * C_b.transpose();
 }
 
+
 Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> SRoMCPS::pseudo_inverse(Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> squareMatrix, const Scalar pinvtoler)
 {
-	Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> > svd(squareMatrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> > svd(squareMatrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
 	Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> >::SingularValuesType singleValues_inv = svd.singularValues();	
+
+	std::cout << singleValues_inv.asDiagonal().toDenseMatrix() << std::endl;
 
 	for (int i = 0; i < squareMatrix.cols(); ++i)
 	{
@@ -158,27 +194,52 @@ void SRoMCPS::solve_R()
 		for (int j = 0; j < M; ++j)
 		{
 			Eigen::Matrix<Scalar, 3, 3> Sj;
+			Eigen::Matrix<Scalar, 3, Eigen::Dynamic> R_L, R_U;
+			Eigen::Matrix<Scalar, 3, Eigen::Dynamic> Q_jL, Q_jU;
+
 			if (j == 0)
 			{
 				//Sj = Q.block<3, 3*(M-1-j)>(j*3, (j+1)*3) * R_current.block<3, 3*(M-j-1)>(0, (j+1)*3).transpose();
-				Sj = Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();					
+				//Sj = Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();
+				Q_jU = Q.block(j*3, (j+1)*3, 3, 3*(M-1-j));
+				R_U = R_current.block(0, (j+1)*3, 3, 3*(M-j-1));
+				Sj = Q_jU * R_U.transpose();					
 			}
 			else if (j == M-1)
 			{
-				// Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose() + Q.block<3, 3*(M-1-j)>(j*3, (j+1)*3) * R_current.block<3, 3*(M-j-1)>(0, (j+1)*3).transpose();
-				Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose() + Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();
+				//Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose();
+				//Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose();
+				Q_jL = Q.block(j*3, 0, 3, 3*j);	
+				R_L = R_current.block(0, 0, 3, 3*j);			
+				Sj = Q_jL * R_L.transpose();
 			}
 			else
 			{
-				//Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose();
-				Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose();
+				// Sj = Q.block<3, 3*j>(j*3, 0) * R_current.block<3, 3*j>(0, 0).transpose() + Q.block<3, 3*(M-1-j)>(j*3, (j+1)*3) * R_current.block<3, 3*(M-j-1)>(0, (j+1)*3).transpose();
+				//Sj = Q.block(j*3, 0, 3, 3*j) * R_current.block(0, 0, 3, 3*j).transpose() + Q.block(j*3, (j+1)*3, 3, 3*(M-1-j)) * R_current.block(0, (j+1)*3, 3, 3*(M-j-1)).transpose();
+				R_L = R_current.block(0, 0, 3, 3*j);
+				R_U = R_current.block(0, (j+1)*3, 3, 3*(M-j-1));
+				Q_jL = Q.block(j*3, 0, 3, 3*j);
+				Q_jU = Q.block(j*3, (j+1)*3, 3, 3*(M-1-j));				
+				Sj = Q_jL * R_L.transpose() + Q_jU * R_U.transpose();
 			}
-			Eigen::JacobiSVD< Eigen::Matrix<Scalar, 3, 3> > svd(-Sj, Eigen::ComputeFullU | Eigen::ComputeFullV);
+			Eigen::JacobiSVD< Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> > svd(-Sj, Eigen::ComputeThinU | Eigen::ComputeThinV);
 			Eigen::Matrix<Scalar, 3, 3> Rj = svd.matrixV() * svd.matrixU().transpose();
 			R_current.block<3,3>(0, j*3) = Rj;
+
+			std::cout << "iter = \t" << iter << "\t j = \t" << j << "\t trace(RQR_t) = " << ( R_current * Q * R_current.transpose() ).trace() << std::endl;	
+			if (Rj.determinant() < 0)
+			{
+				std::cout << "iter = \t" << iter << "\t j = \t" << j << "\t Rj determinant = " << Rj.determinant() << std::endl;
+				exit(1);	
+			}
 		}
 	}
 	R = R_current;
+
+	//R = R_initial;
+
+	std::cout << "trace(RQR_t) = " << ( R * Q * R.transpose() ).trace() << std::endl;
 }
 
 void SRoMCPS::solve_T()

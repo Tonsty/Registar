@@ -12,6 +12,8 @@ struct PointPairWithWeight
 {
 	PointPair ppair;
 	Weight w;
+	PointPairWithWeight(){}
+	PointPairWithWeight(PointPair _ppair, Weight _w) : ppair(_ppair), w(_w) {}
 };
 typedef std::vector<PointPairWithWeight, Eigen::aligned_allocator<PointPairWithWeight> > PointPairWithWeights;
 typedef unsigned int ScanIndex; 
@@ -32,7 +34,11 @@ public:
 
 	void createQ_RT();
 
-	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> pseudo_inverse(Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> squareMatrix, const Scalar pinvtoler = Eigen::NumTraits<Scalar>::epsilon());
+	void create_xymean();
+
+	void create_W_ws();
+
+	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> pseudo_inverse(Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> squareMatrix, const Scalar pinvtoler = 1e-6); // cannot set to Eigen::NumTraits<Scalar>::epsilon() when scalar is float, since it's too small 
 
 	void solve_RT();
 
@@ -58,6 +64,6 @@ public:
 	Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> W;
 
 	std::vector< Eigen::Matrix<Scalar, 3, 1> > x_mean, y_mean;
-
+	std::vector<Weight> ws;
 
 };

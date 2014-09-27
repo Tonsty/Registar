@@ -207,11 +207,11 @@ int main(int argc, char **argv)
 	{
 		CorrespondencesComputationParameters correspondencesComputationParameters;
 		correspondencesComputationParameters.method = POINT_TO_PLANE;
-		// correspondencesComputationParameters.distanceThreshold = 0.001f;    // FOR bunny
-		// correspondencesComputationParameters.normalAngleThreshold = 45.0f;  // FOR bunny
+		correspondencesComputationParameters.distanceThreshold = 0.1f;    // FOR bunny
+		correspondencesComputationParameters.normalAngleThreshold = 45.0f;  // FOR bunny
 
-		correspondencesComputationParameters.distanceThreshold = 1.0f;       //FOR buste
-		correspondencesComputationParameters.normalAngleThreshold = 45.0f;     //FOR buste
+		// correspondencesComputationParameters.distanceThreshold = 1.0f;       //FOR buste
+		// correspondencesComputationParameters.normalAngleThreshold = 45.0f;     //FOR buste
 
 		correspondencesComputationParameters.boundaryTest = true;
 		correspondencesComputationParameters.biDirectional = true;
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
 		Correspondences correspondences;
 		CorrespondenceIndices correspondenceIndices;
 		int inverseStartIndex;
-		PairwiseRegistration::preCorrespondences(pairwiseRegistrationList[i]->getTarget(), pairwiseRegistrationList[i]->getSource(), pairwiseRegistrationList[i]->getTransformation(), 
+		PairwiseRegistration::preCorrespondences(pairwiseRegistrationList[i]->getTarget(), pairwiseRegistrationList[i]->getSource(), Eigen::Matrix4f::Identity(), 
 			correspondencesComputationParameters, correspondences, 
 			correspondenceIndices, inverseStartIndex, correspondencesComputationData);
 
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 		// QString sourceFileName = pairwiseRegistrationList[i]->getSource()->cloud->getFileName();
 
 		std::vector<double> errors(squareErrors_total.size());
-		for(int i = 0;i < errors.size(); i++) errors[i] = (double)sqrtf(squareErrors_total[i]);
+		for(int j = 0;j < errors.size(); j++) errors[j] = (double)sqrtf(squareErrors_total[j]);
 
 		std::vector<double> sorted_errors = errors;
 		std::sort( sorted_errors.begin(), sorted_errors.end());
@@ -245,29 +245,70 @@ int main(int argc, char **argv)
 			<< "\t" << sorted_errors.front() << "\t" << sorted_errors.back() << std::endl;
 
 		std::vector<double> point_pair_indices(errors.size());		
-		for ( int i = 0; i < errors.size(); i++ ) point_pair_indices[i] = 1.0 * i;
+		for ( int j = 0; j < errors.size(); j++ ) point_pair_indices[j] = 1.0 * j;
 
 		max_index = max_index > errors.size() ? max_index : errors.size();
 		max_error = max_error > sorted_errors.back() ? max_error : sorted_errors.back();
+
 		plot.addPlotData( point_pair_indices, sorted_errors, ( QString::number(targetErrorCloudIndex) + "<-" + QString::number(sourceErrorCloudIndex) ).toStdString().c_str() );
-		plot1.addHistogramData(errors, 10, ( QString::number(targetErrorCloudIndex) + "<-" + QString::number(sourceErrorCloudIndex) ).toStdString().c_str());
+		int num_histogram = 10;
+		if (sorted_errors.back() - sorted_errors.front() > 1e-6)
+		{
+			plot1.addHistogramData(errors, num_histogram, ( QString::number(targetErrorCloudIndex) + "<-" + QString::number(sourceErrorCloudIndex) ).toStdString().c_str() );
+		}
+		else
+		{
+			std::cerr << ( QString::number(targetErrorCloudIndex) + "<-" + QString::number(sourceErrorCloudIndex) ).toStdString().c_str() << " : max or min error is too close to split" << std::endl;	
+		}
 
 		total_errors.insert(total_errors.end(), sorted_errors.begin(), sorted_errors.end());
 
-		for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
+		for (int j = inverseStartIndex; j < correspondenceIndices.size(); ++j)
 		{
-			int index = correspondenceIndices[i].targetIndex;
-			float error = sqrtf(squareErrors_total[i]);
+			int index = correspondenceIndices[j].targetIndex;
+			float error = errors[j];                                    //sqrtf(squareErrors_total[j]);
 			(*sumErrorCloud[targetErrorCloudIndex])[index].curvature += error;
 			(*maxErrorCloud[targetErrorCloudIndex])[index].curvature = error > (*maxErrorCloud[targetErrorCloudIndex])[index].curvature ? error : (*maxErrorCloud[targetErrorCloudIndex])[index].curvature;		
+
+			if (pcl_isnan((*sumErrorCloud[targetErrorCloudIndex])[index].curvature))
+			{
+				std::cout << targetErrorCloudIndex << " <- " << sourceErrorCloudIndex << std::endl;
+				std::cout << "error : " << error << std::endl;				
+				std::cout << "SUM NAN ERROR: " << j << std::endl;
+				return 0;
+			}
+
+			if (pcl_isnan((*maxErrorCloud[targetErrorCloudIndex])[index].curvature))
+			{
+				std::cout << targetErrorCloudIndex << " <- " << sourceErrorCloudIndex << std::endl;
+				std::cout << "error : " << error << std::endl;
+				std::cout << "MAX NAN ERROR: " << j << std::endl;
+				return 0;
+			}	
 		}
 
-		for (int i = 0; i < inverseStartIndex; ++i)
+		for (int j = 0; j < inverseStartIndex; ++j)
 		{
-	    	int index = correspondenceIndices[i].sourceIndex;
-	    	float error = sqrtf(squareErrors_total[i]);
+	    	int index = correspondenceIndices[j].sourceIndex;
+	    	float error = errors[j];                                   //sqrtf(squareErrors_total[j]);
 			(*sumErrorCloud[sourceErrorCloudIndex])[index].curvature += error;
-			(*maxErrorCloud[sourceErrorCloudIndex])[index].curvature = error > (*maxErrorCloud[targetErrorCloudIndex])[index].curvature ? error : (*maxErrorCloud[targetErrorCloudIndex])[index].curvature;	
+			(*maxErrorCloud[sourceErrorCloudIndex])[index].curvature = error > (*maxErrorCloud[sourceErrorCloudIndex])[index].curvature ? error : (*maxErrorCloud[sourceErrorCloudIndex])[index].curvature;	
+
+			if (pcl_isnan((*sumErrorCloud[sourceErrorCloudIndex])[index].curvature))
+			{
+				std::cout << targetErrorCloudIndex << " <- " << sourceErrorCloudIndex << std::endl;
+				std::cout << "error : " << error << std::endl;
+				std::cout << "SUM NAN ERROR: " << j << std::endl;
+				return 0;
+			}
+
+			if (pcl_isnan((*maxErrorCloud[sourceErrorCloudIndex])[index].curvature))
+			{
+				std::cout << targetErrorCloudIndex << " <- " << sourceErrorCloudIndex << std::endl;
+				std::cout << "error : " << error << std::endl;
+				std::cout << "MAX NAN ERROR: " << j << std::endl;
+				return 0;
+			}			
 		}
 	}
 
@@ -285,15 +326,25 @@ int main(int argc, char **argv)
 	plot2.addPlotData( point_pair_indices, sorted_total_errors, "total");
 	plot3.addHistogramData(sorted_total_errors, 10, "total");
 
-	plot2.setXRange( 0, max_index );
+	plot2.setXRange( 0, total_errors.size());
 	plot2.setYRange( 0, max_error );
 	plot2.spin();
 	plot3.spin();
 
-	// float min_sumerror = 0.0f;  //FOR bunny
-	// float max_sumerror = 0.001f;  //FOR bunny
-	float min_sumerror = 0.0f;  //FOR buste
-	float max_sumerror = 1.0f;  //FOR buste
+	for (int i = 0; i < total_errors.size(); ++i)
+	{
+		if (pcl_isnan(total_errors[i]))
+		{
+			//std::cout << targetErrorCloudIndex << " <- " << sourceErrorCloudIndex << std::endl;
+			std::cout << "NAN ERROR: " << i << std::endl;
+			return 0;
+		}
+	}
+
+	float min_sumerror = 0.0f;  //FOR bunny
+	float max_sumerror = 0.001f;  //FOR bunny
+	// float min_sumerror = 0.0f;  //FOR buste
+	// float max_sumerror = 1.0f;  //FOR buste
 
 	for (int i = 0; i < sumErrorCloud.size(); ++i)
 	{
@@ -318,10 +369,10 @@ int main(int argc, char **argv)
 		writer.write(newFileName.toStdString(), *sumErrorCloud[i]);		
 	}
 
-	// float min_maxerror = 0.0f;   //FOR bunny
-	// float max_maxerror = 0.001f; //FOR bunny
-	float min_maxerror = 0.0f;   //FOR buste
-	float max_maxerror = 1.0f; //FOR buste
+	float min_maxerror = 0.0f;   //FOR bunny
+	float max_maxerror = 0.1f; //FOR bunny
+	// float min_maxerror = 0.0f;   //FOR buste
+	// float max_maxerror = 1.0f; //FOR buste
 
 	for (int i = 0; i < maxErrorCloud.size(); ++i)
 	{
@@ -339,7 +390,7 @@ int main(int argc, char **argv)
 			generateErrorRGB((*maxErrorCloud[i])[j].curvature, r, g, b, min_maxerror, max_maxerror);
 			(*maxErrorCloud[i])[j].r = r;
 			(*maxErrorCloud[i])[j].g = g;
-			(*maxErrorCloud[i])[j].b = b;		
+			(*maxErrorCloud[i])[j].b = b;	
 		}
 
 		pcl::PLYWriter writer;
@@ -356,7 +407,7 @@ void generateErrorRGB(float error,
 						//float blueerror = 0, float qingerror = 0.25, float greenerror = 0.5, float yellowerror = 0.75, float rederror = 1 )
 {
 	float fract = ( error - minerror ) / ( maxerror - minerror );
-	std::cout << fract << std::endl;
+	//std::cout << fract << std::endl;
 
 	if (fract <= 0.25)
 	{
