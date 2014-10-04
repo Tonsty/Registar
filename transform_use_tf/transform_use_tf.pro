@@ -11,7 +11,7 @@ win32{
 		-L"D:/boost_1_55_0/stage/lib/" \
 			libboost_system-vc100-mt-gd-1_55.lib \
 		-L"C:/Program Files/PCL/lib/" \
-			pcl_visualization_debug.lib pcl_io_debug.lib pcl_common_debug.lib pcl_kdtree_debug.lib pcl_search_debug.lib pcl_filters_debug.lib \
+			pcl_visualization_debug.lib pcl_io_debug.lib pcl_common_debug.lib pcl_kdtree_debug.lib pcl_search_debug.lib \
 		-L"C:/Program Files/flann/lib/" \
 			flann_cpp_s-gd.lib	
 	}else{
@@ -20,7 +20,7 @@ win32{
 		-L"D:/boost_1_55_0/stage/lib/" \
 			libboost_system-vc100-mt-1_55.lib \
 		-L"C:/Program Files/PCL/lib/" \
-			pcl_visualization_release.lib pcl_io_release.lib pcl_common_release.lib pcl_kdtree_release.lib pcl_search_release.lib pcl_filters_release.lib \
+			pcl_visualization_release.lib pcl_io_release.lib pcl_common_release.lib pcl_kdtree_release.lib pcl_search_release.lib \
 		-L"C:/Program Files/flann/lib/" \
 			flann_cpp_s.lib		
 	}
@@ -31,24 +31,23 @@ unix{
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
 			-L/usr/local/lib/ \
-			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters
+			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
 }
-HEADERS += common.h \
-			pairregistration.h \
-			globalregistration.h \
-			scan.h \
-			loop.h \
-			link.h \
-			SRoMCPS.h \
+HEADERS += ../include/pclbase.h \
+			../include/qtbase.h \
+			../include/cloud.h \
+			../include/cloudio.h \     
+			../include/cloudmanager.h \
+			../include/pairwiseregistration.h \
+			../include/globalregistration.h \
+			../include/mathutilities.h \
+			../include/registrationdatamanager.h 
+SOURCES += main.cpp \
+			../src/cloud.cpp \
+			../src/cloudio.cpp \
+			../src/cloudmanager.cpp \
+			../src/pairwiseregistration.cpp \
+			../src/globalregistration.cpp \
+			../src/registrationdatamanager.cpp
 
-SOURCES += pairregistration.cpp \
-			globalregistration.cpp \
-			main.cpp \
-			scan.cpp \
-			loop.cpp \
-			link.cpp \
-			SRoMCPS.cpp \
 
-
-
- 

@@ -16,39 +16,36 @@
 
 int main(int argc, char **argv)
 {	
-  	std::vector<int> p_file_indices_conf = pcl::console::parse_file_extension_argument (argc, argv, ".conf");
+  	std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");
+  	std::string output_directory = ".";
+	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	
 
-  	for (int i = 0; i < p_file_indices_conf.size(); ++i)
-  	{
-  		QFile conf_file(argv[p_file_indices_conf[i]]);
-  		if(conf_file.open(QIODevice::ReadOnly)) 
-  		{
-  			QTextStream in(&conf_file);
-  			while(!in.atEnd()) {
-  			    QString line = in.readLine();
-  			    //qDebug() << line;
-  			    QStringList list = line.split(" ");
-  			    if (list[0] == "camera" || list[0] == "mesh") continue;
-  			    if (list[0] == "bmesh")
-  			    {
-  			    	QString ply_file = list[1];
-  			    	float tx = list[2].toFloat();
-  			    	float ty = list[3].toFloat();
-  			    	float tz = list[4].toFloat();
-  			    	float qi = list[5].toFloat();
-  			    	float qj = list[6].toFloat();
-  			    	float qk = list[7].toFloat();
-  			    	float ql = list[8].toFloat();
-  			    	Eigen::Matrix4f transformation = Eigen::Matrix4f::Identity();
-  			    	Eigen::Vector3f translation = Eigen::Vector3f(tx, ty, tz);
-  			    	Eigen::Quaternionf quaternion = Eigen::Quaternionf(qi, qj, qk, ql);
-  			    	transformation.block<3,3>(0,0) = quaternion.toRotationMatrix();
-  			    	transformation.block<3,1>(0,3) = translation;
-  			    	CloudIO::exportTransformation(ply_file, transformation);
-  			    }
-  			}
-  		}
-  	}
+	for (int i = 0; i < p_file_indices_ply.size(); ++i)
+	{
+	    pcl::PLYReader reader;
+	    pcl::PolygonMesh mesh;
+	    reader.read(argv[p_file_indices_ply[i]], mesh);
+
+	    std::cout << "height : " << mesh.cloud.height << std::endl;
+	    std::cout << "width : " << mesh.cloud.width << std::endl;
+	    for (int j = 0; j < mesh.cloud.fields.size(); ++j)
+	    {
+	    	std::cout << mesh.cloud.fields[j].name << " ";
+	    }
+	    std::cout << std::endl;
+
+	    QFileInfo info(argv[p_file_indices_ply[i]]);
+	    //pcl::io::savePLYFile((info.path() + "/" + info.completeBaseName() + "_pcl.ply").toStdString(), mesh.cloud);
+	    pcl::io::savePLYFile((QString(output_directory.c_str()) + "/" + info.fileName()).toStdString(), mesh.cloud);	    
+	}
+
+	return 0;
+}
+
+
+	// QFileInfo fileInfo(fileName);
+	// QString newFileName = fileInfo.path() + "/" + fileInfo.baseName() + "_out.ply";
+	// CloudIO::exportCloudData(newFileName, cloudData);
 
   	// pcl::PLYReader reader;
   	// pcl::PointCloud<pcl::PointXYZRGBNormal> cloud;
@@ -136,6 +133,3 @@ int main(int argc, char **argv)
 
 	// 	CloudIO::exportCloudData(newFileName, cloudData);
 	// }
-
-	return 0;
-}

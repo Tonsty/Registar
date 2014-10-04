@@ -1,4 +1,7 @@
+#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
+#include <QtCore/QFile>
+#include <QtCore/QStringList>
 
 #include <pcl/console/parse.h>
 
@@ -13,42 +16,40 @@
 
 int main(int argc, char **argv)
 {	
-  	std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");
+  	std::vector<int> p_file_indices_frames = pcl::console::parse_file_extension_argument (argc, argv, ".frames");
    	std::string output_directory = ".";
 	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	 	
 
-  	std::vector<Eigen::Matrix4f> transformations;	
-	for (int i = 0; i < p_file_indices_ply.size(); ++i)
+	for (int i = 0; i < p_file_indices_frames.size(); ++i)
 	{
-		Eigen::Matrix4f transformation;
-		QString fileName = QString(argv[p_file_indices_ply[i]]);
-		CloudIO::importTransformation(fileName, transformation);
-		transformations.push_back(transformation);
-	}
+  		QFile frames_file(argv[p_file_indices_frames[i]]);
+  		if(frames_file.open(QIODevice::ReadOnly)) 
+  		{
+  			QTextStream in(&frames_file);
+  			QString lastline;
+  			while(!in.atEnd()) {
+  				 QString line = in.readLine();
+  				 lastline = line;
+  			}
+  			QStringList list = lastline.split(" ");
+			Eigen::Matrix4f transformation = Eigen::Matrix4f::Identity();
 
-	float angleThreshold = 10.0f;
-	pcl::console::parse_argument (argc, argv, "--angle", angleThreshold);
-	angleThreshold = angleThreshold / 180 * M_PI;
+			for (int j = 0; j < 4; ++j)
+			{
+				for (int k = 0; k < 4; ++k)
+				{
+					transformation(j,k) = list[j*4+k].toFloat();
+				}
+			}
+			Eigen::Matrix4f temp = transformation.transpose();
+			transformation = temp;
+			QString fileName = QString(argv[p_file_indices_frames[i]]);
+			QFileInfo fileInfo(fileName);
+			QString newFileName = QString(output_directory.c_str()) + "/" + fileInfo.completeBaseName() + ".tf";
+			CloudIO::exportTransformation(newFileName, transformation);
+  		}		
 
-	float distanceThreshold = 0.01f;
-	pcl::console::parse_argument (argc, argv, "--distance", distanceThreshold);
 
-	std::vector<Eigen::Matrix4f> random_transformations;
-	for (int i = 0; i < transformations.size(); ++i)
-	{
-		Eigen::Matrix4f transformation = transformations[i];
-		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(angleThreshold, distanceThreshold);
-		random_transformations.push_back(randomRigidTransf);
-		std::cout << randomRigidTransf << std::endl;
-	}
-
-	for (int i = 0; i < p_file_indices_ply.size(); ++i)
-	{
-		Eigen::Matrix4f randomRigidTransf = random_transformations[i];
-		QString fileName = QString(argv[p_file_indices_ply[i]]);
-		QFileInfo fileInfo(fileName);
-		QString newFileName = QString(output_directory.c_str()) + "/" + fileInfo.completeBaseName() + ".tf";
-		CloudIO::exportTransformation(newFileName, randomRigidTransf);
 	}
 
 	return 0;

@@ -1,6 +1,9 @@
 #include <QtCore/QFileInfo>
 
+#include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
 
 #include "../include/pclbase.h"
 #include "../include/qtbase.h"
@@ -16,39 +19,24 @@ int main(int argc, char **argv)
   	std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");
    	std::string output_directory = ".";
 	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	 	
-
-  	std::vector<Eigen::Matrix4f> transformations;	
+	
 	for (int i = 0; i < p_file_indices_ply.size(); ++i)
 	{
 		Eigen::Matrix4f transformation;
 		QString fileName = QString(argv[p_file_indices_ply[i]]);
 		CloudIO::importTransformation(fileName, transformation);
-		transformations.push_back(transformation);
-	}
+	    pcl::PLYReader reader;
+	    pcl::PolygonMesh mesh;
+	    reader.read(argv[p_file_indices_ply[i]], mesh);
 
-	float angleThreshold = 10.0f;
-	pcl::console::parse_argument (argc, argv, "--angle", angleThreshold);
-	angleThreshold = angleThreshold / 180 * M_PI;
+	    pcl::PointCloud<pcl::PointNormal>::Ptr cloudData(new pcl::PointCloud<pcl::PointNormal>);
+	    pcl::fromPCLPointCloud2(mesh.cloud, *cloudData);
+	    pcl::transformPointCloudWithNormals(*cloudData, *cloudData, transformation);
 
-	float distanceThreshold = 0.01f;
-	pcl::console::parse_argument (argc, argv, "--distance", distanceThreshold);
+	    pcl::toPCLPointCloud2(*cloudData, mesh.cloud);
 
-	std::vector<Eigen::Matrix4f> random_transformations;
-	for (int i = 0; i < transformations.size(); ++i)
-	{
-		Eigen::Matrix4f transformation = transformations[i];
-		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(angleThreshold, distanceThreshold);
-		random_transformations.push_back(randomRigidTransf);
-		std::cout << randomRigidTransf << std::endl;
-	}
-
-	for (int i = 0; i < p_file_indices_ply.size(); ++i)
-	{
-		Eigen::Matrix4f randomRigidTransf = random_transformations[i];
-		QString fileName = QString(argv[p_file_indices_ply[i]]);
-		QFileInfo fileInfo(fileName);
-		QString newFileName = QString(output_directory.c_str()) + "/" + fileInfo.completeBaseName() + ".tf";
-		CloudIO::exportTransformation(newFileName, randomRigidTransf);
+	    QFileInfo info(argv[p_file_indices_ply[i]]);
+	    pcl::io::savePLYFile((QString(output_directory.c_str()) + "/" + info.fileName()).toStdString(), mesh);	
 	}
 
 	return 0;
