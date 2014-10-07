@@ -10,7 +10,9 @@ struct Scan
 {
 	PointsPtr pointsPtr;
 	BoundariesPtr boundariesPtr;
+	
 	Transformation transformation;
+	std::string filePath;
 
 	typedef boost::shared_ptr<Scan> Ptr;
 };

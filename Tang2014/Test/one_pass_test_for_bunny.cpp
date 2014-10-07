@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 
 	std::vector< std::vector<int> > overlapRelations( cloudManager->getAllClouds().size() );
 	
-	overlapRelations[0].push_back(1);
-	overlapRelations[1].push_back(2);
-	overlapRelations[2].push_back(0);
+	// overlapRelations[0].push_back(1);
+	// overlapRelations[1].push_back(2);
+	// overlapRelations[2].push_back(0);
 
 	overlapRelations[0].push_back(1);
 	overlapRelations[0].push_back(2);

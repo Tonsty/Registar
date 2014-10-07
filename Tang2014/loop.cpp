@@ -14,13 +14,16 @@ void importLoops(const std::string fileName, Loops &loops)
 	while( file.getline(dummy, 300) )
 	{
 		std::stringstream sstr(dummy);
-		LinkIndex linkIndex;
+		ScanIndex scanIndex;
 		std::cout << "loop " << i << " : ";
-		while( sstr >> linkIndex ) 
+		Loop temp;
+		while( sstr >> scanIndex ) 
 		{
-			std::cout << linkIndex << " ";
+			std::cout << scanIndex << " ";
+			temp.scanIndices.push_back(scanIndex);
 		}
 		std::cout << std::endl;
+		loops.push_back(temp);
 		i++;
 	}
 }

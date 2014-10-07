@@ -6,6 +6,7 @@
 #include "loop.h"
 #include "scan.h"
 #include "pairregistration.h"
+#include "graph.h"
 
 class GlobalRegistration
 {
@@ -18,9 +19,15 @@ public:
 	void initialTransformations();
 	void buildKdTreePtrs();
 	void initialPairRegistration();
+
+	void initialGraph();
 	void incrementalLoopRefine();
+
+	float loopEstimateConsistencyError( GraphLoop* _graphLoop );
+	void loopRefine( GraphLoop* _graphLoop );
+	
 	void globalPairRefine();
-	void globalRefine();
+	void globalRefine(unsigned int _interationNum);
 
 	ScanPtrs scanPtrs;
 	Links links;
@@ -30,6 +37,8 @@ public:
 	Transformations transformations;
 
 	PairRegistrationPtrMap pairRegistrationPtrMap;
+
+	Graph graph;
 };
 
 #endif

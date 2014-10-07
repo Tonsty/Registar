@@ -1,3 +1,6 @@
+#include <QtCore/QFileInfo>
+#include <QtCore/QTextStream>
+
 #include "link.h"
 #include "loop.h"
 #include "scan.h"
@@ -23,6 +26,24 @@ int main(int argc, char **argv)
 
   	GlobalRegistration globalRegistration( scanPtrs, links, loops );
   	globalRegistration.startRegistration();
+
+  // 	for (int i = 0; i < scanPtrs.size(); ++i)
+  // 	{
+  // 		std::string filePath = scanPtrs[i]->filePath;
+		// QFileInfo fileInfo(QString(filePath.c_str()));
+		// QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
+		// QFile tfFile(tfFileName);
+		// tfFile.open(QIODevice::WriteOnly);
+		// QTextStream out(&tfFile);			
+		// Transformation transformation = globalRegistration.transformations[i] * scanPtrs[i]->transformation;
+		// for (int i = 0; i < 4; ++i)
+		// {
+		// 	for (int j = 0; j < 4; ++j)
+		// 		out << transformation(i, j) << " ";
+		// 	out << "\n";
+		// }
+		// tfFile.close();
+  // 	}
 
 	return 0;
 }

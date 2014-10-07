@@ -4,11 +4,12 @@
 #include <vector>
 #include <string>
 
-typedef unsigned int LinkIndex;
-typedef std::vector<LinkIndex> LinkIndices;
+#include "link.h"
+
+typedef std::vector<ScanIndex> ScanIndices;
 struct Loop
 {
-	LinkIndices  linkIndices;
+	ScanIndices  scanIndices;
 };
 typedef std::vector<Loop> Loops;
 

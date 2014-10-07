@@ -9,17 +9,20 @@ void PairRegistration::startRegistration()
 	PointPairs s2t, t2s;
 	Eigen::Matrix3Xf src, tgt;
 
+	float last_rms_error = std::numeric_limits<float>::max();
+
 	Transformation initialTransformation = transformation;
 	for (int iter = 0; iter < interationNum; ++iter)
 	{
 		s2t.clear();
 		t2s.clear();
 		buffer->clear();
+		Transformation tempTransformation;
 		if(biDirection) 
 		{
 			generatePointPairs(buffer, initialTransformation, s2t, t2s);
-			std::cout << s2t.size() << std::endl;
-			std::cout << t2s.size() << std::endl;
+			// std::cout << s2t.size() << std::endl;
+			// std::cout << t2s.size() << std::endl;
 			for (int i = 0; i < t2s.size(); ++i)
 			{
 				PointPair temp;
@@ -28,17 +31,34 @@ void PairRegistration::startRegistration()
 				temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, initialTransformation);
 				temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, initialTransformation);
 				s2t.push_back(temp);
-			}	
-			initialTransformation = solveRegistration(s2t, src, tgt) * initialTransformation;		
+			}
 		}
 		else 
 		{
 			generatePointPairs(buffer, initialTransformation, s2t);
-			initialTransformation = solveRegistration(s2t, src, tgt) * initialTransformation;
 		}
+		tempTransformation = solveRegistration(s2t, src, tgt);	
+
+		float total_error = 0.0f;
+		float total_weight = 0.0f;
+		for (int i = 0; i < s2t.size(); ++i)
+		{
+			total_error += ( transformPointWithNormal(s2t[i].sourcePoint, tempTransformation).getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
+			total_weight += 1.0f;
+		}
+		float rms_error = sqrtf( total_error / total_weight );
+		std::cout << "pairregistration rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;
+		if ( last_rms_error < rms_error )
+		{
+			std::cout << "pairregistration converged after " << iter << " iteration(s)" << std::endl;
+			break;
+		}
+		last_rms_error = rms_error;
+
+		initialTransformation = tempTransformation * initialTransformation;	
 	}
 	transformation = initialTransformation;
-	std::cout << transformation << std::endl;
+	// std::cout << transformation << std::endl;
 }
 
 void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t)

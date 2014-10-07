@@ -33,7 +33,8 @@ unix{
 			-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters
 }
-HEADERS += common.h \
+HEADERS += graph.h \
+			common.h \
 			pairregistration.h \
 			globalregistration.h \
 			scan.h \
@@ -41,7 +42,8 @@ HEADERS += common.h \
 			link.h \
 			SRoMCPS.h \
 
-SOURCES += pairregistration.cpp \
+SOURCES += graph.cpp \
+			pairregistration.cpp \
 			globalregistration.cpp \
 			main.cpp \
 			scan.cpp \
