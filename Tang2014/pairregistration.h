@@ -25,6 +25,8 @@ public:
 	void generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t);
 	void generatePointPairs(PointsPtr _buffer, Transformation _transformation, PointPairs &_s2t, PointPairs &_t2s);
 
+	void generateFinalPointPairs(Transformation _transformation);
+
 	Transformation solveRegistration(PointPairs &_s2t, Eigen::Matrix3Xf &src, Eigen::Matrix3Xf &tgt);
 
 	inline void setKdTree(KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree)
@@ -74,6 +76,9 @@ public:
 	bool boundaryTest;
 	bool biDirection;
 	unsigned int interationNum;
+
+	PointPairs final_s2t;
+	static Transformation solveRegistration(PointPairs &_s2t, PairRegistration::SolveMethod _sMethod);
 
 	typedef boost::shared_ptr<PairRegistration> Ptr;
 };

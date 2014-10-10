@@ -36,6 +36,13 @@ struct GraphLoop: public GraphVertex
 {
 	std::vector<GraphVertex*> loop;
 	LoopBase lbase;
+
+	inline bool equal(GraphLoop* _other)
+	{
+		if( loop.size() != _other->loop.size() ) return false;
+		for (int i = 0; i < loop.size(); ++i) if ( loop[i] != _other->loop[i] ) return false;
+		return true;
+	}
 	inline bool contain(GraphVertex* _v)
 	{
 		for (int i = 0; i < loop.size(); ++i) if (loop[i] == _v) return true;
@@ -68,9 +75,9 @@ struct GraphLoop: public GraphVertex
 				break;
 			}
 		}
-		if(first_sep_offset == 0)  // first is sep
+		if(first_sep_offset == 0)  // first is sep , make H NN (HH) -->> (HH) H NN
 		{
-			if ( loop.back() == _separator ) 
+			if ( loop.back() == _separator )              
 			{
 				int last_first_sep_offset = -1;
 				for (int i = 0; i < loop.size(); i++)
@@ -92,7 +99,7 @@ struct GraphLoop: public GraphVertex
 				}
 			}
 		}
-		else if(first_sep_offset > 0)  // first is not sep
+		else if(first_sep_offset > 0)  // first is not sep , make (NN) H NN H N -->> H NN H N (NN)
 		{
 			std::vector<GraphVertex*> temp;
 			temp.insert(temp.begin(), loop.begin(), loop.begin() + first_sep_offset );
@@ -105,7 +112,7 @@ struct GraphLoop: public GraphVertex
 		std::vector< GraphLoop* > newloops;
 		GraphLoop *currentLoop = NULL;
 		bool meet = false;
-		for (int i = 0; i < loop.size(); ++i)
+		for (int i = 0; i < loop.size(); ++i)   // make (HH) NN (HH) NN -->> (H) NN (H) NN , and separate to (H) NN | (H) NN
 		{
 			if(loop[i] == _separator)
 			{
@@ -127,6 +134,7 @@ struct GraphLoop: public GraphVertex
 
 		return newloops;
 	}
+
 	inline virtual bool isGraphLoop() const { return true;}
 };
 struct GraphLoopComp

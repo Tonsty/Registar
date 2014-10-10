@@ -11,6 +11,7 @@ void PairRegistration::startRegistration()
 
 	float last_rms_error = std::numeric_limits<float>::max();
 
+	Transformation lastTransformation = Transformation::Identity();
 	Transformation initialTransformation = transformation;
 	for (int iter = 0; iter < interationNum; ++iter)
 	{
@@ -55,10 +56,14 @@ void PairRegistration::startRegistration()
 		}
 		last_rms_error = rms_error;
 
+		lastTransformation = initialTransformation;
 		initialTransformation = tempTransformation * initialTransformation;	
 	}
 	transformation = initialTransformation;
 	// std::cout << transformation << std::endl;
+
+	final_s2t.swap(s2t);
+	for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
 }
 
 void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t)
@@ -67,6 +72,8 @@ void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _tr
 
 	float distanceThreshold2 = distThreshold * distThreshold;
 	float cosAngleThreshold = cosf(angleThreshold / 180.f * M_PI);
+
+	std::vector<float> distances;
 
 	for (int index_query = 0; index_query < _sbuffer->size(); ++index_query)
 	{
@@ -105,12 +112,32 @@ void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _tr
 								break;
 							}
 						}
+						distances.push_back( ( point_query.getVector3fMap() - point_match.getVector3fMap() ).norm() );
 						_s2t.push_back(pointPair);
 					}
 				}
 			}
 		}
 	}
+
+	// float mean_distance = 0.0f;
+	// for (int i = 0; i < distances.size(); ++i) mean_distance += distances[i];
+	// mean_distance /= distances.size();
+	// float delta_distance = 0.0f;
+	// for (int i = 0; i < distances.size(); ++i) delta_distance += ( distances[i] - mean_distance ) * ( distances[i] - mean_distance );
+	// delta_distance = sqrtf( delta_distance / distances.size() );
+
+	// PointPairs s2t_temp;
+	// for (int i = 0; i < _s2t.size(); i++)
+	// {
+	// 	if (distances[i] - mean_distance < 1.0f * delta_distance)
+	// 	{
+	// 		s2t_temp.push_back(_s2t[i]);
+	// 	}
+	// }
+	// std::cout << "cut pair by delta from " << _s2t.size() << " to " << s2t_temp.size() << std::endl;
+	// _s2t.swap(s2t_temp);
+
 }
 
 void PairRegistration::generatePointPairs(PointsPtr _buffer, Transformation _transformation, PointPairs &_s2t, PointPairs &_t2s)
@@ -122,6 +149,39 @@ void PairRegistration::generatePointPairs(PointsPtr _buffer, Transformation _tra
 	generatePointPairs(_buffer, _transformation.inverse(), _t2s);
 	source.swap(target);
 	sourceKdTree.swap(targetKdTree);	
+}
+
+void PairRegistration::generateFinalPointPairs(Transformation _transformation)
+{
+	PointsPtr buffer(new Points);
+	PointPairs s2t, t2s;
+
+	generatePointPairs(buffer, _transformation, s2t, t2s);
+
+	for (int i = 0; i < t2s.size(); ++i)
+	{
+		PointPair temp;
+		// temp.sourcePoint = pcl::transformPoint(t2s[i].targetPoint, Eigen::Affine3f( initialTransformation ) );
+		// temp.targetPoint = pcl::transformPoint(t2s[i].sourcePoint, Eigen::Affine3f( initialTransformation ) );
+		temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, _transformation);
+		temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, _transformation);
+		s2t.push_back(temp);
+	}
+
+	float total_error = 0.0f;
+	float total_weight = 0.0f;
+	for (int i = 0; i < s2t.size(); ++i)
+	{
+		total_error += ( s2t[i].sourcePoint.getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
+		total_weight += 1.0f;
+	}
+	float rms_error = sqrtf( total_error / total_weight );
+	std::cout << "Final Point Pairs rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;	
+
+	final_s2t.swap(s2t);
+	for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());
+
+	// std::cout << "Final Point Pairs : " << final_s2t.size() << std::endl;
 }
 
 Transformation PairRegistration::solveRegistration(PointPairs &_s2t, Eigen::Matrix3Xf &src, Eigen::Matrix3Xf &tgt)
@@ -141,6 +201,37 @@ Transformation PairRegistration::solveRegistration(PointPairs &_s2t, Eigen::Matr
 	}
 
 	switch(sMethod)
+	{
+		case UMEYAMA:
+		{
+			return pcl::umeyama (src, tgt, false);
+		}
+		case SVD:
+		{
+			return Transformation::Identity();
+		}
+	}
+	return Transformation::Identity();
+}
+
+Transformation PairRegistration::solveRegistration(PointPairs &_s2t, PairRegistration::SolveMethod _sMethod)
+{
+	Eigen::Matrix3Xf src, tgt;
+	src.resize(Eigen::NoChange, _s2t.size());
+	tgt.resize(Eigen::NoChange, _s2t.size());
+
+	for (int i = 0; i < _s2t.size(); ++i)
+	{
+		src(0, i) = _s2t[i].sourcePoint.x;
+		src(1, i) = _s2t[i].sourcePoint.y;
+		src(2, i) = _s2t[i].sourcePoint.z;
+
+		tgt(0, i) = _s2t[i].targetPoint.x;
+		tgt(1, i) = _s2t[i].targetPoint.y;
+		tgt(2, i) = _s2t[i].targetPoint.z;
+	}	
+
+	switch(_sMethod)
 	{
 		case UMEYAMA:
 		{

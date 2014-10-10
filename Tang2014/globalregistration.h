@@ -25,6 +25,10 @@ public:
 
 	float loopEstimateConsistencyError( GraphLoop* _graphLoop );
 	void loopRefine( GraphLoop* _graphLoop );
+
+	GraphEdge* createGraphEdge(GraphVertex *_vertex1, GraphVertex *_vertex2);
+	Transformation GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
+		std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
 	
 	void globalPairRefine();
 	void globalRefine(unsigned int _interationNum);

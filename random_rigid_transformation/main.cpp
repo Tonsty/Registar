@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < transformations.size(); ++i)
 	{
 		Eigen::Matrix4f transformation = transformations[i];
-		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(angleThreshold, distanceThreshold);
+		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(angleThreshold, distanceThreshold) * transformation;
 		random_transformations.push_back(randomRigidTransf);
 		std::cout << randomRigidTransf << std::endl;
 	}
