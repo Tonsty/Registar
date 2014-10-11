@@ -168,15 +168,15 @@ void PairRegistration::generateFinalPointPairs(Transformation _transformation)
 		s2t.push_back(temp);
 	}
 
-	float total_error = 0.0f;
-	float total_weight = 0.0f;
-	for (int i = 0; i < s2t.size(); ++i)
-	{
-		total_error += ( s2t[i].sourcePoint.getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
-		total_weight += 1.0f;
-	}
-	float rms_error = sqrtf( total_error / total_weight );
-	std::cout << "Final Point Pairs rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;	
+	// float total_error = 0.0f;
+	// float total_weight = 0.0f;
+	// for (int i = 0; i < s2t.size(); ++i)
+	// {
+	// 	total_error += ( s2t[i].sourcePoint.getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
+	// 	total_weight += 1.0f;
+	// }
+	// float rms_error = sqrtf( total_error / total_weight );
+	// std::cout << "Final Point Pairs rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;	
 
 	final_s2t.swap(s2t);
 	for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());

@@ -9,8 +9,8 @@ void GlobalRegistration::startRegistration()
 	buildKdTreePtrs();
 	initialTransformations();	
 	initialPairRegistration();
-	incrementalLoopRefine();
-	// globalRefine(10);
+	// incrementalLoopRefine();
+	globalRefine(50);
 }
 
 void GlobalRegistration::buildKdTreePtrs()
@@ -41,7 +41,7 @@ void GlobalRegistration::initialPairRegistration()
 		PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[a], scanPtrs[b]));
 		pairReigstrationPtr->setKdTree(kdTreePtrs[a], kdTreePtrs[b]);
 		pairReigstrationPtr->setParameter(PairRegistration::POINT_TO_PLANE, PairRegistration::UMEYAMA, Transformation::Identity(), true, 10.f, true, 45.0f, true, true, 60);
-		pairReigstrationPtr->startRegistration();
+		// pairReigstrationPtr->startRegistration();
 		std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
 		pairRegistrationPtrMap.insert(pairLP);
 	}
@@ -550,7 +550,7 @@ void GlobalRegistration::incrementalLoopRefine()
 
 void GlobalRegistration::globalPairRefine()
 {
-
+	
 }
 
 void GlobalRegistration::globalRefine(unsigned int _interationNum)

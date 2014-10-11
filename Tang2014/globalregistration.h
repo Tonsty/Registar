@@ -11,7 +11,7 @@
 class GlobalRegistration
 {
 public:
-	GlobalRegistration(ScanPtrs _scanPtrs, Links _links, Loops _loops) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
+	GlobalRegistration(ScanPtrs _scanPtrs = ScanPtrs(), Links _links = Links(), Loops _loops = Loops()) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
 	~GlobalRegistration() {}
 
 	void startRegistration();
