@@ -40,7 +40,20 @@ int main(int argc, char** argv)
 
 			PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[link.a], scanPtrs[link.b]));
 			pairReigstrationPtr->setKdTree( globalRegistration.kdTreePtrs[link.a], globalRegistration.kdTreePtrs[link.b] );
-			pairReigstrationPtr->setParameter(PairRegistration::POINT_TO_PLANE, PairRegistration::UMEYAMA, Transformation::Identity(), true, 10.f, true, 45.0f, true, true, 0);
+
+      PairRegistration::Parameters pr_para;
+      pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
+      pr_para.sMethod = PairRegistration::UMEYAMA;
+      pr_para.distanceTest = true;
+      pr_para.distThreshold = 0.004f;
+      pr_para.angleTest = true;
+      pr_para.angleThreshold = 45.0f;
+      pr_para.boundaryTest = true;
+      pr_para.biDirection = true;
+      pr_para.iterationNum_max = 0;
+      pr_para.iterationNum_min = 0;
+      pairReigstrationPtr->setParameter(pr_para);
+      pairReigstrationPtr->setTransformation(Transformation::Identity());
 
 			pairReigstrationPtr->generateFinalPointPairs(Transformation::Identity());
 

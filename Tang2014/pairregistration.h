@@ -10,6 +10,32 @@
 class PairRegistration
 {
 public:
+
+	enum MatchMethod
+	{
+		POINT_TO_POINT, POINT_TO_PLANE
+	};
+
+	enum SolveMethod
+	{
+		UMEYAMA, SVD
+	};
+
+	struct Parameters
+	{
+		MatchMethod mMethod;
+		SolveMethod sMethod;
+		bool distanceTest;
+		float distThreshold;
+		bool angleTest;
+		float angleThreshold;
+		bool boundaryTest;
+		bool biDirection;
+		unsigned int iterationNum_max;
+		unsigned int iterationNum_min;
+	} para;
+
+
 	PairRegistration(ScanPtr _target, ScanPtr _source) : target(_target), source(_source) {}
 	~PairRegistration() {}
 
@@ -35,31 +61,8 @@ public:
 		sourceKdTree = _sourceKdTree;
 	}
 
-	enum MatchMethod
-	{
-		POINT_TO_POINT, POINT_TO_PLANE
-	};
-	MatchMethod mMethod;
-	enum SolveMethod
-	{
-		UMEYAMA, SVD
-	};
-	SolveMethod sMethod;
-
-	inline void setParameter(PairRegistration::MatchMethod _mMethod, PairRegistration::SolveMethod _sMethod, Transformation _transformation,
-		bool _distanceTest, float _distanceThreshold, bool _angleTest, float _angleThreshold, bool _boundaryTest, bool _biDirection, unsigned int _interationNum)
-	{
-		mMethod = _mMethod;
-		sMethod = _sMethod;
-		transformation = _transformation;
-		distanceTest = _distanceTest;
-		distThreshold = _distanceThreshold;
-		angleTest = _angleTest;
-		angleThreshold = _angleThreshold;
-		boundaryTest = _boundaryTest;
-		biDirection = _biDirection;
-		interationNum = _interationNum;
-	}
+	inline void setParameter(PairRegistration::Parameters _para) { para = _para; }
+	inline void setTransformation(Transformation _transformation) { transformation = _transformation; }
 
 	ScanPtr target;
 	ScanPtr source;
@@ -68,14 +71,6 @@ public:
 
 	KdTreePtr targetKdTree;
 	KdTreePtr sourceKdTree;
-
-	bool distanceTest;
-	float distThreshold;
-	bool angleTest;
-	float angleThreshold;
-	bool boundaryTest;
-	bool biDirection;
-	unsigned int interationNum;
 
 	PointPairs final_s2t;
 	static Transformation solveRegistration(PointPairs &_s2t, PairRegistration::SolveMethod _sMethod);

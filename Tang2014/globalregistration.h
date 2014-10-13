@@ -11,13 +11,29 @@
 class GlobalRegistration
 {
 public:
+
+	struct Parameters
+	{
+		PairRegistration::Parameters pr_para;
+
+		bool doInitialPairRegistration;
+		bool doIncrementalLoopRefine;
+		bool doGlobalRefine;
+		unsigned int globalIterationNum_max;
+		unsigned int globalIterationNum_min;
+	} para;
+
 	GlobalRegistration(ScanPtrs _scanPtrs = ScanPtrs(), Links _links = Links(), Loops _loops = Loops()) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
+
 	~GlobalRegistration() {}
+
+	void setParameters(GlobalRegistration::Parameters _para){ para = _para; }
 
 	void startRegistration();
 
 	void initialTransformations();
 	void buildKdTreePtrs();
+
 	void initialPairRegistration();
 
 	void initialGraph();
@@ -31,7 +47,7 @@ public:
 		std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
 	
 	void globalPairRefine();
-	void globalRefine(unsigned int _interationNum);
+	void globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min);
 
 	ScanPtrs scanPtrs;
 	Links links;

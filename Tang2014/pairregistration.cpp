@@ -13,13 +13,13 @@ void PairRegistration::startRegistration()
 
 	Transformation lastTransformation = Transformation::Identity();
 	Transformation initialTransformation = transformation;
-	for (int iter = 0; iter < interationNum; ++iter)
+	for (int iter = 0; iter < para.iterationNum_max; ++iter)
 	{
 		s2t.clear();
 		t2s.clear();
 		buffer->clear();
 		Transformation tempTransformation;
-		if(biDirection) 
+		if(para.biDirection) 
 		{
 			generatePointPairs(buffer, initialTransformation, s2t, t2s);
 			// std::cout << s2t.size() << std::endl;
@@ -49,7 +49,7 @@ void PairRegistration::startRegistration()
 		}
 		float rms_error = sqrtf( total_error / total_weight );
 		std::cout << "pairregistration rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;
-		if ( last_rms_error < rms_error )
+		if ( last_rms_error < rms_error && iter > para.iterationNum_min )
 		{
 			std::cout << "pairregistration converged after " << iter << " iteration(s)" << std::endl;
 			break;
@@ -69,6 +69,13 @@ void PairRegistration::startRegistration()
 void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t)
 {
 	pcl::transformPointCloudWithNormals(*source->pointsPtr, *_sbuffer, _transformation);
+
+	MatchMethod mMethod = para.mMethod;
+	bool distanceTest = para.distanceTest;
+	float distThreshold = para.distThreshold;
+	bool angleTest = para.angleTest;
+	float angleThreshold = para.angleThreshold;
+	bool boundaryTest = para.boundaryTest;
 
 	float distanceThreshold2 = distThreshold * distThreshold;
 	float cosAngleThreshold = cosf(angleThreshold / 180.f * M_PI);
@@ -200,7 +207,7 @@ Transformation PairRegistration::solveRegistration(PointPairs &_s2t, Eigen::Matr
 		tgt(2, i) = _s2t[i].targetPoint.z;
 	}
 
-	switch(sMethod)
+	switch(para.sMethod)
 	{
 		case UMEYAMA:
 		{

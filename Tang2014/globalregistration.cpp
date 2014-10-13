@@ -9,8 +9,8 @@ void GlobalRegistration::startRegistration()
 	buildKdTreePtrs();
 	initialTransformations();	
 	initialPairRegistration();
-	// incrementalLoopRefine();
-	globalRefine(50);
+	if(para.doIncrementalLoopRefine) incrementalLoopRefine();
+	if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
 }
 
 void GlobalRegistration::buildKdTreePtrs()
@@ -40,8 +40,13 @@ void GlobalRegistration::initialPairRegistration()
 		ScanIndex b = link.b;
 		PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[a], scanPtrs[b]));
 		pairReigstrationPtr->setKdTree(kdTreePtrs[a], kdTreePtrs[b]);
-		pairReigstrationPtr->setParameter(PairRegistration::POINT_TO_PLANE, PairRegistration::UMEYAMA, Transformation::Identity(), true, 10.f, true, 45.0f, true, true, 60);
-		// pairReigstrationPtr->startRegistration();
+		pairReigstrationPtr->setParameter(para.pr_para);
+		pairReigstrationPtr->setTransformation(Transformation::Identity());
+		if(para.doInitialPairRegistration) 
+		{
+			std::cout << "pair registration : " << link.a << " <<-- " << link.b << std::endl;
+			pairReigstrationPtr->startRegistration();
+		}
 		std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
 		pairRegistrationPtrMap.insert(pairLP);
 	}
@@ -171,7 +176,7 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 	// initial pair registration
 	Transformation newTransformation = PairRegistration::solveRegistration(all_final_s2t, PairRegistration::UMEYAMA);
 
-	// std::cout << "initial newTransformation : \n" <<newTransformation << std::endl;
+	std::cout << "initial newTransformation : \n" <<newTransformation << std::endl;
 
 	// keep sub-edges between vertices1 and vertices2 consistent with the root edge between _vertex1 and _vertex2, and also update the pair registration transformation
 	for (int i = 0; i < vertices1.size(); ++i)
@@ -226,7 +231,7 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 		}
 	}
 
-	for (int iter = 0; iter < 3; ++iter)
+	for (int iter = 0; iter < 10; ++iter)
 	{
 		// then update newTransformation by direct pair registration
 		all_final_s2t.clear();
@@ -553,7 +558,7 @@ void GlobalRegistration::globalPairRefine()
 	
 }
 
-void GlobalRegistration::globalRefine(unsigned int _interationNum)
+void GlobalRegistration::globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min)
 {
 	PointsPtr buffer(new Points);
 	PairRegistration::PointPairs s2t, t2s;
@@ -566,7 +571,7 @@ void GlobalRegistration::globalRefine(unsigned int _interationNum)
 
 	float last_rms_error = std::numeric_limits<float>::max();
 
-	for (int iter = 0; iter < _interationNum; ++iter)
+	for (int iter = 0; iter < _iterationNum_max; ++iter)
 	{
 		sipairs.clear();
 		ppairwwss.clear();
@@ -622,7 +627,7 @@ void GlobalRegistration::globalRefine(unsigned int _interationNum)
 		float rms_error = sqrtf( total_error / total_weight );
 		std::cout << "globalrefine rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;
 
-		if ( last_rms_error < rms_error )
+		if ( last_rms_error < rms_error && iter > _iterationNum_min)
 		{
 			std::cout << "globalrefine converged after " << iter << " iteration(s)" << std::endl;
 			break;
