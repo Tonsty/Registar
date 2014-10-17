@@ -3,6 +3,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QtCore/QPair>
+#include <QtCore/QSet>
 #include <QtCore/QMultiMap>
 
 class QAction;
@@ -19,8 +20,10 @@ class DiagramWindow : public QMainWindow
 public:
     DiagramWindow(QWidget *parent = 0);
 
-    void addNode(QString cloudName);
+    void addNode(QString nodeName);
+    void addLink(QString fromNodeName, QString toNodeName);
     void loadGraph(QStringList &nodeList, QMultiMap<QString, QString> &nodeEdgeMultiMap);
+    void loadOVLFile(QString fileName);
 
 private slots:
     void addNode();
@@ -33,6 +36,8 @@ private slots:
     void sendToBack();
     void properties();
     void updateActions();
+    void openFile();
+    void exportFile();
 
 private:
     typedef QPair<Node *, Node *> NodePair;
@@ -49,6 +54,8 @@ private:
     QMenu *fileMenu;
     QMenu *editMenu;
     QToolBar *editToolBar;
+    QAction *openFileAction;
+    QAction *exportFileAction;
     QAction *exitAction;
     QAction *addNodeAction;
     QAction *addLinkAction;
@@ -66,6 +73,11 @@ private:
     int minZ;
     int maxZ;
     int seqNumber;
+
+    QMap<QString, Node*> nodeMap;
+
+    QSet<QString> nodeSet;
+    QMultiMap<QString, QString> nodeEdgeMultiMap;
 };
 
 #endif

@@ -48,8 +48,14 @@ public:
 	};
 	typedef std::vector< PointPair, Eigen::aligned_allocator<PointPair> > PointPairs;
 
-	void generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t);
-	void generatePointPairs(PointsPtr _buffer, Transformation _transformation, PointPairs &_s2t, PointPairs &_t2s);
+	static void generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
+							std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+							PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t);
+
+	static void generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
+							std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
+							std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+							PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s);
 
 	void generateFinalPointPairs(Transformation _transformation);
 
@@ -71,6 +77,12 @@ public:
 
 	KdTreePtr targetKdTree;
 	KdTreePtr sourceKdTree;
+
+	void initiateCandidateIndices();
+	std::vector<int> targetCandidateIndices;
+	std::vector<int> targetCandidateIndices_temp;
+	std::vector<int> sourceCandidateIndices;
+	std::vector<int> sourceCandidateIndices_temp;
 
 	PointPairs final_s2t;
 	static Transformation solveRegistration(PointPairs &_s2t, PairRegistration::SolveMethod _sMethod);

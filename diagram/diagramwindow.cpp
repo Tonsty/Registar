@@ -1,4 +1,5 @@
 #include <QtGui/QtGui>
+#include <QtCore/QFile>
 
 #include "diagramwindow.h"
 #include "link.h"
@@ -7,7 +8,7 @@
 
 DiagramWindow::DiagramWindow(QWidget *parent): QMainWindow(parent)
 {
-    scene = new QGraphicsScene(0, 0, 600, 500);
+    scene = new QGraphicsScene(0, 0, 1200, 1000);
 
     view = new QGraphicsView;
     view->setScene(scene);
@@ -35,7 +36,10 @@ DiagramWindow::DiagramWindow(QWidget *parent): QMainWindow(parent)
 void DiagramWindow::addNode()
 {
     Node *node = new Node;
-    node->setText(tr("Node %1").arg(seqNumber + 1));
+    QString nodeName = tr("%1").arg(seqNumber);
+    node->setText(nodeName);
+    nodeMap[nodeName] = node;
+    nodeSet.insert( nodeName );
     setupNode(node);
 }
 
@@ -43,7 +47,103 @@ void DiagramWindow::addNode(QString nodeName)
 {
 	Node *node = new Node;
 	node->setText(nodeName);
+    nodeMap[nodeName] = node;
 	setupNode(node);
+}
+
+void DiagramWindow::openFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open OverlapInfo"), ".", tr("OverlapInfo files (*.ovl)"));
+    loadOVLFile(fileName);
+}
+
+void DiagramWindow::loadOVLFile(QString fileName)
+{
+    qDebug() << fileName;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Cannot import OverlapInfo!";
+        return;
+    }
+
+    QTextStream in(&file);
+    int lineCount = 0;
+    QString currentLine;
+    while( ( currentLine = in.readLine().trimmed() ) != "")
+    {
+        QStringList targetSourcesList = currentLine.split("<<--");
+
+        QString target = targetSourcesList[0].trimmed();
+        QString sources = targetSourcesList[1].trimmed();
+
+        QStringList targetList = target.split(QRegExp("[()]"));
+        int targetIndex = targetList[0].trimmed().toInt();
+        int targetWeight = targetList[1].trimmed().toInt();
+
+        qDebug() << "targetIndex : " << targetIndex;
+        qDebug() << "targetWeight : " << targetWeight;
+
+        nodeSet.insert( QString::number(targetIndex) );
+
+        QStringList sourcesList = sources.split(",");
+        for (int i = 0; i < sourcesList.size() && i < 2; ++i)
+        {
+            QString source = sourcesList[i].trimmed();
+            if (source.trimmed() != "")
+            {
+                QStringList sourceList = source.split(QRegExp("[((%)]"));
+                int sourceIndex = sourceList[0].trimmed().toInt();
+                int sourceWeight = sourceList[1].trimmed().toInt();
+
+                QString targetIndexStr = QString::number(targetIndex);
+                QString sourceIndexStr = QString::number(sourceIndex);
+
+                if (nodeEdgeMultiMap.find(targetIndexStr, sourceIndexStr) == nodeEdgeMultiMap.end() &&
+                    nodeEdgeMultiMap.find(sourceIndexStr, targetIndexStr) == nodeEdgeMultiMap.end() )
+                {
+                    qDebug() << "sourceIndex : " << sourceIndex;
+                    qDebug() << "sourceWeight : " << sourceWeight;
+
+                    if ( sourceIndex > targetIndex)
+                    {
+                        nodeEdgeMultiMap.insert(QString::number(targetIndex), QString::number(sourceIndex));
+                    }
+                    else
+                    {
+                        nodeEdgeMultiMap.insert(QString::number(sourceIndex), QString::number(targetIndex));
+                    }
+                }
+            }
+        }
+        
+        lineCount++;
+    }
+    qDebug() << lineCount - 1 << "vertice(s)";
+
+    for (QSet<QString>::const_iterator it = nodeSet.begin(); it != nodeSet.end(); ++it) addNode(*it);
+    for (QMultiMap<QString, QString>::const_iterator it = nodeEdgeMultiMap.begin(); it != nodeEdgeMultiMap.end(); ++it)
+    {
+        addLink(it.key(), it.value());
+    }
+}
+
+void DiagramWindow::exportFile()
+{
+    QString newfileName = QFileDialog::getSaveFileName(this, tr("Save as Links file"), ".", tr("Links file (*.links)"));
+    QFile file(newfileName);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        qDebug() << "Cannot export Links!";
+    }
+
+    QTextStream out(&file);
+    for (QMultiMap<QString, QString>::const_iterator it = nodeEdgeMultiMap.begin(); it != nodeEdgeMultiMap.end(); ++it)
+    {
+        out << it.key() << " " << it.value() << "\n";
+    }
+
 }
 
 void DiagramWindow::loadGraph(QStringList &nodeList, QMultiMap<QString, QString> &nodeEdgeMultiMap)
@@ -78,6 +178,33 @@ void DiagramWindow::addLink()
     if (nodes == NodePair())
         return;
 
+    QString nodeName_first = nodes.first->text();
+    QString nodeName_second = nodes.second->text();
+
+    if (nodeEdgeMultiMap.find(nodeName_first, nodeName_second) == nodeEdgeMultiMap.end() &&
+        nodeEdgeMultiMap.find(nodeName_second, nodeName_first) == nodeEdgeMultiMap.end())
+    {
+        if ( nodeName_first.toInt() < nodeName_second.toInt())
+        {
+            nodeEdgeMultiMap.insert(nodeName_first, nodeName_second);
+        }
+        else
+        {
+            nodeEdgeMultiMap.insert(nodeName_second, nodeName_first);            
+        }
+
+    }
+
+    Link *link = new Link(nodes.first, nodes.second);
+    scene->addItem(link);
+}
+
+void DiagramWindow::addLink(QString fromNodeName, QString toNodeName)
+{
+    NodePair nodes;
+    nodes.first = nodeMap[fromNodeName];
+    nodes.second = nodeMap[toNodeName];
+
     Link *link = new Link(nodes.first, nodes.second);
     scene->addItem(link);
 }
@@ -87,10 +214,26 @@ void DiagramWindow::del()
     QList<QGraphicsItem *> items = scene->selectedItems();
     QMutableListIterator<QGraphicsItem *> i(items);
     while (i.hasNext()) {
-        Link *link = dynamic_cast<Link *>(i.next());
+        QGraphicsItem *uncertain = i.next();
+        Link *link = dynamic_cast<Link *>(uncertain);
         if (link) {
+            QString nodeName_from = link->fromNode()->text();
+            QString nodeName_to = link->toNode()->text();
+
+            nodeEdgeMultiMap.remove(nodeName_from, nodeName_to);
+            nodeEdgeMultiMap.remove(nodeName_to, nodeName_from);
+
             delete link;
             i.remove();
+        }
+        else
+        {
+            Node *node = dynamic_cast<Node *>(uncertain);
+            if (node)
+            {
+                QString nodeName = node->text();
+                nodeSet.remove(nodeName);
+            }           
         }
     }
 
@@ -192,6 +335,14 @@ void DiagramWindow::createActions()
     exitAction->setShortcut(tr("Ctrl+Q"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
+    openFileAction = new QAction(tr("&Open"), this);
+    openFileAction->setShortcut(tr("Ctrl+O"));
+    connect(openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+
+    exportFileAction = new QAction(tr("&Export"), this);
+    exportFileAction->setShortcut(tr("Ctrl+E"));
+    connect(exportFileAction, SIGNAL(triggered()), this, SLOT(exportFile()));
+
     addNodeAction = new QAction(tr("Add &Node"), this);
     addNodeAction->setIcon(QIcon(":/images/node.png"));
     addNodeAction->setShortcut(tr("Ctrl+N"));
@@ -240,6 +391,8 @@ void DiagramWindow::createActions()
 void DiagramWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(openFileAction);
+    fileMenu->addAction(exportFileAction);
     fileMenu->addAction(exitAction);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -281,8 +434,8 @@ void DiagramWindow::setZValue(int z)
 
 void DiagramWindow::setupNode(Node *node)
 {
-    node->setPos(QPoint(80 + (100 * (seqNumber % 5)),
-                        80 + (50 * ((seqNumber / 5) % 7))));
+    node->setPos(QPoint(80 + (150 * (seqNumber % 9)),
+                        80 + (100 * ((seqNumber / 9) % 8))));
     scene->addItem(node);
     ++seqNumber;
 

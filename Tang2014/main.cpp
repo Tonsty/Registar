@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   	gr_para.doIncrementalLoopRefine = false;
   	gr_para.doGlobalRefine = true;
   	gr_para.globalIterationNum_max = 50;
-  	gr_para.globalIterationNum_min = 20;
+  	gr_para.globalIterationNum_min = 30;
 
   	PairRegistration::Parameters pr_para;
   	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
   	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
   	pr_para.biDirection = true;
-  	pr_para.iterationNum_max = 100;
+  	pr_para.iterationNum_max = 30;
   	pr_para.iterationNum_min = 50;
 
   	gr_para.pr_para = pr_para;

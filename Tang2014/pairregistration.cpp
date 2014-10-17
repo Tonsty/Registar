@@ -5,6 +5,8 @@
 
 void PairRegistration::startRegistration()
 {
+	// initiateCandidateIndices();
+
 	PointsPtr buffer(new Points);
 	PointPairs s2t, t2s;
 	Eigen::Matrix3Xf src, tgt;
@@ -21,7 +23,10 @@ void PairRegistration::startRegistration()
 		Transformation tempTransformation;
 		if(para.biDirection) 
 		{
-			generatePointPairs(buffer, initialTransformation, s2t, t2s);
+			generatePointPairs(target, source, targetKdTree, sourceKdTree, 
+				targetCandidateIndices, targetCandidateIndices_temp, 
+				sourceCandidateIndices, sourceCandidateIndices_temp,
+				buffer, initialTransformation, para, s2t, t2s);
 			// std::cout << s2t.size() << std::endl;
 			// std::cout << t2s.size() << std::endl;
 			for (int i = 0; i < t2s.size(); ++i)
@@ -36,7 +41,7 @@ void PairRegistration::startRegistration()
 		}
 		else 
 		{
-			generatePointPairs(buffer, initialTransformation, s2t);
+			generatePointPairs(target, source, targetKdTree, sourceCandidateIndices, sourceCandidateIndices_temp, buffer, initialTransformation, para, s2t);
 		}
 		tempTransformation = solveRegistration(s2t, src, tgt);	
 
@@ -66,36 +71,53 @@ void PairRegistration::startRegistration()
 	for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
 }
 
-void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _transformation, PointPairs &_s2t)
+void PairRegistration::initiateCandidateIndices()
 {
-	pcl::transformPointCloudWithNormals(*source->pointsPtr, *_sbuffer, _transformation);
+	targetCandidateIndices.clear();
+	sourceCandidateIndices.clear();
+	for (int i = 0; i < target->pointsPtr->size(); ++i) targetCandidateIndices.push_back(i);
+	for (int i = 0; i < source->pointsPtr->size(); ++i) sourceCandidateIndices.push_back(i);
+}
 
-	MatchMethod mMethod = para.mMethod;
-	bool distanceTest = para.distanceTest;
-	float distThreshold = para.distThreshold;
-	bool angleTest = para.angleTest;
-	float angleThreshold = para.angleThreshold;
-	bool boundaryTest = para.boundaryTest;
+void PairRegistration::generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
+										std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+										PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t)
+{
+	pcl::transformPointCloudWithNormals(*_source->pointsPtr, *_sbuffer, _transformation);
+
+	MatchMethod mMethod = _para.mMethod;
+	bool distanceTest = _para.distanceTest;
+	float distThreshold = _para.distThreshold;
+	bool angleTest = _para.angleTest;
+	float angleThreshold = _para.angleThreshold;
+	bool boundaryTest = _para.boundaryTest;
 
 	float distanceThreshold2 = distThreshold * distThreshold;
 	float cosAngleThreshold = cosf(angleThreshold / 180.f * M_PI);
 
-	std::vector<float> distances;
+	// std::vector<float> distances;
 
-	for (int index_query = 0; index_query < _sbuffer->size(); ++index_query)
+	_sourceCandidateIndices_temp.clear();
+
+	for (std::vector<int>::iterator it = _sourceCandidateIndices.begin(); it != _sourceCandidateIndices.end(); it++)
 	{
+		int index_query = *it;
+
+	// for (int index_query = 0; index_query < _sbuffer->size(); ++index_query)
+	// {	
+
 		Point point_query = (*_sbuffer)[index_query];
 		int K = 1;
 		std::vector<int> indices(K);
 		std::vector<float> distance2s(K);
-		if ( targetKdTree->nearestKSearch(point_query, K, indices, distance2s) > 0 )
+		if ( _targetKdTree->nearestKSearch(point_query, K, indices, distance2s) > 0 )
 		{
 			int index_match = indices[0];
-			if ( (!boundaryTest) || ((*target->boundariesPtr)[index_match].boundary_point == 0) )
+			if ( (!boundaryTest) || ((*_target->boundariesPtr)[index_match].boundary_point == 0) )
 			{
 				if ( (!distanceTest) || (distance2s[0] < distanceThreshold2) )
 				{
-					Point point_match = (*target->pointsPtr)[index_match];
+					Point point_match = (*_target->pointsPtr)[index_match];
 					Eigen::Vector3f normal_query = point_query.getNormalVector3fMap();
 					Eigen::Vector3f normal_match = point_match.getNormalVector3fMap();
 					normal_query.normalize();
@@ -119,13 +141,20 @@ void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _tr
 								break;
 							}
 						}
-						distances.push_back( ( point_query.getVector3fMap() - point_match.getVector3fMap() ).norm() );
+						// distances.push_back( ( point_query.getVector3fMap() - point_match.getVector3fMap() ).norm() );
 						_s2t.push_back(pointPair);
 					}
 				}
 			}
+			
+			if ( ((*_target->boundariesPtr)[index_match].boundary_point == 0) ||  distance2s[0] < ( distanceThreshold2 * 2.0f * 2.0f ) )
+			{
+				_sourceCandidateIndices_temp.push_back(index_query);
+			}
 		}
 	}
+
+	_sourceCandidateIndices.swap(_sourceCandidateIndices_temp);
 
 	// float mean_distance = 0.0f;
 	// for (int i = 0; i < distances.size(); ++i) mean_distance += distances[i];
@@ -147,15 +176,13 @@ void PairRegistration::generatePointPairs(PointsPtr _sbuffer, Transformation _tr
 
 }
 
-void PairRegistration::generatePointPairs(PointsPtr _buffer, Transformation _transformation, PointPairs &_s2t, PointPairs &_t2s)
+void PairRegistration::generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
+	std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
+	std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+	PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s)
 {
-	generatePointPairs(_buffer, _transformation, _s2t);
-
-	source.swap(target);
-	sourceKdTree.swap(targetKdTree);	
-	generatePointPairs(_buffer, _transformation.inverse(), _t2s);
-	source.swap(target);
-	sourceKdTree.swap(targetKdTree);	
+	generatePointPairs(_target, _source, _targetKdTree, _sourceCandidateIndices, _sourceCandidateIndices_temp, _buffer, _transformation, _para, _s2t);
+	generatePointPairs(_source, _target, _sourceKdTree, _targetCandidateIndices, _targetCandidateIndices_temp, _buffer, _transformation.inverse(), _para,_t2s);
 }
 
 void PairRegistration::generateFinalPointPairs(Transformation _transformation)
@@ -163,7 +190,10 @@ void PairRegistration::generateFinalPointPairs(Transformation _transformation)
 	PointsPtr buffer(new Points);
 	PointPairs s2t, t2s;
 
-	generatePointPairs(buffer, _transformation, s2t, t2s);
+	generatePointPairs(target, source, targetKdTree, sourceKdTree, 
+		targetCandidateIndices, targetCandidateIndices_temp,
+		sourceCandidateIndices, sourceCandidateIndices_temp,
+		buffer, _transformation, para, s2t, t2s);
 
 	for (int i = 0; i < t2s.size(); ++i)
 	{
