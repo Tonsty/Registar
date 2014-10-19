@@ -24,6 +24,7 @@ public:
     void addLink(QString fromNodeName, QString toNodeName);
     void loadGraph(QStringList &nodeList, QMultiMap<QString, QString> &nodeEdgeMultiMap);
     void loadOVLFile(QString fileName);
+    void loadOOLVFile(QString fileName);
 
 private slots:
     void addNode();

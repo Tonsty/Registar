@@ -1,5 +1,6 @@
 #include <QtGui/QtGui>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 #include "diagramwindow.h"
 #include "link.h"
@@ -53,8 +54,27 @@ void DiagramWindow::addNode(QString nodeName)
 
 void DiagramWindow::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open OverlapInfo"), ".", tr("OverlapInfo files (*.ovl)"));
-    loadOVLFile(fileName);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open (Ordered)OverlapInfo"), ".", tr("OverlapInfo files (*.ovl *oovl)"));
+    QFileInfo fileInfo(fileName);
+    // qDebug() << fileInfo.suffix() << "\n";
+    if( fileInfo.suffix() == "ovl" ) loadOVLFile(fileName);
+    else if (fileInfo.suffix() == "oovl") loadOOLVFile(fileName);
+}
+
+void DiagramWindow::loadOOLVFile(QString fileName)
+{
+    qDebug() << fileName;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Cannot import Ordered OverlapInfo!";
+        return;
+    }
+
+    QTextStream in(&file);
+
+    
 }
 
 void DiagramWindow::loadOVLFile(QString fileName)
