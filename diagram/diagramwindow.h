@@ -25,10 +25,12 @@ public:
     void loadGraph(QStringList &nodeList, QMultiMap<QString, QString> &nodeEdgeMultiMap);
     void loadOVLFile(QString fileName);
     void loadOOLVFile(QString fileName);
+    void initialMaxSpanningTree();
 
 private slots:
     void addNode();
     void addLink();
+    void addLink2();
     void del();
     void cut();
     void copy();
@@ -60,6 +62,7 @@ private:
     QAction *exitAction;
     QAction *addNodeAction;
     QAction *addLinkAction;
+    QAction *addLinkAction2;
     QAction *deleteAction;
     QAction *cutAction;
     QAction *copyAction;
@@ -79,6 +82,9 @@ private:
 
     QSet<QString> nodeSet;
     QMultiMap<QString, QString> nodeEdgeMultiMap;
+
+    std::vector< std::pair< std::pair<int, int>, int > > edgeWeightVec;
+    unsigned int current_index;
 };
 
 #endif

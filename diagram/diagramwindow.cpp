@@ -7,6 +7,9 @@
 #include "node.h"
 #include "propertiesdialog.h"
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/kruskal_min_spanning_tree.hpp>
+
 DiagramWindow::DiagramWindow(QWidget *parent): QMainWindow(parent)
 {
     scene = new QGraphicsScene(0, 0, 1200, 1000);
@@ -73,8 +76,93 @@ void DiagramWindow::loadOOLVFile(QString fileName)
     }
 
     QTextStream in(&file);
+    int lineCount = 0;
+    QString currentLine;
+    while(( currentLine = in.readLine().trimmed() ) != "" ) 
+    {
+        QStringList temp_list0 = currentLine.split(":");
+        QStringList temp_list01 = temp_list0[1].trimmed().split("<<--");
+        QStringList temp_list010 = temp_list01[0].trimmed().split(QRegExp("[()]"));
+        int targetIndex  = temp_list010[0].trimmed().toInt();
+        int targetWeight = temp_list010[1].trimmed().toInt();
 
+        qDebug() << "targetIndex : " << targetIndex;
+        qDebug() << "targetWeight : " << targetWeight;
+
+        QStringList temp_list011 = temp_list01[1].trimmed().split(QRegExp("[()]")); 
+        int sourceIndex = temp_list011[0].trimmed().toInt();
+        int sourceWeight = temp_list011[1].trimmed().toInt();   
+
+        qDebug() << "sourceIndex : " << sourceIndex;
+        qDebug() << "sourceWeight : " << sourceWeight;
+
+        nodeSet.insert( QString::number(targetIndex) );   
+        nodeSet.insert( QString::number(sourceIndex) );
+
+        int edgeWeight = temp_list011[2].trimmed().split(" ")[0].toInt();
+        qDebug() << "edgeWeight : " << edgeWeight;
+
+        std::pair<int, int> edge(targetIndex, sourceIndex);
+        edgeWeightVec.push_back( std::pair< std::pair<int, int>, int >(edge, edgeWeight ) );
+
+        lineCount++;
+
+        if( lineCount > 149) break;
+    }
+
+    for (QSet<QString>::const_iterator it = nodeSet.begin(); it != nodeSet.end(); ++it) addNode(*it);
+    // for (QMultiMap<QString, QString>::const_iterator it = nodeEdgeMultiMap.begin(); it != nodeEdgeMultiMap.end(); ++it)
+    // {
+    //     addLink(it.key(), it.value());
+    // }
+    initialMaxSpanningTree();
     
+    current_index = 0;
+}
+
+void DiagramWindow::initialMaxSpanningTree()
+{
+    typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::undirectedS, boost::no_property, boost::property < boost::edge_weight_t, int > > Graph;
+    typedef boost::graph_traits < Graph >::edge_descriptor Edge;
+    typedef std::pair<int, int> E;
+
+    const int num_nodes = nodeSet.size();
+    std::vector<E> edge_array;
+    std::vector<int> weights;
+
+    for (unsigned int i = 0; i < edgeWeightVec.size(); ++i)
+    {
+        edge_array.push_back(edgeWeightVec[i].first);
+
+        std::cout << edgeWeightVec[i].second << std::endl;
+        weights.push_back(-edgeWeightVec[i].second);
+    }
+
+    Graph g(edge_array.begin(), edge_array.end(), weights.begin(), num_nodes);
+
+    boost::property_map<Graph, boost::edge_weight_t>::type weight = boost::get(boost::edge_weight, g);
+    std::vector< Edge > spanning_tree;
+
+    boost::kruskal_minimum_spanning_tree(g, std::back_inserter(spanning_tree));
+
+    std::cout << "Print the edges in the MST:" << std::endl;
+    for (std::vector < Edge >::iterator ei = spanning_tree.begin(); ei != spanning_tree.end(); ++ei)
+    {
+        std::cout << source(*ei, g) << " <--> " << target(*ei, g) << " with weight of " << -weight[*ei] << std::endl;
+        
+        QString targetIndexStr = QString::number(source(*ei, g));
+        QString sourceIndexStr = QString::number(target(*ei, g));
+
+        if (nodeEdgeMultiMap.find(targetIndexStr, sourceIndexStr) == nodeEdgeMultiMap.end() &&
+            nodeEdgeMultiMap.find(sourceIndexStr, targetIndexStr) == nodeEdgeMultiMap.end() )  
+        {
+            nodeEdgeMultiMap.insert(targetIndexStr, sourceIndexStr);
+            addLink(targetIndexStr, sourceIndexStr);           
+        }      
+
+    }
+
+
 }
 
 void DiagramWindow::loadOVLFile(QString fileName)
@@ -91,7 +179,7 @@ void DiagramWindow::loadOVLFile(QString fileName)
     QTextStream in(&file);
     int lineCount = 0;
     QString currentLine;
-    while( ( currentLine = in.readLine().trimmed() ) != "")
+    while( ( currentLine = in.readLine().trimmed() ) != "" )
     {
         QStringList targetSourcesList = currentLine.split("<<--");
 
@@ -217,6 +305,32 @@ void DiagramWindow::addLink()
 
     Link *link = new Link(nodes.first, nodes.second);
     scene->addItem(link);
+}
+
+void DiagramWindow::addLink2()
+{
+
+    while( current_index < edgeWeightVec.size() )
+    {
+        int targetIndex = edgeWeightVec[current_index].first.first;
+        int sourceIndex = edgeWeightVec[current_index].first.second;
+        int edgeWeight = edgeWeightVec[current_index].second;
+
+        QString targetIndexStr = QString::number(targetIndex);
+        QString sourceIndexStr = QString::number(sourceIndex);
+
+        current_index++;
+        if (nodeEdgeMultiMap.find(targetIndexStr, sourceIndexStr) == nodeEdgeMultiMap.end() &&
+            nodeEdgeMultiMap.find(sourceIndexStr, targetIndexStr) == nodeEdgeMultiMap.end() )
+        {
+            nodeEdgeMultiMap.insert(targetIndexStr, sourceIndexStr);
+            addLink(targetIndexStr, sourceIndexStr);
+
+            qDebug() << "add link2 " << targetIndexStr << " <<-- " << sourceIndexStr << " " << edgeWeight;
+            break;
+        }
+    }   
+
 }
 
 void DiagramWindow::addLink(QString fromNodeName, QString toNodeName)
@@ -373,6 +487,11 @@ void DiagramWindow::createActions()
     addLinkAction->setShortcut(tr("Ctrl+L"));
     connect(addLinkAction, SIGNAL(triggered()), this, SLOT(addLink()));
 
+    addLinkAction2 = new QAction(tr("Add Link&2"), this);
+    addLinkAction2->setIcon(QIcon(":/images/link.png"));
+    addLinkAction->setShortcut(tr("Ctrl+2"));
+    connect(addLinkAction2, SIGNAL(triggered()), this, SLOT(addLink2()));    
+
     deleteAction = new QAction(tr("&Delete"), this);
     deleteAction->setIcon(QIcon(":/images/delete.png"));
     deleteAction->setShortcut(tr("Del"));
@@ -418,6 +537,7 @@ void DiagramWindow::createMenus()
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(addNodeAction);
     editMenu->addAction(addLinkAction);
+    editMenu->addAction(addLinkAction2);
     editMenu->addAction(deleteAction);
     editMenu->addSeparator();
     editMenu->addAction(cutAction);
@@ -435,6 +555,7 @@ void DiagramWindow::createToolBars()
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(addNodeAction);
     editToolBar->addAction(addLinkAction);
+    editToolBar->addAction(addLinkAction2);
     editToolBar->addAction(deleteAction);
     editToolBar->addSeparator();
     editToolBar->addAction(cutAction);

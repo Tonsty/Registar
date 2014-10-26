@@ -57,7 +57,7 @@ public:
 							std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
 							PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s);
 
-	void generateFinalPointPairs(Transformation _transformation);
+	virtual void generateFinalPointPairs(Transformation _transformation);
 
 	Transformation solveRegistration(PointPairs &_s2t, Eigen::Matrix3Xf &src, Eigen::Matrix3Xf &tgt);
 
@@ -92,6 +92,39 @@ public:
 
 typedef PairRegistration::Ptr PairRegistrationPtr;
 typedef std::map<Link,PairRegistrationPtr,LinkComp> PairRegistrationPtrMap;
+
+#ifdef _OPENMP
+
+class PairRegistrationOMP : public PairRegistration
+{
+public:
+
+	PairRegistrationOMP(ScanPtr _target, ScanPtr _source, unsigned int _threads = 0) : PairRegistration(_target, _source), threads(_threads) {}
+	~PairRegistrationOMP() {}
+
+    inline void setNumberOfThreads (unsigned int _threads = 0) { threads = _threads; }
+
+    void startRegistrationOMP();
+
+	static void generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
+							std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+							PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, unsigned int _threads);
+
+	static void generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
+							std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
+							std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
+							PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _threads);
+
+	virtual void generateFinalPointPairs(Transformation _transformation);
+
+	unsigned int threads;
+
+	typedef boost::shared_ptr<PairRegistrationOMP> Ptr;
+};
+
+typedef PairRegistrationOMP::Ptr PairRegistrationOMPPtr;
+
+#endif
 
 #endif
 

@@ -1,3 +1,8 @@
+#ifndef _OPENMP
+#define _OPENMP
+#endif
+
+#include "pairregistration.h"
 #include "globalregistration.h"
 
 #include "SRoMCPS.h"
@@ -10,7 +15,8 @@ void GlobalRegistration::startRegistration()
 	initialTransformations();	
 	initialPairRegistration();
 	if(para.doIncrementalLoopRefine) incrementalLoopRefine();
-	if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
+	// if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
+	if(para.doGlobalRefine) globalPairRefine();
 }
 
 void GlobalRegistration::buildKdTreePtrs()
@@ -38,7 +44,8 @@ void GlobalRegistration::initialPairRegistration()
 		Link link = links[i];
 		ScanIndex a = link.a;
 		ScanIndex b = link.b;
-		PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[a], scanPtrs[b]));
+		// PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[a], scanPtrs[b]));
+		PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[a], scanPtrs[b], 8));
 		pairReigstrationPtr->setKdTree(kdTreePtrs[a], kdTreePtrs[b]);
 		pairReigstrationPtr->setParameter(para.pr_para);
 		pairReigstrationPtr->setTransformation(Transformation::Identity());
@@ -46,7 +53,8 @@ void GlobalRegistration::initialPairRegistration()
 		if(para.doInitialPairRegistration) 
 		{
 			std::cout << "pair registration : " << link.a << " <<-- " << link.b << std::endl;
-			pairReigstrationPtr->startRegistration();
+			// pairReigstrationPtr->startRegistration();
+			pairReigstrationPtr->startRegistrationOMP();
 		}
 		std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
 		pairRegistrationPtrMap.insert(pairLP);
@@ -133,10 +141,20 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 
 					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
 					{
+						// PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+						// temp.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
+						// temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );   //the transformation using pair registration
+						// all_final_s2t.push_back(temp);
+
 						PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-						temp.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
-						temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );   //the transformation using pair registration
-						all_final_s2t.push_back(temp);
+						Transformation transformation = pairRegistrationPtrMap[link]->transformation;
+						PairRegistration::PointPair temp1, temp2;
+						temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, transformations1[i] * transformation );
+						temp1.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );
+						temp2.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );
+						temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, transformations2[j] * transformation.inverse() );
+						all_final_s2t.push_back(temp1);
+						all_final_s2t.push_back(temp2);
 					}
 				}
 				else if ( it_21 != graph.edges.end() )  // edge in reverse order
@@ -150,13 +168,28 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 
 					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
 					{
-						PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+						// PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+						// PairRegistration::PointPair temp2;
+						// temp2.targetPoint = temp.sourcePoint;
+						// temp2.sourcePoint = temp.targetPoint;
+						// temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
+						// temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] ); //the transformation using pair registration
+						// all_final_s2t.push_back(temp2);
+
+						PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];					
 						PairRegistration::PointPair temp2;
 						temp2.targetPoint = temp.sourcePoint;
 						temp2.sourcePoint = temp.targetPoint;
-						temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
-						temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] ); //the transformation using pair registration
-						all_final_s2t.push_back(temp2);
+						Transformation transformation = pairRegistrationPtrMap[link]->transformation;
+						Transformation transformation2 = transformation.inverse();	
+						PairRegistration::PointPair temp2_1, temp2_2;
+						temp2_1.targetPoint = transformPointWithNormal( temp2.sourcePoint, transformations1[i] * transformation2 );
+						temp2_1.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] );
+						temp2_2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] );
+						temp2_2.sourcePoint = transformPointWithNormal( temp2.targetPoint, transformations2[j] * transformation2.inverse() );
+						all_final_s2t.push_back(temp2_1);
+						all_final_s2t.push_back(temp2_2);
+
 						// if( link.a == 2 && link.b == 0)
 						// {
 						// 	all_final_s2t.push_back(temp2);
@@ -232,7 +265,7 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 		}
 	}
 
-	for (int iter = 0; iter < 5; ++iter)
+	for (int iter = 0; iter < 0; ++iter)
 	{
 		// then update newTransformation by direct pair registration
 		all_final_s2t.clear();
@@ -556,7 +589,65 @@ void GlobalRegistration::incrementalLoopRefine()
 
 void GlobalRegistration::globalPairRefine()
 {
-	
+	sromcps::ScanIndexPairs sipairs;
+	std::vector<sromcps::PointPairWithWeights> ppairwwss;
+	int M = scanPtrs.size();
+
+	sromcps::PointPairWithWeights buffer1;
+
+	for (int i = 0; i < links.size(); ++i)
+	{
+		Link link = links[i];
+		ScanIndex a = link.a;
+		ScanIndex b = link.b;
+
+		sipairs.push_back(sromcps::ScanIndexPair(a,b));
+
+		buffer1.clear();
+		for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
+		{
+			PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+			Transformation transformation = pairRegistrationPtrMap[link]->transformation;
+			PairRegistration::PointPair temp1, temp2;
+			temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, transformation );
+			temp1.sourcePoint = temp.sourcePoint;
+			temp2.targetPoint = temp.targetPoint;
+			temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, transformation.inverse() );
+
+			sromcps::PointPairWithWeight temp_1;
+			temp_1.w = 1.0;
+			temp_1.ppair.first = temp1.targetPoint.getVector3fMap().cast<sromcps::Scalar>(); 
+			temp_1.ppair.second = temp1.sourcePoint.getVector3fMap().cast<sromcps::Scalar>();
+			buffer1.push_back(temp_1);
+
+			sromcps::PointPairWithWeight temp_2;
+			temp_2.w = 1.0;
+			temp_2.ppair.first = temp2.targetPoint.getVector3fMap().cast<sromcps::Scalar>(); 
+			temp_2.ppair.second = temp2.sourcePoint.getVector3fMap().cast<sromcps::Scalar>();
+			buffer1.push_back(temp_2);
+		}
+		ppairwwss.push_back(buffer1);
+	}
+
+	sromcps::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);	
+
+	float total_error = ( sromcps_globalrefine.R *  sromcps_globalrefine.Q * sromcps_globalrefine.R.transpose() ).trace();
+	float total_weight = 0.0f;
+	for (int i = 0; i < ppairwwss.size(); ++i)
+	{
+		for (int j = 0; j < ppairwwss[i].size(); ++j)
+		{
+			total_weight += ppairwwss[i][j].w;
+		}
+	}
+	float rms_error = sqrtf( total_error / total_weight );
+	std::cout << "globalrefine rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;
+
+	for (int i = 0; i < M; ++i)
+	{
+		transformations[i].block<3, 3>(0, 0) = sromcps_globalrefine.R.block<3, 3>(0, 3*i).cast<float>();
+		transformations[i].block<3, 1>(0, 3) = sromcps_globalrefine.T.block<3, 1>(3*i, 0).cast<float>();			 
+	}
 }
 
 void GlobalRegistration::globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min)
@@ -598,10 +689,14 @@ void GlobalRegistration::globalRefine(unsigned int _iterationNum_max, unsigned i
 			std::vector<int> &sourceCandidateIndices = pairRegistrationPtr->sourceCandidateIndices;
 			std::vector<int> &sourceCandidateIndices_temp = pairRegistrationPtr->sourceCandidateIndices_temp;
 			PairRegistration::Parameters para = pairRegistrationPtr->para;
-			PairRegistration::generatePointPairs(target, source, targetKdTree, sourceKdTree, 
+			// PairRegistration::generatePointPairs(target, source, targetKdTree, sourceKdTree, 
+			// 	targetCandidateIndices, targetCandidateIndices_temp,
+			// 	sourceCandidateIndices, sourceCandidateIndices_temp,
+			// 	buffer, transformation, para, s2t, t2s);
+			PairRegistrationOMP::generatePointPairsOMP(target, source, targetKdTree, sourceKdTree, 
 				targetCandidateIndices, targetCandidateIndices_temp,
 				sourceCandidateIndices, sourceCandidateIndices_temp,
-				buffer, transformation, para, s2t, t2s);
+				buffer, transformation, para, s2t, t2s, 8);
 
 			for (int j = 0; j < s2t.size(); ++j) s2t[j].sourcePoint = transformPointWithNormal(s2t[j].sourcePoint, transformation.inverse());
 			for (int j = 0; j < t2s.size(); ++j) t2s[j].sourcePoint = transformPointWithNormal(t2s[j].sourcePoint, transformation);

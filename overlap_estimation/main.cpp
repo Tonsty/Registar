@@ -3,7 +3,12 @@
 
 #include <pcl/console/parse.h>
 
+#ifndef _OPENMP
+#define _OPENMP
+#endif
+
 #include "../Tang2014/scan.h"
+#include "../Tang2014/pairregistration.h"
 #include "../Tang2014/globalregistration.h"
 
 
@@ -38,7 +43,8 @@ int main(int argc, char** argv)
   			link.a = i;
   			link.b = j;
 
-			PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[link.a], scanPtrs[link.b]));
+			// PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[link.a], scanPtrs[link.b]));
+      PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[link.a], scanPtrs[link.b], 8));
 			pairReigstrationPtr->setKdTree( globalRegistration.kdTreePtrs[link.a], globalRegistration.kdTreePtrs[link.b] );
 
       PairRegistration::Parameters pr_para;
@@ -56,6 +62,7 @@ int main(int argc, char** argv)
       pairReigstrationPtr->setTransformation(Transformation::Identity());
       pairReigstrationPtr->initiateCandidateIndices();
 
+      std::cout << i << " <<-- " << j << std::endl;
 			pairReigstrationPtr->generateFinalPointPairs(Transformation::Identity());
 
 			std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
@@ -81,7 +88,7 @@ int main(int argc, char** argv)
   			overlapInfo.fracInA = pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.a]->pointsPtr->size();
   			overlapInfo.fracInB = pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.b]->pointsPtr->size();
 
-			totalOverlapInfo.push_back(overlapInfo);  			
+        totalOverlapInfo.push_back(overlapInfo);  			
 
 		  	// // std::cout  << link.a << " : " << scanPtrs[link.a]->filePath << " <<-- " << link.b << " : "<< scanPtrs[link.b]->filePath << " ";
 		   //  std::cout  << std::setw(2) << link.a << " (" << scanPtrs[link.a]->pointsPtr->size() <<") <<-- " << std::setw(2) << link.b << " (" << scanPtrs[link.b]->pointsPtr->size() << ") "

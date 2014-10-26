@@ -31,7 +31,11 @@ unix{
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
 			-L/usr/local/lib/ \
-			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters
+			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters \
+			-L/usr/lib/gcc/x85_64-linux-gnu/ \
+			-lgomp
+	QMAKE_CXXFLAGS += -fopenmp
+	QMAKE_LFLAGS += -fopenmp 
 }
 HEADERS += graph.h \
 			common.h \

@@ -27,9 +27,15 @@ int main(int argc, char **argv)
   	GlobalRegistration globalRegistration( scanPtrs, links, loops );
 
   	GlobalRegistration::Parameters gr_para;
-  	gr_para.doInitialPairRegistration = false;
-  	gr_para.doIncrementalLoopRefine = false;
-  	gr_para.doGlobalRefine = true;
+  	// gr_para.doInitialPairRegistration = true;
+  	// gr_para.doIncrementalLoopRefine = true;
+  	// gr_para.doGlobalRefine = false;
+    // gr_para.doInitialPairRegistration = false;
+    // gr_para.doIncrementalLoopRefine = false;
+    // gr_para.doGlobalRefine = true;
+    gr_para.doInitialPairRegistration = true;
+    gr_para.doIncrementalLoopRefine = false;
+    gr_para.doGlobalRefine = true;
   	gr_para.globalIterationNum_max = 50;
   	gr_para.globalIterationNum_min = 30;
 
@@ -42,8 +48,8 @@ int main(int argc, char **argv)
   	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
   	pr_para.biDirection = true;
-  	pr_para.iterationNum_max = 30;
-  	pr_para.iterationNum_min = 50;
+  	pr_para.iterationNum_max = 100;
+  	pr_para.iterationNum_min = 60;
 
   	gr_para.pr_para = pr_para;
 
@@ -54,19 +60,19 @@ int main(int argc, char **argv)
   	for (int i = 0; i < scanPtrs.size(); ++i)
   	{
   		std::string filePath = scanPtrs[i]->filePath;
-		QFileInfo fileInfo(QString(filePath.c_str()));
-		QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
-		QFile tfFile(tfFileName);
-		tfFile.open(QIODevice::WriteOnly);
-		QTextStream out(&tfFile);			
-		Transformation transformation = globalRegistration.transformations[i] * scanPtrs[i]->transformation;
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-				out << transformation(i, j) << " ";
-			out << "\n";
-		}
-		tfFile.close();
+  		QFileInfo fileInfo(QString(filePath.c_str()));
+  		QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
+  		QFile tfFile(tfFileName);
+  		tfFile.open(QIODevice::WriteOnly);
+  		QTextStream out(&tfFile);			
+  		Transformation transformation = globalRegistration.transformations[i] * scanPtrs[i]->transformation;
+  		for (int i = 0; i < 4; ++i)
+  		{
+  			for (int j = 0; j < 4; ++j)
+  				out << transformation(i, j) << " ";
+  			out << "\n";
+  		}
+  		tfFile.close();
   	}
 
 	return 0;
