@@ -40,11 +40,17 @@ public:
 	void incrementalLoopRefine();
 
 	float loopEstimateConsistencyError( GraphLoop* _graphLoop );
-	void loopRefine( GraphLoop* _graphLoop );
+	float loopRefine( GraphLoop* _graphLoop, bool _closing);
 
 	GraphEdge* createGraphEdge(GraphVertex *_vertex1, GraphVertex *_vertex2);
 	Transformation GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
 		std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
+	void generateFinalPointPairs(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+		std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2, 
+		bool _rePairGenerate, bool useVirtualMate, PairRegistration::PointPairs &_all_final_s2t);
+	void makeEdgesConsistent(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+		std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2,
+		Transformation &_newTransformation);
 	
 	void globalPairRefine();
 	void globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min);

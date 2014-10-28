@@ -13,6 +13,12 @@ std::ostream& operator<<(std::ostream& _out, const GraphVertex &_graphVertex)
 	return _out;
 }
 
+std::ostream& operator<<(std::ostream& _out, const GraphEdge &_graphEdge)
+{
+	_out << "[ " << *_graphEdge.a << *_graphEdge.b << "]" << std::endl;
+	return _out;
+}
+
 std::ostream& operator<<(std::ostream& _out, const Graph &_graph)
 {
 	_out << "vertices : " << std::endl;

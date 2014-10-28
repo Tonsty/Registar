@@ -30,6 +30,7 @@ struct GraphEdge
 	EdgeBase ebase;
 	GraphEdge(GraphVertex *_a, GraphVertex *_b) : a(_a), b(_b) {}
 };
+std::ostream& operator<<(std::ostream& _out, const GraphEdge &_graphEdge);
 
 typedef float LoopBase;
 struct GraphLoop: public GraphVertex

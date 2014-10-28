@@ -119,93 +119,7 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 
 	PairRegistration::PointPairs all_final_s2t;
 
-	for (int i = 0; i < vertices1.size(); ++i)
-	{
-		for (int j = 0; j < vertices2.size(); ++j)
-		{
-			if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-			{
-				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
-					graph.edges.find(std::pair<GraphVertex*, GraphVertex*>( vertices1[i], vertices2[j] ) );
-				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
-					graph.edges.find(std::pair<GraphVertex*, GraphVertex*>( vertices2[j], vertices1[i]) );
-
-				if ( it_12 != graph.edges.end() )
-				{
-					Link link;
-					link.a = (*it_12).second->a->vbase;
-					link.b = (*it_12).second->b->vbase;
-
-					std::cout << "find link [ " << link.a << " " << link.b << " ]" << std::endl;
-					// std::cout << "link transformation :\n"  << 	pairRegistrationPtrMap[link]->transformation << std::endl;			
-
-					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
-					{
-						// PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-						// temp.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
-						// temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );   //the transformation using pair registration
-						// all_final_s2t.push_back(temp);
-
-						PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-						Transformation transformation = pairRegistrationPtrMap[link]->transformation;
-						PairRegistration::PointPair temp1, temp2;
-						temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, transformations1[i] * transformation );
-						temp1.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );
-						temp2.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );
-						temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, transformations2[j] * transformation.inverse() );
-						all_final_s2t.push_back(temp1);
-						all_final_s2t.push_back(temp2);
-					}
-				}
-				else if ( it_21 != graph.edges.end() )  // edge in reverse order
-				{
-					Link link;
-					link.a = (*it_21).second->a->vbase;
-					link.b = (*it_21).second->b->vbase;
-
-					std::cout << "find link reverse [ " << link.a << " " << link.b << " ]" << std::endl;
-					// std::cout << "link transformation :\n"  << 	pairRegistrationPtrMap[link]->transformation << std::endl;			
-
-					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
-					{
-						// PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-						// PairRegistration::PointPair temp2;
-						// temp2.targetPoint = temp.sourcePoint;
-						// temp2.sourcePoint = temp.targetPoint;
-						// temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
-						// temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] ); //the transformation using pair registration
-						// all_final_s2t.push_back(temp2);
-
-						PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];					
-						PairRegistration::PointPair temp2;
-						temp2.targetPoint = temp.sourcePoint;
-						temp2.sourcePoint = temp.targetPoint;
-						Transformation transformation = pairRegistrationPtrMap[link]->transformation;
-						Transformation transformation2 = transformation.inverse();	
-						PairRegistration::PointPair temp2_1, temp2_2;
-						temp2_1.targetPoint = transformPointWithNormal( temp2.sourcePoint, transformations1[i] * transformation2 );
-						temp2_1.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] );
-						temp2_2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] );
-						temp2_2.sourcePoint = transformPointWithNormal( temp2.targetPoint, transformations2[j] * transformation2.inverse() );
-						all_final_s2t.push_back(temp2_1);
-						all_final_s2t.push_back(temp2_2);
-
-						// if( link.a == 2 && link.b == 0)
-						// {
-						// 	all_final_s2t.push_back(temp2);
-						// 	if ( k < 10)
-						// 	{
-						// 		std::cout << "k = " << k << " : x = " << temp.sourcePoint.x << " y = " << temp.sourcePoint.y << " z = " << temp.sourcePoint.z << std::endl;
-						// 		std::cout << "k = " << k << " : x = " << temp.targetPoint.x << " y = " << temp.targetPoint.y << " z = " << temp.targetPoint.z << std::endl;
-						// 		std::cout << "k = " << k << " : x = " << temp2.sourcePoint.x << " y = " << temp2.sourcePoint.y << " z = " << temp2.sourcePoint.z << std::endl;	
-						// 		std::cout << "k = " << k << " : x = " << temp2.targetPoint.x << " y = " << temp2.targetPoint.y << " z = " << temp2.targetPoint.z << std::endl;									
-						// 	}
-						// }
-					}					
-				}
-			}
-		}
-	}
+	generateFinalPointPairs(vertices1, transformations1, vertices2, transformations2, false, true, all_final_s2t);
 
 	// initial pair registration
 	Transformation newTransformation = PairRegistration::solveRegistration(all_final_s2t, PairRegistration::UMEYAMA);
@@ -213,151 +127,19 @@ GraphEdge* GlobalRegistration::createGraphEdge(GraphVertex *_vertex1, GraphVerte
 	std::cout << "initial newTransformation : \n" <<newTransformation << std::endl;
 
 	// keep sub-edges between vertices1 and vertices2 consistent with the root edge between _vertex1 and _vertex2, and also update the pair registration transformation
-	for (int i = 0; i < vertices1.size(); ++i)
-	{
-		for (int j = 0; j < vertices2.size(); ++j)
-		{
-			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
-				graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices1[i], vertices2[j] ) );
-			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
-				graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices2[j], vertices1[i]) );
+	makeEdgesConsistent(vertices1, transformations1, vertices2, transformations2, newTransformation);
 
-			if ( it_12 != graph.edges.end() )
-			{
-				std::cout << "find edge [ " << *vertices1[i] << " " << *vertices2[j] << " ]" << std::endl;	
-				(*it_12).second->ebase.transformation = transformations1[i].inverse() * newTransformation * transformations2[j];
-
-				// std::cout << "transformations1  : \n" << transformations1[i] << std::endl;
-				// std::cout << "newTransformation : \n" << newTransformation << std::endl;
-				// std::cout << "transformations2 : \n" << transformations2[j] << std::endl;
-				//std::cout << "update ebase 12 transformation \n" << (*it_12).second->ebase.transformation << std::endl;
-
-
-				if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-				{
-					Link link;
-					link.a = (*it_12).second->a->vbase;
-					link.b = (*it_12).second->b->vbase;
-
-					//std::cout << "difference : \n" << pairRegistrationPtrMap[link]->transformation - (*it_12).second->ebase.transformation << std::endl; 
-					pairRegistrationPtrMap[link]->transformation = (*it_12).second->ebase.transformation;				
-				}	
-			}
-			else if ( it_21 != graph.edges.end() )  // edge in reverse order
-			{
-				std::cout << "find reverse edge [ " << *vertices2[j] << " " << *vertices1[i] << " ]" << std::endl;
-				(*it_21).second->ebase.transformation = transformations2[j].inverse() * newTransformation.inverse() * transformations1[i];
-
-				// std::cout << "transformations2 : \n" << transformations2[j] << std::endl;
-				// std::cout << "newTransformation : \n" << newTransformation << std::endl;
-				// std::cout << "transformations1 : \n" << transformations1[j] << std::endl;	
-				//std::cout << "update ebase 21 transformation \n" << (*it_21).second->ebase.transformation << std::endl;
-
-				if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-				{
-					Link link;
-					link.a = (*it_21).second->a->vbase;
-					link.b = (*it_21).second->b->vbase;
-					// std::cout << "difference : \n" << pairRegistrationPtrMap[link]->transformation - (*it_12).second->ebase.transformation << std::endl;
-					pairRegistrationPtrMap[link]->transformation = (*it_21).second->ebase.transformation;				
-				}				
-			}
-		}
-	}
-
-	for (int iter = 0; iter < 0; ++iter)
+	for (int iter = 0; iter < 30; ++iter)
 	{
 		// then update newTransformation by direct pair registration
 		all_final_s2t.clear();
-
-		for (int i = 0; i < vertices1.size(); ++i)
-		{
-			for (int j = 0; j < vertices2.size(); ++j)
-			{
-				if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-				{
-					std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
-						graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices1[i], vertices2[j] ) );
-					std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
-						graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices2[j], vertices1[i]) );	
-
-					if ( it_12 != graph.edges.end() )
-					{
-						Link link;
-						link.a = (*it_12).second->a->vbase;
-						link.b = (*it_12).second->b->vbase;
-						// std::cout << "a = " << link.a << " b = " << link.b << std::endl;
-						// std::cout << pairRegistrationPtrMap[link]->transformation << std::endl;
-						pairRegistrationPtrMap[link]->generateFinalPointPairs( pairRegistrationPtrMap[link]->transformation );
-						for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
-						{
-							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-							temp.targetPoint = transformPointWithNormal( temp.targetPoint, transformations1[i] );  
-							temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, transformations2[j] );  
-							all_final_s2t.push_back(temp);
-						}
-					}
-					else if ( it_21 != graph.edges.end() )  // edge in reverse order
-					{
-						Link link;
-						link.a = (*it_21).second->a->vbase;
-						link.b = (*it_21).second->b->vbase;
-						// std::cout << "a = " << link.a << " b = " << link.b << std::endl;
-						// std::cout << pairRegistrationPtrMap[link]->transformation << std::endl;
-						pairRegistrationPtrMap[link]->generateFinalPointPairs( pairRegistrationPtrMap[link]->transformation );
-						for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
-						{
-							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-							PairRegistration::PointPair temp2;
-							temp2.targetPoint = temp.sourcePoint;
-							temp2.sourcePoint = temp.targetPoint;
-							temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
-							temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, transformations2[j] ); //the transformation using pair registration
-							all_final_s2t.push_back(temp2);
-						}
-					}				
-				}
-			}
-		}
+		generateFinalPointPairs(vertices1, transformations1, vertices2, transformations2, true, false, all_final_s2t);
 
 		newTransformation = PairRegistration::solveRegistration(all_final_s2t, PairRegistration::UMEYAMA);
 
 		// keep sub-edges between vertices1 and vertices2 consistent with the root edge between _vertex1 and _vertex2, and also update the pair registration transformation
-		for (int i = 0; i < vertices1.size(); ++i)
-		{
-			for (int j = 0; j < vertices2.size(); ++j)
-			{
-				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
-					graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices1[i], vertices2[j] ) );
-				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
-					graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertices2[j], vertices1[i]) );
+		makeEdgesConsistent(vertices1, transformations1, vertices2, transformations2, newTransformation);
 
-				if ( it_12 != graph.edges.end() )
-				{
-					// std::cout << "find edge [ " << *vertices1[i] << " " << *vertices2[j] << " ]" << std::endl;	
-					(*it_12).second->ebase.transformation = transformations1[i].inverse() * newTransformation * transformations2[j];
-					if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-					{
-						Link link;
-						link.a = (*it_12).second->a->vbase;
-						link.b = (*it_12).second->b->vbase;
-						pairRegistrationPtrMap[link]->transformation = (*it_12).second->ebase.transformation;				
-					}	
-				}
-				else if ( it_21 != graph.edges.end() )  // edge in reverse order
-				{
-					// std::cout << "find edge [ " << *vertices2[j] << " " << *vertices1[i] << " ]" << std::endl;
-					(*it_21).second->ebase.transformation = transformations2[j].inverse() * newTransformation.inverse() * transformations1[i];
-					if ( !vertices1[i]->isGraphLoop() && !vertices2[j]->isGraphLoop() )
-					{
-						Link link;
-						link.a = (*it_21).second->a->vbase;
-						link.b = (*it_21).second->b->vbase;
-						pairRegistrationPtrMap[link]->transformation = (*it_21).second->ebase.transformation;				
-					}				
-				}
-			}
-		}
 	}
 
 	// std::cout << "result newTransformation : \n" <<newTransformation << std::endl;
@@ -432,14 +214,334 @@ Transformation GlobalRegistration::GraphVertexDecompose(GraphVertex* currentVert
 	}
 }
 
-float GlobalRegistration::loopEstimateConsistencyError( GraphLoop* _graphLoop )
+void GlobalRegistration::generateFinalPointPairs(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+	std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2, 
+	bool _rePairGenerate, bool useVirtualMate, PairRegistration::PointPairs &_all_final_s2t)
 {
-	return 0.0f;
+	for (int i = 0; i < _vertices1.size(); ++i)
+	{
+		for (int j = 0; j < _vertices2.size(); ++j)
+		{
+			if ( !_vertices1[i]->isGraphLoop() && !_vertices2[j]->isGraphLoop() )
+			{
+				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
+					graph.edges.find(std::pair<GraphVertex*, GraphVertex*>( _vertices1[i], _vertices2[j] ) );
+				std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
+					graph.edges.find(std::pair<GraphVertex*, GraphVertex*>( _vertices2[j], _vertices1[i]) );
+
+				if ( it_12 != graph.edges.end() )
+				{
+					Link link;
+					link.a = (*it_12).second->a->vbase;
+					link.b = (*it_12).second->b->vbase;
+
+					// std::cout << "find link [ " << link.a << " " << link.b << " ]" << std::endl;
+					// std::cout << "link transformation :\n"  << 	pairRegistrationPtrMap[link]->transformation << std::endl;			
+
+					if(_rePairGenerate) pairRegistrationPtrMap[link]->generateFinalPointPairs( pairRegistrationPtrMap[link]->transformation );
+
+					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
+					{
+						if( useVirtualMate )
+						{
+							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+							Transformation transformation = pairRegistrationPtrMap[link]->transformation;
+							PairRegistration::PointPair temp1, temp2;
+							temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, _transformations1[i] * transformation );
+							temp1.sourcePoint = transformPointWithNormal( temp.sourcePoint, _transformations2[j] );
+							temp2.targetPoint = transformPointWithNormal( temp.targetPoint, _transformations1[i] );
+							temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, _transformations2[j] * transformation.inverse() );
+							_all_final_s2t.push_back(temp1);
+							_all_final_s2t.push_back(temp2);							
+						}
+						else
+						{
+							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+							temp.targetPoint = transformPointWithNormal( temp.targetPoint, _transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
+							temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, _transformations2[j] );   //the transformation using pair registration
+							_all_final_s2t.push_back(temp);
+						}
+					}
+				}
+				else if ( it_21 != graph.edges.end() )  // edge in reverse order
+				{
+					Link link;
+					link.a = (*it_21).second->a->vbase;
+					link.b = (*it_21).second->b->vbase;
+
+					// std::cout << "find link reverse [ " << link.a << " " << link.b << " ]" << std::endl;
+					// std::cout << "link transformation :\n"  << 	pairRegistrationPtrMap[link]->transformation << std::endl;	
+
+					if(_rePairGenerate) pairRegistrationPtrMap[link]->generateFinalPointPairs( pairRegistrationPtrMap[link]->transformation );
+
+					for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
+					{
+						if ( useVirtualMate )
+						{
+							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];					
+							PairRegistration::PointPair temp2;
+							temp2.targetPoint = temp.sourcePoint;
+							temp2.sourcePoint = temp.targetPoint;
+							Transformation transformation = pairRegistrationPtrMap[link]->transformation;
+							Transformation transformation2 = transformation.inverse();	
+							PairRegistration::PointPair temp2_1, temp2_2;
+							temp2_1.targetPoint = transformPointWithNormal( temp2.sourcePoint, _transformations1[i] * transformation2 );
+							temp2_1.sourcePoint = transformPointWithNormal( temp2.sourcePoint, _transformations2[j] );
+							temp2_2.targetPoint = transformPointWithNormal( temp2.targetPoint, _transformations1[i] );
+							temp2_2.sourcePoint = transformPointWithNormal( temp2.targetPoint, _transformations2[j] * transformation2.inverse() );
+							_all_final_s2t.push_back(temp2_1);
+							_all_final_s2t.push_back(temp2_2);
+						}
+						else
+						{
+							PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
+							PairRegistration::PointPair temp2;
+							temp2.targetPoint = temp.sourcePoint;
+							temp2.sourcePoint = temp.targetPoint;
+							temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, _transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
+							temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, _transformations2[j] ); //the transformation using pair registration
+							_all_final_s2t.push_back(temp2);
+						}
+					}					
+				}
+			}
+		}
+	}
 }
 
-void GlobalRegistration::loopRefine( GraphLoop* _graphLoop )
+void GlobalRegistration::makeEdgesConsistent(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+	std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2,
+	Transformation &_newTransformation)
 {
+	for (int i = 0; i < _vertices1.size(); ++i)
+	{
+		for (int j = 0; j < _vertices2.size(); ++j)
+		{
+			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = 
+				graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( _vertices1[i], _vertices2[j] ) );
+			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = 
+				graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( _vertices2[j], _vertices1[i]) );
 
+			if ( it_12 != graph.edges.end() )
+			{
+				// std::cout << "find edge [ " << *_vertices1[i] << " " << *_vertices2[j] << " ]" << std::endl;	
+				(*it_12).second->ebase.transformation = _transformations1[i].inverse() * _newTransformation * _transformations2[j];
+
+				// std::cout << "transformations1  : \n" << transformations1[i] << std::endl;
+				// std::cout << "newTransformation : \n" << newTransformation << std::endl;
+				// std::cout << "transformations2 : \n" << transformations2[j] << std::endl;
+				//std::cout << "update ebase 12 transformation \n" << (*it_12).second->ebase.transformation << std::endl;
+
+				if ( !_vertices1[i]->isGraphLoop() && !_vertices2[j]->isGraphLoop() )
+				{
+					Link link;
+					link.a = (*it_12).second->a->vbase;
+					link.b = (*it_12).second->b->vbase;
+
+					//std::cout << "difference : \n" << pairRegistrationPtrMap[link]->transformation - (*it_12).second->ebase.transformation << std::endl; 
+					pairRegistrationPtrMap[link]->transformation = (*it_12).second->ebase.transformation;				
+				}	
+			}
+			else if ( it_21 != graph.edges.end() )  // edge in reverse order
+			{
+				// std::cout << "find reverse edge [ " << *_vertices2[j] << " " << *_vertices1[i] << " ]" << std::endl;
+				(*it_21).second->ebase.transformation = _transformations2[j].inverse() * _newTransformation.inverse() * _transformations1[i];
+
+				// std::cout << "transformations2 : \n" << transformations2[j] << std::endl;
+				// std::cout << "newTransformation : \n" << newTransformation << std::endl;
+				// std::cout << "transformations1 : \n" << transformations1[j] << std::endl;	
+				//std::cout << "update ebase 21 transformation \n" << (*it_21).second->ebase.transformation << std::endl;
+
+				if ( !_vertices1[i]->isGraphLoop() && !_vertices2[j]->isGraphLoop() )
+				{
+					Link link;
+					link.a = (*it_21).second->a->vbase;
+					link.b = (*it_21).second->b->vbase;
+					// std::cout << "difference : \n" << pairRegistrationPtrMap[link]->transformation - (*it_12).second->ebase.transformation << std::endl;
+					pairRegistrationPtrMap[link]->transformation = (*it_21).second->ebase.transformation;				
+				}				
+			}
+		}
+	}
+}
+
+float GlobalRegistration::loopEstimateConsistencyError( GraphLoop* _graphLoop )
+{
+	return loopRefine(_graphLoop, false);
+}
+
+float GlobalRegistration::loopRefine( GraphLoop* _graphLoop, bool _closing )
+{
+	if (_graphLoop->loop.size() <= 2) return std::numeric_limits<float>::max();
+
+	sromcps::ScanIndexPairs sipairs;
+	std::vector<sromcps::PointPairWithWeights> ppairwwss;
+	int M = _graphLoop->loop.size();
+
+	sromcps::PointPairWithWeights buffer1;
+
+	std::cout << "refine loop : " << *_graphLoop << std::endl;
+	for (int i = 0; i < M; ++i)
+	{
+		GraphVertex* vertex1 = _graphLoop->loop[i];
+		GraphVertex* vertex2 = _graphLoop->loop[(i+1)%M];
+		std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertex1, vertex2 ) );
+		std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertex2, vertex1 ) );
+
+		if (it_12 != graph.edges.end() ) 
+		{
+			// std::cout << "refine edge : " << *(*it_12).second << std::endl;
+			std::vector<GraphVertex*> vertices1, vertices2;
+			Transformations transformations1, transformations2;
+
+			GraphVertexDecompose(vertex1, Transformation::Identity(), NULL, vertices1, transformations1, false);
+			GraphVertexDecompose(vertex2, Transformation::Identity(), NULL, vertices2, transformations2, false);
+
+			PairRegistration::PointPairs all_final_s2t;
+
+			generateFinalPointPairs(vertices1, transformations1, vertices2, transformations2, false, true, all_final_s2t);
+
+			// std::cout << "all_final_s2t.size() : " << all_final_s2t.size() << std::endl;
+
+			ScanIndex a = i;
+			ScanIndex b = (i + 1)%M;
+
+			sipairs.push_back(sromcps::ScanIndexPair(a,b));
+
+			buffer1.clear();
+			for (int k = 0; k < all_final_s2t.size(); ++k)
+			{
+				PairRegistration::PointPair temp = all_final_s2t[k];
+				sromcps::PointPairWithWeight temp_1;
+				temp_1.w = 1.0;
+				temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<sromcps::Scalar>(); 
+				temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<sromcps::Scalar>();
+				buffer1.push_back(temp_1);
+			}
+			ppairwwss.push_back(buffer1);
+		}
+		else if (it_21 != graph.edges.end())
+		{
+			// std::cout << "refine inverse edge : " << *(*it_21).second << std::endl;
+			std::vector<GraphVertex*> vertices1, vertices2;
+			Transformations transformations1, transformations2;
+
+			GraphVertexDecompose(vertex1, Transformation::Identity(), NULL, vertices1, transformations1, false);
+			GraphVertexDecompose(vertex2, Transformation::Identity(), NULL, vertices2, transformations2, false);
+
+			PairRegistration::PointPairs all_final_s2t;
+
+			generateFinalPointPairs(vertices1, transformations1, vertices2, transformations2, false, true, all_final_s2t);
+
+			// std::cout << "inverse all_final_s2t.size() : " << all_final_s2t.size() << std::endl;
+
+			ScanIndex a = i;
+			ScanIndex b = (i + 1)%M;
+
+			sipairs.push_back(sromcps::ScanIndexPair(a,b));
+
+			buffer1.clear();
+			for (int k = 0; k < all_final_s2t.size(); ++k)
+			{
+				PairRegistration::PointPair temp = all_final_s2t[k];
+				sromcps::PointPairWithWeight temp_1;
+				temp_1.w = 1.0;
+				temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<sromcps::Scalar>(); 
+				temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<sromcps::Scalar>();
+				buffer1.push_back(temp_1);
+			}
+			ppairwwss.push_back(buffer1);
+		}
+		else
+		{
+			std::cout << "loop lose edge" << std::endl;
+			exit(1);
+		}
+	}
+
+	// std::cout << "debug here 3!" << std::endl;
+
+	// std::cout << "M :" << M << std::endl;
+	// std::cout << "sipairs.size() : " << sipairs.size() << std::endl;
+	// std::cout << "ppairwwss.size() : " << ppairwwss.size() << std::endl;
+
+	sromcps::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);
+
+	float total_error = ( sromcps_globalrefine.R *  sromcps_globalrefine.Q * sromcps_globalrefine.R.transpose() ).trace();
+	float total_weight = 0.0f;
+	for (int i = 0; i < ppairwwss.size(); ++i)
+	{
+		for (int j = 0; j < ppairwwss[i].size(); ++j)
+		{
+			total_weight += ppairwwss[i][j].w;
+		}
+	}
+	float rms_error = sqrtf( total_error / total_weight );
+	std::cout << "looprefine rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;
+
+	// std::cout << "debug here 4!" << std::endl;
+
+	if (_closing)
+	{
+		for (int i = 0; i < M; ++i)
+		{
+			GraphVertex* vertex1 = _graphLoop->loop[i];
+			GraphVertex* vertex2 = _graphLoop->loop[(i+1)%M];
+			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_12 = graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertex1, vertex2 ) );
+			std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*>::iterator  it_21 = graph.edges.find( std::pair<GraphVertex*, GraphVertex*>( vertex2, vertex1 ) );
+
+			if (it_12 != graph.edges.end() ) 
+			{
+				// std::cout << "debug here 1!" << std::endl;
+
+				std::vector<GraphVertex*> vertices1, vertices2;
+				Transformations transformations1, transformations2;
+
+				GraphVertexDecompose(vertex1, Transformation::Identity(), NULL, vertices1, transformations1, false);
+				GraphVertexDecompose(vertex2, Transformation::Identity(), NULL, vertices2, transformations2, false);
+
+				Transformation transformation1 = Transformation::Identity();
+				transformation1.block<3, 3>(0, 0) = sromcps_globalrefine.R.block<3, 3>(0, 3*i).cast<float>();
+				transformation1.block<3, 1>(0, 3) = sromcps_globalrefine.T.block<3, 1>(3*i, 0).cast<float>();			 
+
+				Transformation transformation2 = Transformation::Identity();
+				transformation2.block<3, 3>(0, 0) = sromcps_globalrefine.R.block<3, 3>(0, 3*((i + 1) %M)).cast<float>();
+				transformation2.block<3, 1>(0, 3) = sromcps_globalrefine.T.block<3, 1>(3*((i + 1) %M), 0).cast<float>();		
+
+				Transformation newTransformation = transformation1.inverse() * transformation2;
+				makeEdgesConsistent(vertices1, transformations1, vertices2, transformations2, newTransformation);
+
+			}
+			else if (it_21 != graph.edges.end())
+			{
+				// std::cout << "debug here 2!" << std::endl;
+
+				std::vector<GraphVertex*> vertices1, vertices2;
+				Transformations transformations1, transformations2;
+
+				GraphVertexDecompose(vertex1, Transformation::Identity(), NULL, vertices1, transformations1, false);
+				GraphVertexDecompose(vertex2, Transformation::Identity(), NULL, vertices2, transformations2, false);
+
+				Transformation transformation1 = Transformation::Identity();
+				transformation1.block<3, 3>(0, 0) = sromcps_globalrefine.R.block<3, 3>(0, 3*i).cast<float>();
+				transformation1.block<3, 1>(0, 3) = sromcps_globalrefine.T.block<3, 1>(3*i, 0).cast<float>();			 
+
+				Transformation transformation2 = Transformation::Identity();
+				transformation2.block<3, 3>(0, 0) = sromcps_globalrefine.R.block<3, 3>(0, 3*((i + 1) %M)).cast<float>();
+				transformation2.block<3, 1>(0, 3) = sromcps_globalrefine.T.block<3, 1>(3*((i + 1) %M), 0).cast<float>();		
+
+				Transformation newTransformation = transformation1.inverse() * transformation2;
+				makeEdgesConsistent(vertices1, transformations1, vertices2, transformations2, newTransformation);
+			}
+			else
+			{
+				std::cout << "loop lose edge" << std::endl;
+				exit(1);
+			}
+		}
+	}
+
+	return rms_error;
 }
 
 void GlobalRegistration::incrementalLoopRefine()
@@ -463,7 +565,7 @@ void GlobalRegistration::incrementalLoopRefine()
 		finalLoop = currentLoop;
 
 		//do loop refine to currentLoop  ... ...
-		loopRefine(currentLoop);
+		loopRefine(currentLoop, true);
 
 		//generate new loops to wait_insert
 		for (std::set<GraphLoop*, GraphLoopComp>::iterator it = graph.loops.begin(); it != graph.loops.end(); it++) 
