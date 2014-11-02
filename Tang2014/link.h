@@ -4,22 +4,24 @@
 #include <vector>
 #include <string>
 
-
-typedef unsigned int ScanIndex;
-struct Link
+namespace Tang2014
 {
-	ScanIndex a;
-	ScanIndex b;
-};
-typedef std::vector<Link> Links;
-struct LinkComp
-{
-	inline bool operator()(const Link &linkA, const Link &linkB )
+	typedef unsigned int ScanIndex;
+	struct Link
 	{
-		return ( linkA.a != linkB.a ) ? ( linkA.a < linkB.a ) : ( linkA.b < linkB.b );
-	}
-};
+		ScanIndex a;
+		ScanIndex b;
+	};
+	typedef std::vector<Link> Links;
+	struct LinkComp
+	{
+		inline bool operator()(const Link &linkA, const Link &linkB )
+		{
+			return ( linkA.a != linkB.a ) ? ( linkA.a < linkB.a ) : ( linkA.b < linkB.b );
+		}
+	};
 
-void importLinks(const std::string fileName, Links &links);
+	void importLinks(const std::string fileName, Links &links);
+}
 
 #endif

@@ -26,7 +26,7 @@ win32{
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
@@ -44,7 +44,7 @@ HEADERS += graph.h \
 			scan.h \
 			loop.h \
 			link.h \
-			SRoMCPS.h \
+			../Williams2001/SRoMCPS.h
 
 SOURCES += graph.cpp \
 			pairregistration.cpp \
@@ -53,7 +53,7 @@ SOURCES += graph.cpp \
 			scan.cpp \
 			loop.cpp \
 			link.cpp \
-			SRoMCPS.cpp \
+			../Williams2001/SRoMCPS.cpp
 
 
 

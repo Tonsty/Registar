@@ -17,7 +17,7 @@ LIBS += -lQVTK -lboost_system \
         -lflann_cpp -lvtkViews -lvtkInfovis -lvtkWidgets -lvtkHybrid \
         -lvtkRendering -lvtkIO -lvtkImaging -lvtkGraphics -lvtkFiltering -lvtkCommon -lm -lvtksys -lvtkQtChart
 
-INCLUDEPATH += . /usr/local/include/pcl-1.7/ /usr/include/eigen3 /usr/include/vtk-5.8/ /usr/include/ni/
+INCLUDEPATH += . /usr/local/include/pcl-1.8/ /usr/include/eigen3 /usr/include/vtk-5.8/ /usr/include/ni/
 
 # Input
 FORMS += manual_registration.ui

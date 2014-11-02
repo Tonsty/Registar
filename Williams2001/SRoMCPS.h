@@ -1,7 +1,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-namespace sromcps
+namespace Williams2001
 {
 	typedef double Scalar;
 	typedef Eigen::Matrix<Scalar, 3, 1> Point;

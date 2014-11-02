@@ -26,7 +26,7 @@ win32{
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
@@ -41,13 +41,15 @@ HEADERS += ../include/pclbase.h \
 			../include/pairwiseregistration.h \
 			../include/globalregistration.h \
 			../include/mathutilities.h \
-			../include/registrationdatamanager.h 
+			../include/registrationdatamanager.h \
+			../set_color/set_color.h
 SOURCES += main.cpp \
 			../src/cloud.cpp \
 			../src/cloudio.cpp \
 			../src/cloudmanager.cpp \
 			../src/pairwiseregistration.cpp \
 			../src/globalregistration.cpp \
-			../src/registrationdatamanager.cpp
+			../src/registrationdatamanager.cpp \
+			../set_color/set_color.cpp
 
 

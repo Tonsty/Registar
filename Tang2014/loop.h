@@ -6,13 +6,16 @@
 
 #include "link.h"
 
-typedef std::vector<ScanIndex> ScanIndices;
-struct Loop
+namespace Tang2014
 {
-	ScanIndices  scanIndices;
-};
-typedef std::vector<Loop> Loops;
+	typedef std::vector<ScanIndex> ScanIndices;
+	struct Loop
+	{
+		ScanIndices  scanIndices;
+	};
+	typedef std::vector<Loop> Loops;
 
-void importLoops(const std::string fileName, Loops &loops);
+	void importLoops(const std::string fileName, Loops &loops);
+}
 
 #endif 

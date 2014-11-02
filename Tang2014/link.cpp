@@ -3,20 +3,23 @@
 #include <iostream>
 #include <fstream>
 
-void importLinks(const std::string fileName, Links &links)
+namespace Tang2014
 {
-	std::fstream file;
-	file.open(fileName.c_str());
-
-	ScanIndex a, b;
-	int i = 0;
-	while( file >> a >> b ) 
+	void importLinks(const std::string fileName, Links &links)
 	{
-		std::cout << "link " << i << " : " << a << " " << b << std::endl;
-		Link link;
-		link.a = a;
-		link.b = b;
-		links.push_back(link);
-		i++;
-	}
+		std::fstream file;
+		file.open(fileName.c_str());
+
+		ScanIndex a, b;
+		int i = 0;
+		while( file >> a >> b ) 
+		{
+			std::cout << "link " << i << " : " << a << " " << b << std::endl;
+			Link link;
+			link.a = a;
+			link.b = b;
+			links.push_back(link);
+			i++;
+		}
+	}	
 }

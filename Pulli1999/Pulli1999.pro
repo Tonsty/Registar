@@ -1,4 +1,4 @@
-VERSION = 1.0.1
+ VERSION = 1.0.1
 TEMPLATE = app
 CONFIG += debug_and_release debug_and_release_target warn_off 
 DEPENDPATH += .
@@ -11,7 +11,7 @@ win32{
 		-L"D:/boost_1_55_0/stage/lib/" \
 			libboost_system-vc100-mt-gd-1_55.lib \
 		-L"C:/Program Files/PCL/lib/" \
-			pcl_visualization_debug.lib pcl_io_debug.lib pcl_common_debug.lib pcl_kdtree_debug.lib pcl_search_debug.lib \
+			pcl_visualization_debug.lib pcl_io_debug.lib pcl_common_debug.lib pcl_kdtree_debug.lib pcl_search_debug.lib pcl_filters_debug.lib \
 		-L"C:/Program Files/flann/lib/" \
 			flann_cpp_s-gd.lib	
 	}else{
@@ -20,34 +20,38 @@ win32{
 		-L"D:/boost_1_55_0/stage/lib/" \
 			libboost_system-vc100-mt-1_55.lib \
 		-L"C:/Program Files/PCL/lib/" \
-			pcl_visualization_release.lib pcl_io_release.lib pcl_common_release.lib pcl_kdtree_release.lib pcl_search_release.lib \
+			pcl_visualization_release.lib pcl_io_release.lib pcl_common_release.lib pcl_kdtree_release.lib pcl_search_release.lib pcl_filters_release.lib \
 		-L"C:/Program Files/flann/lib/" \
 			flann_cpp_s.lib		
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
 			-L/usr/local/lib/ \
-			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
+			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters \
+			-L/usr/lib/gcc/x85_64-linux-gnu/ \
+			-lgomp
+	QMAKE_CXXFLAGS += -fopenmp
+	QMAKE_LFLAGS += -fopenmp 
 }
-HEADERS += ../include/pclbase.h \
-			../include/qtbase.h \
-			../include/cloud.h \
-			../include/cloudio.h \     
-			../include/cloudmanager.h \
-			../include/pairwiseregistration.h \
-			../include/globalregistration.h \
-			../include/mathutilities.h \
-			../include/registrationdatamanager.h 
+
+HEADERS += ../Tang2014/graph.h \
+			../Tang2014/common.h \
+			../Tang2014/pairregistration.h \
+			../Tang2014/globalregistration.h \
+			../Tang2014/scan.h \
+			../Tang2014/loop.h \
+			../Tang2014/link.h \
+			../Williams2001/SRoMCPS.h
+
 SOURCES += main.cpp \
-			../src/cloud.cpp \
-			../src/cloudio.cpp \
-			../src/cloudmanager.cpp \
-			../src/pairwiseregistration.cpp \
-			../src/globalregistration.cpp \
-			../src/registrationdatamanager.cpp
-
-
+			../Tang2014/graph.cpp \
+			../Tang2014/pairregistration.cpp \
+			../Tang2014/globalregistration.cpp \
+			../Tang2014/scan.cpp \
+			../Tang2014/loop.cpp \
+			../Tang2014/link.cpp \
+			../Williams2001/SRoMCPS.cpp

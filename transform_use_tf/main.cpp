@@ -14,11 +14,15 @@
 #include "../include/globalregistration.h"
 #include "../include/mathutilities.h"
 
+#include "../set_color/set_color.h"
+
 int main(int argc, char **argv)
 {	
   	std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");
    	std::string output_directory = ".";
-	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	 	
+	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	 
+
+  	std::vector<RGB> rgbs = generateUniformColors(p_file_indices_ply.size(), 60, 300);	
 	
 	for (int i = 0; i < p_file_indices_ply.size(); ++i)
 	{
@@ -29,11 +33,30 @@ int main(int argc, char **argv)
 	    pcl::PolygonMesh mesh;
 	    reader.read(argv[p_file_indices_ply[i]], mesh);
 
-	    pcl::PointCloud<pcl::PointNormal>::Ptr cloudData(new pcl::PointCloud<pcl::PointNormal>);
+	    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloudData(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+
+	    // for (int i = 0; i < mesh.cloud.fields.size(); ++i)
+	    // {
+	    // 	std::cout << mesh.cloud.fields[i].name << std::endl;
+	    // }
+
 	    pcl::fromPCLPointCloud2(mesh.cloud, *cloudData);
+
 	    pcl::transformPointCloudWithNormals(*cloudData, *cloudData, transformation);
 
-	    pcl::toPCLPointCloud2(*cloudData, mesh.cloud);
+	    for (int j = 0; j < cloudData->size(); ++j)
+	    {
+	    	(*cloudData)[j].r = rgbs[i].r;
+	    	(*cloudData)[j].g = rgbs[i].g;
+	    	(*cloudData)[j].b = rgbs[i].b;	    	
+	    }
+
+	    pcl::toPCLPointCloud2(*cloudData, mesh.cloud);   
+
+	    // for (int i = 0; i < mesh.cloud.fields.size(); ++i)
+	    // {
+	    // 	std::cout << mesh.cloud.fields[i].name << std::endl;
+	    // }
 
 	    QFileInfo info(argv[p_file_indices_ply[i]]);
 	    pcl::io::savePLYFile((QString(output_directory.c_str()) + "/" + info.fileName()).toStdString(), mesh);	

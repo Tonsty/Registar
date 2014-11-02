@@ -8,63 +8,66 @@
 #include "pairregistration.h"
 #include "graph.h"
 
-class GlobalRegistration
+namespace Tang2014
 {
-public:
-
-	struct Parameters
+	class GlobalRegistration
 	{
-		PairRegistration::Parameters pr_para;
+	public:
 
-		bool doInitialPairRegistration;
-		bool doIncrementalLoopRefine;
-		bool doGlobalRefine;
-		unsigned int globalIterationNum_max;
-		unsigned int globalIterationNum_min;
-	} para;
+		struct Parameters
+		{
+			PairRegistration::Parameters pr_para;
 
-	GlobalRegistration(ScanPtrs _scanPtrs = ScanPtrs(), Links _links = Links(), Loops _loops = Loops()) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
+			bool doInitialPairRegistration;
+			bool doIncrementalLoopRefine;
+			bool doGlobalRefine;
+			unsigned int globalIterationNum_max;
+			unsigned int globalIterationNum_min;
+		} para;
 
-	~GlobalRegistration() {}
+		GlobalRegistration(ScanPtrs _scanPtrs = ScanPtrs(), Links _links = Links(), Loops _loops = Loops()) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
 
-	void setParameters(GlobalRegistration::Parameters _para){ para = _para; }
+		~GlobalRegistration() {}
 
-	void startRegistration();
+		void setParameters(GlobalRegistration::Parameters _para){ para = _para; }
 
-	void initialTransformations();
-	void buildKdTreePtrs();
+		void startRegistration();
 
-	void initialPairRegistration();
+		void initialTransformations();
+		void buildKdTreePtrs();
 
-	void initialGraph();
-	void incrementalLoopRefine();
+		void initialPairRegistration();
 
-	float loopEstimateConsistencyError( GraphLoop* _graphLoop );
-	float loopRefine( GraphLoop* _graphLoop, bool _closing);
+		void initialGraph();
+		void incrementalLoopRefine();
 
-	GraphEdge* createGraphEdge(GraphVertex *_vertex1, GraphVertex *_vertex2);
-	Transformation GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
-		std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
-	void generateFinalPointPairs(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
-		std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2, 
-		bool _rePairGenerate, bool useVirtualMate, PairRegistration::PointPairs &_all_final_s2t);
-	void makeEdgesConsistent(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
-		std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2,
-		Transformation &_newTransformation);
-	
-	void globalPairRefine();
-	void globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min);
+		float loopEstimateConsistencyError( GraphLoop* _graphLoop );
+		float loopRefine( GraphLoop* _graphLoop, bool _closing);
 
-	ScanPtrs scanPtrs;
-	Links links;
-	Loops loops;
+		GraphEdge* createGraphEdge(GraphVertex *_vertex1, GraphVertex *_vertex2);
+		Transformation GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
+			std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
+		void generateFinalPointPairs(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+			std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2, 
+			bool _rePairGenerate, bool useVirtualMate, PairRegistration::PointPairs &_all_final_s2t);
+		void makeEdgesConsistent(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
+			std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2,
+			Transformation &_newTransformation);
+		
+		void globalPairRefine();
+		void globalRefine(unsigned int _iterationNum_max, unsigned int _iterationNum_min);
 
-	KdTreePtrs kdTreePtrs;
-	Transformations transformations;
+		ScanPtrs scanPtrs;
+		Links links;
+		Loops loops;
 
-	PairRegistrationPtrMap pairRegistrationPtrMap;
+		KdTreePtrs kdTreePtrs;
+		Transformations transformations;
 
-	Graph graph;
-};
+		PairRegistrationPtrMap pairRegistrationPtrMap;
+
+		Graph graph;
+	};	
+}
 
 #endif

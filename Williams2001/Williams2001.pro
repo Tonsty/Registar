@@ -33,7 +33,8 @@ unix{
 			-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
 }
-HEADERS += ../include/pclbase.h \
+HEADERS += SRoMCPS.h \
+			../include/pclbase.h \
 			../include/qtbase.h \
 			../include/cloud.h \
 			../include/cloudio.h \     
@@ -43,6 +44,7 @@ HEADERS += ../include/pclbase.h \
 			../include/mathutilities.h \
 			../include/registrationdatamanager.h 
 SOURCES += main.cpp \
+			SRoMCPS.cpp \
 			../src/cloud.cpp \
 			../src/cloudio.cpp \
 			../src/cloudmanager.cpp \

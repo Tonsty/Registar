@@ -1,10 +1,10 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-#include "link.h"
-#include "loop.h"
-#include "scan.h"
-#include "globalregistration.h"
+#include "../Tang2014/link.h"
+#include "../Tang2014/loop.h"
+#include "../Tang2014/scan.h"
+#include "../Tang2014/globalregistration.h"
 
 #include "../Williams2001/SRoMCPS.h"
 
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
   	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
   	pr_para.sMethod = PairRegistration::UMEYAMA;
   	pr_para.distanceTest = true;
-  	pr_para.distThreshold = 0.004f;
+  	pr_para.distThreshold = 10.0f;
   	pr_para.angleTest = true;
   	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
