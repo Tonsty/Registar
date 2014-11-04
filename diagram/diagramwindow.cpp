@@ -107,7 +107,7 @@ void DiagramWindow::loadOOLVFile(QString fileName)
 
         lineCount++;
 
-        if( lineCount > 149) break;
+        // if( lineCount > 149) break;
     }
 
     for (QSet<QString>::const_iterator it = nodeSet.begin(); it != nodeSet.end(); ++it) addNode(*it);

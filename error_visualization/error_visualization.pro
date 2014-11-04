@@ -26,28 +26,17 @@ win32{
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
+			-lCGAL -lCGAL_Core -lCGAL_ImageIO -lCGAL_Qt4 \
 			-L/usr/local/lib/ \
-			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
+			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search 
+	QMAKE_CXXFLAGS += -std=c++11
 }
-HEADERS += ../include/pclbase.h \
-			../include/qtbase.h \
-			../include/cloud.h \
-			../include/cloudio.h \     
-			../include/cloudmanager.h \
-			../include/pairwiseregistration.h \
-			../include/globalregistration.h \
-			../include/mathutilities.h \
-			../include/registrationdatamanager.h 
-SOURCES += main.cpp \
-			../src/cloud.cpp \
-			../src/cloudio.cpp \
-			../src/cloudmanager.cpp \
-			../src/pairwiseregistration.cpp \
-			../src/globalregistration.cpp \
-			../src/registrationdatamanager.cpp
+#HEADERS += 
+
+SOURCES += main.cpp
 
 
