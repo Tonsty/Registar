@@ -44,7 +44,7 @@ namespace Tang2014
 		_out << std::endl;
 
 		_out << "loops : " << std::endl;
-		for (std::set<GraphLoop*, GraphLoopComp>::const_iterator it = _graph.loops.begin(); it != _graph.loops.end(); it++) 
+		for (std::multiset<GraphLoop*, GraphLoopComp>::const_iterator it = _graph.loops.begin(); it != _graph.loops.end(); it++) 
 		{
 			for (int j = 0; j < (*it)->loop.size(); ++j)
 			{

@@ -152,7 +152,7 @@ namespace Tang2014
 	{
 		std::vector<GraphVertex*> vertices;
 		std::map< std::pair<GraphVertex*, GraphVertex*>, GraphEdge*> edges;
-		std::set<GraphLoop*, GraphLoopComp> loops;
+		std::multiset<GraphLoop*, GraphLoopComp> loops;
 	};
 
 	std::ostream& operator<<(std::ostream& _out, const Graph &_graph);

@@ -558,7 +558,7 @@ namespace Tang2014
 		while(!graph.loops.empty())
 		{
 			std::cout << "iter " << iter++ << " : " << std::endl;
-			for (std::set<GraphLoop*, GraphLoopComp>::const_iterator it = graph.loops.begin(); it != graph.loops.end(); it++) std::cout << *(*it) << " ";
+			for (std::multiset<GraphLoop*, GraphLoopComp>::const_iterator it = graph.loops.begin(); it != graph.loops.end(); it++) std::cout << *(*it) << " ";
 			std::cout << std::endl;
 
 			std::vector< GraphLoop* > wait_insert;
@@ -570,7 +570,7 @@ namespace Tang2014
 			loopRefine(currentLoop, true);
 
 			//generate new loops to wait_insert
-			for (std::set<GraphLoop*, GraphLoopComp>::const_iterator it = graph.loops.begin(); it != graph.loops.end(); it++) 
+			for (std::multiset<GraphLoop*, GraphLoopComp>::const_iterator it = graph.loops.begin(); it != graph.loops.end(); it++) 
 			{
 				if ( it != graph.loops.begin() && (*it)->intersected(currentLoop) )
 				{
@@ -583,8 +583,8 @@ namespace Tang2014
 			}
 
 			//keep those unchanged old loops
-			std::set<GraphLoop*, GraphLoopComp> temp;
-			for (std::set<GraphLoop*, GraphLoopComp>::iterator it = graph.loops.begin(); it != graph.loops.end(); it++)
+			std::multiset<GraphLoop*, GraphLoopComp> temp;
+			for (std::multiset<GraphLoop*, GraphLoopComp>::iterator it = graph.loops.begin(); it != graph.loops.end(); it++)
 			{
 				if ( it != graph.loops.begin() && !(*it)->intersected(currentLoop) )
 				{
