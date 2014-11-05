@@ -14,8 +14,6 @@
 #include "../include/globalregistration.h"
 #include "../include/mathutilities.h"
 
-#include "../Tang2014/link.h"
-
 void generateErrorRGB(float error, 
 						unsigned int &red, unsigned int &green, unsigned int &blue,
 						float minerror = 0.0, float maxerror = 1.0);
@@ -44,16 +42,65 @@ int main(int argc, char **argv)
 	}
 
 	std::vector< std::vector<int> > overlapRelations( cloudManager->getAllClouds().size() );
+	overlapRelations[0].push_back(1);
+	overlapRelations[0].push_back(2);
+	overlapRelations[0].push_back(5);
+	overlapRelations[0].push_back(6);
+	overlapRelations[0].push_back(9);
 
-	std::vector<int> p_file_indices_links = pcl::console::parse_file_extension_argument (argc, argv, ".links");
-	Tang2014::Links links;
-	Tang2014::importLinks(argv[p_file_indices_links[0]], links);
+	overlapRelations[1].push_back(0);
+	overlapRelations[1].push_back(2);	
+	overlapRelations[1].push_back(5);
+	overlapRelations[1].push_back(6);
+	overlapRelations[1].push_back(8);	
+	overlapRelations[1].push_back(9);
 
-	for (int i = 0; i < links.size(); i++)
-	{
-		std::cout << links[i].a << " <- " << links[i].b << std::endl;
-		overlapRelations[links[i].a].push_back(links[i].b);
-	}
+	overlapRelations[2].push_back(0);
+	overlapRelations[2].push_back(1);	
+	overlapRelations[2].push_back(3);
+	overlapRelations[2].push_back(7);
+	overlapRelations[2].push_back(8);	
+	overlapRelations[2].push_back(9);
+
+	overlapRelations[3].push_back(2);
+	overlapRelations[3].push_back(4);	
+	overlapRelations[3].push_back(7);
+	overlapRelations[3].push_back(8);	
+	overlapRelations[3].push_back(9);	
+
+	overlapRelations[4].push_back(3);
+	overlapRelations[4].push_back(5);	
+	overlapRelations[4].push_back(6);
+
+	overlapRelations[5].push_back(0);
+	overlapRelations[5].push_back(1);	
+	overlapRelations[5].push_back(4);
+	overlapRelations[5].push_back(6);
+	overlapRelations[5].push_back(9);	
+
+	overlapRelations[6].push_back(0);
+	overlapRelations[6].push_back(1);	
+	overlapRelations[6].push_back(4);
+	overlapRelations[6].push_back(5);
+
+	overlapRelations[7].push_back(2);
+	overlapRelations[7].push_back(3);	
+	overlapRelations[7].push_back(8);
+	overlapRelations[7].push_back(9);
+
+	overlapRelations[8].push_back(1);
+	overlapRelations[8].push_back(2);	
+	overlapRelations[8].push_back(3);
+	overlapRelations[8].push_back(7);
+	overlapRelations[8].push_back(9);	
+
+	overlapRelations[9].push_back(0);
+	overlapRelations[9].push_back(1);	
+	overlapRelations[9].push_back(2);
+	overlapRelations[9].push_back(3);
+	overlapRelations[9].push_back(5);	
+	overlapRelations[9].push_back(7);
+	overlapRelations[9].push_back(8);
 
 	for (int i = 0; i < overlapRelations.size(); ++i)
 	{
@@ -160,7 +207,7 @@ int main(int argc, char **argv)
 	{
 		CorrespondencesComputationParameters correspondencesComputationParameters;
 		correspondencesComputationParameters.method = POINT_TO_PLANE;
-		correspondencesComputationParameters.distanceThreshold = 0.001f;    // FOR bunny
+		correspondencesComputationParameters.distanceThreshold = 0.1f;    // FOR bunny
 		correspondencesComputationParameters.normalAngleThreshold = 45.0f;  // FOR bunny
 
 		// correspondencesComputationParameters.distanceThreshold = 1.0f;       //FOR buste
@@ -294,8 +341,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	float min_sumerror = 0.0001f;  //FOR bunny
-	float max_sumerror = 0.005f;  //FOR bunny
+	float min_sumerror = 0.0f;  //FOR bunny
+	float max_sumerror = 0.001f;  //FOR bunny
 	// float min_sumerror = 0.0f;  //FOR buste
 	// float max_sumerror = 1.0f;  //FOR buste
 
@@ -322,8 +369,8 @@ int main(int argc, char **argv)
 		writer.write(newFileName.toStdString(), *sumErrorCloud[i]);		
 	}
 
-	float min_maxerror = 0.0001f;   //FOR bunny
-	float max_maxerror = 0.005f; //FOR bunny
+	float min_maxerror = 0.0f;   //FOR bunny
+	float max_maxerror = 0.1f; //FOR bunny
 	// float min_maxerror = 0.0f;   //FOR buste
 	// float max_maxerror = 1.0f; //FOR buste
 
@@ -353,17 +400,12 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-#ifndef CLAMP
-#define CLAMP(X, Xmin, Xmax) (X < Xmin ? Xmin : ( X > Xmax ? Xmax : X ) )
-#endif 
 
 void generateErrorRGB(float error, 
 						unsigned int &red, unsigned int &green, unsigned int &blue,
 						float minerror, float maxerror) 
 						//float blueerror = 0, float qingerror = 0.25, float greenerror = 0.5, float yellowerror = 0.75, float rederror = 1 )
 {
-	error = CLAMP(error, minerror, maxerror);
-
 	float fract = ( error - minerror ) / ( maxerror - minerror );
 	//std::cout << fract << std::endl;
 
