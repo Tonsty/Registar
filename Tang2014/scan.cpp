@@ -3,6 +3,10 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef WIN32
+#define PCL_NO_PRECOMPILE
+#endif
+
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/ply_io.h>
