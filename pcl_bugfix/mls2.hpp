@@ -782,7 +782,7 @@ pcl::MovingLeastSquaresOMP2<PointInT, PointOutT>::performUpsampling (PointCloudO
     normals_->resize(distinct_cloud_->size());
 
     #pragma omp parallel for schedule (dynamic,1000) num_threads (threads)
-    for (size_t dp_i = 0; dp_i < distinct_cloud_->size (); ++dp_i) // dp_i = distinct_point_i
+    for (int dp_i = 0; dp_i < distinct_cloud_->size (); ++dp_i) // dp_i = distinct_point_i
     {
       // Distinct cloud may have nan points, skip them
       if (!pcl_isfinite (distinct_cloud_->points[dp_i].x))

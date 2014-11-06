@@ -6,10 +6,12 @@ PROJECT(ContoursFromPolyData)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
-add_executable(ContoursFromPolyData MACOSX_BUNDLE ContoursFromPolyData)
+find_package(PCL REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS} ../set_color/)
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
-if(VTK_LIBRARIES)
-  target_link_libraries(ContoursFromPolyData ${VTK_LIBRARIES})
-else()
-  target_link_libraries(ContoursFromPolyData vtkHybrid vtkWidgets)
-endif()
+add_executable(ContoursFromPolyData ContoursFromPolyData.cxx ../set_color/set_color.cpp)
+
+target_link_libraries(ContoursFromPolyData ${VTK_LIBRARIES} ${PCL_LIBRARIES})
+

@@ -125,7 +125,7 @@ bool CloudIO::exportBoundaries(const QString &fileName, BoundariesPtr &boundarie
 
 	qDebug() << bdFileName;
 
-	if(boundaries != NULL) pcl::io::savePCDFile(bdFileName.toStdString(), *boundaries);
+	if(boundaries != NULL && boundaries->size() > 0) pcl::io::savePCDFile(bdFileName.toStdString(), *boundaries);
 	return true;
 }
 

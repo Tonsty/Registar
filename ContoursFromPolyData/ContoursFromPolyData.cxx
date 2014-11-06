@@ -1,6 +1,7 @@
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 //#include <vtkXMLPolyDataReader.h>
+#include <vtkPointData.h>
 #include <vtkPLYReader.h>
 #include <vtkSphereSource.h>
 #include <vtkPolyDataMapper.h>
@@ -13,120 +14,134 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkInteractorStyleRubberBandPick.h>
 #include <vtkMath.h>
+#include <vtkProbeFilter.h>
+
+#include <pcl/console/parse.h>
+
+#include "../set_color/set_color.h"
 
 int main(int argc, char *argv[])
 { 
-  vtkSmartPointer<vtkPolyData> inputPolyData;
-  if(argc > 1)
+	std::vector< vtkSmartPointer<vtkPolyData> > inputPolyDatas;
+	if(argc > 1)
     {
-    //vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    //  vtkSmartPointer<vtkXMLPolyDataReader>::New();
-	vtkSmartPointer<vtkPLYReader> reader =
-		vtkSmartPointer<vtkPLYReader>::New();
-    reader->SetFileName(argv[1]);
-    reader->Update();
-    inputPolyData = reader->GetOutput();
-	std::cout << inputPolyData->GetNumberOfVerts() << std::endl;
-	std::cout << inputPolyData->GetNumberOfPolys() << std::endl;
+		vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
+		std::vector<int> p_file_indices_ply = pcl::console::parse_file_extension_argument (argc, argv, ".ply");	
+		for (int i = 0; i < p_file_indices_ply.size(); ++i)
+		{
+			vtkSmartPointer<vtkPolyData> inputPolyData;
+			reader->SetFileName(argv[p_file_indices_ply[i]]);
+			reader->Update();
+			inputPolyData = reader->GetOutput();
+			inputPolyDatas.push_back(inputPolyData);
+			//std::cout << inputPolyData->GetNumberOfVerts() << std::endl;
+			//std::cout << inputPolyData->GetNumberOfPolys() << std::endl;
+		}
     }
-  else
+	else
     {
-    vtkSmartPointer<vtkSphereSource> sphereSource =
-      vtkSmartPointer<vtkSphereSource>::New();
-    sphereSource->SetThetaResolution(30);
-    sphereSource->SetPhiResolution(15);
-    sphereSource->Update();
-    inputPolyData = sphereSource->GetOutput();
+		vtkSmartPointer<vtkPolyData> inputPolyData;
+		vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
+		sphereSource->SetThetaResolution(30);
+		sphereSource->SetPhiResolution(15);
+		sphereSource->Update();
+		inputPolyData = sphereSource->GetOutput();
+
+		inputPolyDatas.push_back(inputPolyData);
     }
 
-  vtkSmartPointer<vtkPolyDataMapper> inputMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+	std::vector<RGB> rgbs = generateUniformColors(inputPolyDatas.size(), 60, 300);	
+
+	// Create renderers and add actors of plane and cube
+	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+
+	for (int i =0; i < inputPolyDatas.size(); i++)
+	{
+		vtkSmartPointer<vtkPolyData> inputPolyData = inputPolyDatas[i];
+
+		vtkSmartPointer<vtkPolyDataMapper> inputMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 #if VTK_MAJOR_VERSION <= 5
-  inputMapper->SetInput(inputPolyData);
+		inputMapper->SetInput(inputPolyData);
 #else
-  inputMapper->SetInputData(inputPolyData);
+		inputMapper->SetInputData(inputPolyData);
 #endif
-  
-  // Create a plane to cut
-  vtkSmartPointer<vtkPlane> plane =
-    vtkSmartPointer<vtkPlane>::New();
-  plane->SetOrigin(inputPolyData->GetCenter());
-  //plane->SetNormal(1,1,1);
-  //plane->SetNormal(0,1,0);
-  plane->SetNormal(1,0,0);
 
-  double minBound[3];
-  minBound[0] = inputPolyData->GetBounds()[0];
-  minBound[1] = inputPolyData->GetBounds()[2];
-  minBound[2] = inputPolyData->GetBounds()[4];
+		// Create a plane to cut
+		vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+		plane->SetOrigin(inputPolyData->GetCenter());
+		//plane->SetNormal(1,1,1);
+		plane->SetNormal(0,1,0);
+		//plane->SetNormal(1,0,0);
 
-  double maxBound[3];
-  maxBound[0] = inputPolyData->GetBounds()[1];
-  maxBound[1] = inputPolyData->GetBounds()[3];
-  maxBound[2] = inputPolyData->GetBounds()[5];
+		double minBound[3];
+		minBound[0] = inputPolyData->GetBounds()[0];
+		minBound[1] = inputPolyData->GetBounds()[2];
+		minBound[2] = inputPolyData->GetBounds()[4];
 
-  double center[3];
-  center[0] = inputPolyData->GetCenter()[0];
-  center[1] = inputPolyData->GetCenter()[1];
-  center[2] = inputPolyData->GetCenter()[2];
+		double maxBound[3];
+		maxBound[0] = inputPolyData->GetBounds()[1];
+		maxBound[1] = inputPolyData->GetBounds()[3];
+		maxBound[2] = inputPolyData->GetBounds()[5];
 
-  double distanceMin = sqrt(vtkMath::Distance2BetweenPoints(minBound, center));
-  double distanceMax = sqrt(vtkMath::Distance2BetweenPoints(maxBound, center));
+		double center[3];
+		center[0] = inputPolyData->GetCenter()[0];
+		center[1] = inputPolyData->GetCenter()[1];
+		center[2] = inputPolyData->GetCenter()[2];
 
-  // Create cutter
-  vtkSmartPointer<vtkCutter> cutter =
-    vtkSmartPointer<vtkCutter>::New();
-  cutter->SetCutFunction(plane);
+		double distanceMin = sqrt(vtkMath::Distance2BetweenPoints(minBound, center));
+		double distanceMax = sqrt(vtkMath::Distance2BetweenPoints(maxBound, center));
+
+		// Create cutter
+		vtkSmartPointer<vtkCutter> cutter = vtkSmartPointer<vtkCutter>::New();
+		cutter->SetCutFunction(plane);
 #if VTK_MAJOR_VERSION <= 5
-  cutter->SetInput(inputPolyData);
+		cutter->SetInput(inputPolyData);
 #else
-  cutter->SetInputData(inputPolyData);
+		cutter->SetInputData(inputPolyData);
 #endif
-  //cutter->GenerateValues(20, -distanceMin, distanceMax);
-  cutter->GenerateValues(1, 0, 0);
-  vtkSmartPointer<vtkPolyDataMapper> cutterMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  cutterMapper->SetInputConnection( cutter->GetOutputPort());
-  cutterMapper->ScalarVisibilityOff();
-  
-  // Create plane actor
-  vtkSmartPointer<vtkActor> planeActor =
-    vtkSmartPointer<vtkActor>::New();
-  //planeActor->GetProperty()->SetColor(1.0,1,0);
-  planeActor->GetProperty()->SetColor(0,0,0);
-  planeActor->GetProperty()->SetLineWidth(3);
-  planeActor->SetMapper(cutterMapper);
-  
-  // Create input actor
-  vtkSmartPointer<vtkActor> inputActor =
-    vtkSmartPointer<vtkActor>::New();
-  //inputActor->GetProperty()->SetColor(1.0, 0.8941, 0.7686); // bisque
-  inputActor->SetMapper(inputMapper);
-  
-  // Create renderers and add actors of plane and cube
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  renderer->AddActor(planeActor); //display the rectangle resulting from the cut
-  //renderer->AddActor(inputActor); //display the cube
-  
-  //Add renderer to renderwindow and render
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
-  renderWindow->SetSize(600, 600);
-  
-  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-	  vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  interactor->SetRenderWindow(renderWindow);
-  //renderer->SetBackground(.1, .2, .3);
-  renderer->SetBackground(1, 1, 1);
-  renderWindow->Render();
+		//cutter->GenerateValues(20, -distanceMin, distanceMax);
+		cutter->GenerateValues(1, 0, 0);
+		vtkSmartPointer<vtkPolyDataMapper> cutterMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+		cutterMapper->SetInputConnection( cutter->GetOutputPort());
+		cutterMapper->ScalarVisibilityOff();
 
-  vtkSmartPointer<vtkInteractorStyleRubberBandPick> interactorStyle =
-	  vtkSmartPointer<vtkInteractorStyleRubberBandPick>::New();
-  interactor->SetInteractorStyle(interactorStyle);
+		// Create plane actor
+		vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
+		//planeActor->GetProperty()->SetColor(1.0,1,0);
+		//planeActor->GetProperty()->SetColor(0,0,0);
+		float r, g, b;
+		r = rgbs[i].r/255.0;
+		g = rgbs[i].g/255.0;
+		b = rgbs[i].b/255.0;
+		std::cout << r << " " << g << " " << b << std::endl;
+		planeActor->GetProperty()->SetColor( r, g, b );
+		planeActor->GetProperty()->SetLineWidth(3);
+		planeActor->SetMapper(cutterMapper);
 
-  interactor->Start();
+		// Create input actor
+		vtkSmartPointer<vtkActor> inputActor = vtkSmartPointer<vtkActor>::New();
+		inputActor->GetProperty()->SetColor(1.0, 0.8941, 0.7686); // bisque
+		inputActor->SetMapper(inputMapper);
+
+		renderer->AddActor(planeActor); //display the rectangle resulting from the cut
+		//renderer->AddActor(inputActor); //display the cube
+	}
   
-  return EXIT_SUCCESS;
+	//Add renderer to renderwindow and render
+	vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+	renderWindow->AddRenderer(renderer);
+	renderWindow->SetSize(600, 600);
+  
+	vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	interactor->SetRenderWindow(renderWindow);
+	//renderer->SetBackground(.1, .2, .3);
+	renderer->SetBackground(1, 1, 1);
+	renderWindow->Render();
+
+	vtkSmartPointer<vtkInteractorStyleRubberBandPick> interactorStyle = vtkSmartPointer<vtkInteractorStyleRubberBandPick>::New();
+	interactor->SetInteractorStyle(interactorStyle);
+
+	interactor->Start();
+  
+	return EXIT_SUCCESS;
 }
