@@ -52,7 +52,7 @@ int main(int argc, char** argv)
       pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
       pr_para.sMethod = PairRegistration::UMEYAMA;
       pr_para.distanceTest = true;
-      pr_para.distThreshold = 10.0f;
+      pr_para.distThreshold = 0.010f;
       pr_para.angleTest = true;
       pr_para.angleThreshold = 45.0f;
       pr_para.boundaryTest = true;

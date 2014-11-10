@@ -17,7 +17,7 @@
 
 
 
-RGB hsv2rgb(const HSV &_hsv)
+RGB_ hsv2rgb(const HSV &_hsv)
 {
 	float h = (int)(_hsv.h/60);
 	float f = _hsv.h/60 - h;
@@ -76,14 +76,14 @@ RGB hsv2rgb(const HSV &_hsv)
 		b = q;
 	}
 
-	RGB rgb;
+	RGB_ rgb;
 	rgb.r = CLAMP( r * 255.0f, 0, 255);
 	rgb.g = CLAMP( g * 255.0f, 0, 255);
 	rgb.b = CLAMP( b * 255.0f, 0, 255);	
 	return rgb;
 }
 
-HSV rgb2hsv(const RGB &_rgb)
+HSV rgb2hsv(const RGB_ &_rgb)
 {
 	float r = _rgb.r / 255.0f;
 	float g = _rgb.g / 255.0f;
@@ -115,12 +115,12 @@ HSV rgb2hsv(const RGB &_rgb)
 	return hsv;
 }
 
-std::vector<RGB> generateUniformColors(int _n, float start_degree, float end_degree)
+std::vector<RGB_> generateUniformColors(int _n, float start_degree, float end_degree)
 {
 	start_degree = CLAMP(start_degree, 0, 359.99f);
 	end_degree = CLAMP(end_degree, 0, 359.99f);
 
-	std::vector<RGB> result_rgbs;
+	std::vector<RGB_> result_rgbs;
 
 	for (int i = 0; i < _n; ++i)
 	{
@@ -133,7 +133,7 @@ std::vector<RGB> generateUniformColors(int _n, float start_degree, float end_deg
 		hsv.s = s;
 		hsv.v = v;
 
-		RGB rgb = hsv2rgb(hsv);
+		RGB_ rgb = hsv2rgb(hsv);
 		result_rgbs.push_back(rgb);
 	}
 

@@ -1,0 +1,4 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Remove Unreferenced Vertex"/>
+</FilterScript>

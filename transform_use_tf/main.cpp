@@ -22,7 +22,7 @@ int main(int argc, char **argv)
    	std::string output_directory = ".";
 	pcl::console::parse_argument (argc, argv, "--directory", output_directory);	 
 
-  	std::vector<RGB> rgbs = generateUniformColors(p_file_indices_ply.size(), 60, 300);	
+  	std::vector<RGB_> rgbs = generateUniformColors(p_file_indices_ply.size(), 60, 300);	
 	
 	for (int i = 0; i < p_file_indices_ply.size(); ++i)
 	{

@@ -293,39 +293,47 @@ Eigen::Matrix4f PairwiseRegistration::registAr(Correspondences &correspondences,
 	PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters,
 	PairwiseRegistrationComputationData &pairwiseRegistrationComputationData)
 {
-	Eigen::Matrix<float, 3, Eigen::Dynamic> &cloud_src = pairwiseRegistrationComputationData.cloud_src;
-	Eigen::Matrix<float, 3, Eigen::Dynamic> &cloud_tgt = pairwiseRegistrationComputationData.cloud_tgt;
-
-	cloud_src.resize(Eigen::NoChange, correspondences.size());
-	cloud_tgt.resize(Eigen::NoChange, correspondences.size());
-
-	for (int i = 0; i < correspondences.size(); ++i)
+	if ( correspondences.size() <= 0)
 	{
-		cloud_src(0, i) = correspondences[i].sourcePoint.x;
-		cloud_src(1, i) = correspondences[i].sourcePoint.y;
-		cloud_src(2, i) = correspondences[i].sourcePoint.z;
-
-		cloud_tgt(0, i) = correspondences[i].targetPoint.x;
-		cloud_tgt(1, i) = correspondences[i].targetPoint.y;
-		cloud_tgt(2, i) = correspondences[i].targetPoint.z;
+		return Eigen::Matrix4f::Identity();
 	}
-
-    Eigen::Matrix4f transformation_matrix;
-	switch(pairwiseRegistrationComputationParameters.method)
+	else
 	{
+
+		Eigen::Matrix<float, 3, Eigen::Dynamic> &cloud_src = pairwiseRegistrationComputationData.cloud_src;
+		Eigen::Matrix<float, 3, Eigen::Dynamic> &cloud_tgt = pairwiseRegistrationComputationData.cloud_tgt;
+
+		cloud_src.resize(Eigen::NoChange, correspondences.size());
+		cloud_tgt.resize(Eigen::NoChange, correspondences.size());
+
+		for (int i = 0; i < correspondences.size(); ++i)
+		{
+			cloud_src(0, i) = correspondences[i].sourcePoint.x;
+			cloud_src(1, i) = correspondences[i].sourcePoint.y;
+			cloud_src(2, i) = correspondences[i].sourcePoint.z;
+
+			cloud_tgt(0, i) = correspondences[i].targetPoint.x;
+			cloud_tgt(1, i) = correspondences[i].targetPoint.y;
+			cloud_tgt(2, i) = correspondences[i].targetPoint.z;
+		}
+
+		Eigen::Matrix4f transformation_matrix;
+		switch(pairwiseRegistrationComputationParameters.method)
+		{
 		case UMEYAMA:
-		{
-			transformation_matrix = pcl::umeyama (cloud_src, cloud_tgt, 
-				pairwiseRegistrationComputationParameters.allowScaling);
-			break;
-		}
+			{
+				transformation_matrix = pcl::umeyama (cloud_src, cloud_tgt, 
+					pairwiseRegistrationComputationParameters.allowScaling);
+				break;
+			}
 		case SVD:
-		{
-			transformation_matrix = Eigen::Matrix4f::Identity();
-			break;
+			{
+				transformation_matrix = Eigen::Matrix4f::Identity();
+				break;
+			}
 		}
+		return transformation_matrix;
 	}
-	return transformation_matrix;
 }
 
 Eigen::Matrix4f PairwiseRegistration::icp(RegistrationData *target, RegistrationData *source, 

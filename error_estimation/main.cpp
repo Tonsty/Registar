@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	{
 		CorrespondencesComputationParameters correspondencesComputationParameters;
 		correspondencesComputationParameters.method = POINT_TO_PLANE;
-		correspondencesComputationParameters.distanceThreshold = 0.001f;    // FOR bunny
+		correspondencesComputationParameters.distanceThreshold = 0.010f;    // FOR bunny
 		correspondencesComputationParameters.normalAngleThreshold = 45.0f;  // FOR bunny
 
 		// correspondencesComputationParameters.distanceThreshold = 1.0f;       //FOR buste

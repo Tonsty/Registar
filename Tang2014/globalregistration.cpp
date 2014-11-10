@@ -17,8 +17,8 @@ namespace Tang2014
 		initialTransformations();	
 		initialPairRegistration();
 		if(para.doIncrementalLoopRefine) incrementalLoopRefine();
-		// if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
-		if(para.doGlobalRefine) globalPairRefine();
+		if(para.doGlobalRefine && para.doInitialPairRegistration) globalPairRefine();
+		else if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
 	}
 
 	void GlobalRegistration::buildKdTreePtrs()
