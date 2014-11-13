@@ -52,11 +52,15 @@ void MovingLeastSquares::filter(CloudDataPtr &cloudData, QVariantMap parameters,
 	}
 	else if (use_mcpu)
 	{
-		mls.reset(new pcl::MovingLeastSquaresOMP2<PointType, PointType>(8));
+		int threads = omp_get_num_procs();
+		std::cout << threads << "threads" << std::endl;
+		mls.reset(new pcl::MovingLeastSquaresOMP2<PointType, PointType>(threads));
 	}
 	else if (use_gpu)
 	{
-		mls.reset(new pcl::MovingLeastSquaresOMP2<PointType, PointType>(8));
+		int threads = omp_get_num_procs();
+		std::cout << threads << " threads" << std::endl;
+		mls.reset(new pcl::MovingLeastSquaresOMP2<PointType, PointType>(threads));
 	}
 
 	//pcl::MovingLeastSquaresOMP2<PointType, PointType> mls(8);

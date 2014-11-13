@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
 			origin = points[0];
 			normal = (points[1] - points[0] ).cross(points[2] - points[0]).normalized();
 
-			//std::cout << origin << std::endl;
-			//std::cout << normal << std::endl;
+			std::cout << origin << std::endl;
+			std::cout << normal << std::endl;
 
 			vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
 			plane->SetOrigin(origin.x(), origin.y(), origin.z());
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 		vtkSmartPointer<vtkActor> inputActor = vtkSmartPointer<vtkActor>::New();
 		//inputActor->GetProperty()->SetColor(1.0, 0.8941, 0.7686); // bisque
 		inputActor->SetMapper(inputMapper);
-		renderer->AddActor(inputActor); //display the cube
+		//renderer->AddActor(inputActor); //display the cube
 
 		for (int j = 0; j < planes.size(); j++)
 		{
@@ -140,14 +140,14 @@ int main(int argc, char *argv[])
 
 			// Create plane actor
 			vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
-			planeActor->GetProperty()->SetColor(1.0,1,0);
+			//planeActor->GetProperty()->SetColor(1.0,1,0);
 			//planeActor->GetProperty()->SetColor(0,0,0);
-			//float r, g, b;
-			//r = rgbs[i].r/255.0;
-			//g = rgbs[i].g/255.0;
-			//b = rgbs[i].b/255.0;
+			float r, g, b;
+			r = rgbs[i].r/255.0;
+			g = rgbs[i].g/255.0;
+			b = rgbs[i].b/255.0;
 			//std::cout << r << " " << g << " " << b << std::endl;
-			//planeActor->GetProperty()->SetColor( r, g, b );
+			planeActor->GetProperty()->SetColor( r, g, b );
 			planeActor->GetProperty()->SetLineWidth(1);
 			planeActor->SetMapper(cutterMapper);
 
