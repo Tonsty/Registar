@@ -32,6 +32,8 @@ unix{
 			-lboost_system \
 			-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search
+	QMAKE_CXXFLAGS += -fopenmp
+	QMAKE_LFLAGS += -fopenmp 
 }
 HEADERS += ../include/pclbase.h \
 			../include/qtbase.h \

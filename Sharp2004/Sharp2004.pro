@@ -26,7 +26,7 @@ win32{
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \

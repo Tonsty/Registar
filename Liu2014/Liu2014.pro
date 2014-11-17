@@ -4,7 +4,7 @@ CONFIG += debug_and_release debug_and_release_target warn_off
 DEPENDPATH += .
 win32{
 	CONFIG += console
-	INCLUDEPATH += . "C:/Program Files/VTK/include/vtk-5.8/" "C:/Program Files/PCL/include/pcl-1.7/" "C:/Program Files/Eigen/include/eigen3/" "C:/Program Files/flann/include/" "D:/boost_1_55_0/"
+	INCLUDEPATH += . "C:/Program Files/VTK/include/vtk-5.8/" "C:/Program Files/PCL/include/pcl-1.8/" "C:/Program Files/Eigen/include/eigen3/" "C:/Program Files/flann/include/" "D:/boost_1_55_0/"
 	CONFIG(debug, debug|release){
 		LIBS += -L"C:/Program Files/VTK/lib/vtk-5.8/" \
 			QVTK-gd.lib vtkCommon-gd.lib QVTK-gd.lib vtkRendering-gd.lib vtkFiltering-gd.lib vtkGraphics-gd.lib \
@@ -26,7 +26,7 @@ win32{
 	}
 }
 unix{
-	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.7/ /usr/include/eigen3/
+	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
 			-lboost_system \
