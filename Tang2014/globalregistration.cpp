@@ -41,13 +41,15 @@ namespace Tang2014
 
 	void GlobalRegistration::initialPairRegistration()
 	{
+		int threads = omp_get_num_procs();
+		std::cout << threads << "threads" << std::endl;
 		for (int i = 0; i < links.size(); ++i)
 		{
 			Link link = links[i];
 			ScanIndex a = link.a;
 			ScanIndex b = link.b;
 			// PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[a], scanPtrs[b]));
-			PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[a], scanPtrs[b], 8));
+			PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[a], scanPtrs[b], threads));
 			pairReigstrationPtr->setKdTree(kdTreePtrs[a], kdTreePtrs[b]);
 			pairReigstrationPtr->setParameter(para.pr_para);
 			pairReigstrationPtr->setTransformation(Transformation::Identity());
@@ -759,6 +761,9 @@ namespace Tang2014
 		PointsPtr buffer(new Points);
 		PairRegistration::PointPairs s2t, t2s;
 
+		int threads = omp_get_num_procs();
+		std::cout << threads << "threads" << std::endl;
+
 		Williams2001::ScanIndexPairs sipairs;
 		std::vector<Williams2001::PointPairWithWeights> ppairwwss;
 		int M = scanPtrs.size();
@@ -797,10 +802,11 @@ namespace Tang2014
 				// 	targetCandidateIndices, targetCandidateIndices_temp,
 				// 	sourceCandidateIndices, sourceCandidateIndices_temp,
 				// 	buffer, transformation, para, s2t, t2s);
+
 				PairRegistrationOMP::generatePointPairsOMP(target, source, targetKdTree, sourceKdTree, 
 					targetCandidateIndices, targetCandidateIndices_temp,
 					sourceCandidateIndices, sourceCandidateIndices_temp,
-					buffer, transformation, para, s2t, t2s, 8);
+					buffer, transformation, para, s2t, t2s, threads);
 
 				for (int j = 0; j < s2t.size(); ++j) s2t[j].sourcePoint = transformPointWithNormal(s2t[j].sourcePoint, transformation.inverse());
 				for (int j = 0; j < t2s.size(); ++j) t2s[j].sourcePoint = transformPointWithNormal(t2s[j].sourcePoint, transformation);

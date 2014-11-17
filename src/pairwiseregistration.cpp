@@ -167,123 +167,276 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		pcl::Correspondences &pcl_correspondences = correspondencesComputationData.pcl_correspondences;
 		pcl::Correspondences &pcl_correspondences_temp = correspondencesComputationData.pcl_correspondences_temp;
 
-		pcl_correspondences_temp.clear();
-		for (int i = 0; i < cloudData_source_dynamic.size(); ++i)
+		bool use_omp = true;
+		if ( use_omp )
 		{
-			PointType point = cloudData_source_dynamic[i];
-			int K = 1;
-			std::vector<int> indices(K);
-			std::vector<float> distance2s(K);
-			if (tree_target->nearestKSearch(point, K, indices, distance2s) > 0)
+			int _threads = omp_get_num_procs();
+			std::cout << _threads << " threads" << std::endl;
+			std::vector<pcl::Correspondences> pcl_correspondences_temp_in_threads(_threads);
+
+			pcl_correspondences_temp.clear();
+			#pragma omp parallel for schedule (dynamic,1000) num_threads (_threads)
+			for (int i = 0; i < cloudData_source_dynamic.size(); ++i)
 			{
-				pcl::Correspondence temp;
-				temp.index_query = i;
-				temp.index_match = indices[0];
-				//temp.distance = sqrtf(distance2s[0]);
-				temp.distance = distance2s[0];
-				pcl_correspondences_temp.push_back(temp);
+				int tn = omp_get_thread_num();
+
+				PointType point = cloudData_source_dynamic[i];
+				int K = 1;
+				std::vector<int> indices(K);
+				std::vector<float> distance2s(K);
+				if (tree_target->nearestKSearch(point, K, indices, distance2s) > 0)
+				{
+					pcl::Correspondence temp;
+					temp.index_query = i;
+					temp.index_match = indices[0];
+					//temp.distance = sqrtf(distance2s[0]);
+					temp.distance = distance2s[0];
+					pcl_correspondences_temp_in_threads[tn].push_back(temp);
+				}
+			}
+			for (int i = 0; i < pcl_correspondences_temp_in_threads.size(); i++)
+			{
+				pcl_correspondences_temp.insert(pcl_correspondences_temp.end(), pcl_correspondences_temp_in_threads[i].begin(), pcl_correspondences_temp_in_threads[i].end());
+				pcl_correspondences_temp_in_threads[i].clear();
+			}
+			pcl_correspondences.swap(pcl_correspondences_temp);
+
+			//std::cerr << pcl_correspondences.size() << std::endl;
+
+			float normalAngleThreshold = correspondencesComputationParameters.normalAngleThreshold;
+			float NAthreshold = cosf(normalAngleThreshold / 180.0f * M_PI);
+			float distanceThreshold = correspondencesComputationParameters.distanceThreshold;
+			float distanceThreshold2 = distanceThreshold * distanceThreshold;
+			pcl_correspondences_temp.clear();
+			#pragma omp parallel for schedule (dynamic,1000) num_threads (_threads)
+			for (int i = 0; i < pcl_correspondences.size(); ++i)
+			{
+				int tn = omp_get_thread_num();
+
+				if (pcl_correspondences[i].distance < distanceThreshold2)
+				{
+					int index_query = pcl_correspondences[i].index_query;
+					int index_match = pcl_correspondences[i].index_match;
+
+					Eigen::Vector3f query_normal = cloudData_source_dynamic[index_query].getNormalVector3fMap();
+					Eigen::Vector3f match_normal = cloudData_target[index_match].getNormalVector3fMap();
+					query_normal.normalize();
+					match_normal.normalize();
+
+					if (query_normal.dot(match_normal) > NAthreshold)
+						pcl_correspondences_temp_in_threads[tn].push_back(pcl_correspondences[i]);
+				}
+			}
+			for (int i = 0; i < pcl_correspondences_temp_in_threads.size(); i++)
+			{
+				pcl_correspondences_temp.insert(pcl_correspondences_temp.end(), pcl_correspondences_temp_in_threads[i].begin(), pcl_correspondences_temp_in_threads[i].end());
+				pcl_correspondences_temp_in_threads[i].clear();
+			}
+			pcl_correspondences.swap(pcl_correspondences_temp);
+
+			//std::cerr << pcl_correspondences.size() << std::endl;
+
+			if (correspondencesComputationParameters.boundaryTest)
+			{
+				pcl_correspondences_temp.clear();
+				#pragma omp parallel for schedule (dynamic,1000) num_threads (_threads)
+				for (int i = 0; i < pcl_correspondences.size(); ++i)
+				{
+					int tn = omp_get_thread_num();
+					int index_match = pcl_correspondences[i].index_match;
+					if ((*boundaries_target)[index_match].boundary_point == 0)
+						pcl_correspondences_temp_in_threads[tn].push_back(pcl_correspondences[i]);
+				}
+				for (int i = 0; i < pcl_correspondences_temp_in_threads.size(); i++)
+				{
+					pcl_correspondences_temp.insert(pcl_correspondences_temp.end(), pcl_correspondences_temp_in_threads[i].begin(), pcl_correspondences_temp_in_threads[i].end());
+					pcl_correspondences_temp_in_threads[i].clear();
+				}
+				pcl_correspondences.swap(pcl_correspondences_temp);
+			}
+
+			//std::cerr << pcl_correspondences.size() << std::endl;
+
+			CorrespondenceComputationMethod method = correspondencesComputationParameters.method;
+			switch(method)
+			{
+			case POINT_TO_POINT:
+				{
+					//Original ICP
+					for (int i = 0; i < pcl_correspondences.size(); ++i)
+					{
+						int query = pcl_correspondences[i].index_query;
+						int match = pcl_correspondences[i].index_match;
+
+						Correspondence correspondence_temp;
+						correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
+						correspondence_temp.targetPoint = cloudData_target[match];
+						correspondences.push_back(correspondence_temp);
+
+						CorrespondenceIndex correspondenceIndex_temp;
+						correspondenceIndex_temp.sourceIndex = query;
+						correspondenceIndex_temp.targetIndex = match;
+						correspondenceIndices.push_back(correspondenceIndex_temp);
+					}
+					break;
+				}
+			case POINT_TO_PLANE:
+				{
+					//Point-Plane based ICP
+					for (int i = 0; i < pcl_correspondences.size(); ++i)
+					{
+						int query = pcl_correspondences[i].index_query;
+						int match = pcl_correspondences[i].index_match;
+
+						Correspondence correspondence_temp;
+						correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
+
+						Eigen::Vector3f target_normal = cloudData_target[match].getNormalVector3fMap();
+						Eigen::Vector3f source_point = cloudData_source_dynamic[query].getVector3fMap();
+						Eigen::Vector3f target_point = cloudData_target[match].getVector3fMap();
+
+						target_normal.normalize();
+						target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
+
+						correspondence_temp.targetPoint = cloudData_target[match];
+						correspondence_temp.targetPoint.getVector3fMap() = target_point;
+
+						correspondences.push_back(correspondence_temp);
+
+
+						CorrespondenceIndex correspondenceIndex_temp;
+						correspondenceIndex_temp.sourceIndex = query;
+						correspondenceIndex_temp.targetIndex = match;
+						correspondenceIndices.push_back(correspondenceIndex_temp);
+					}
+					break;
+				}
+			case POINT_TO_MLSSURFACE:
+				{
+					break;
+				}
 			}
 		}
-		pcl_correspondences.swap(pcl_correspondences_temp);
-
-		//std::cerr << pcl_correspondences.size() << std::endl;
-
-		float normalAngleThreshold = correspondencesComputationParameters.normalAngleThreshold;
-		float NAthreshold = cosf(normalAngleThreshold / 180.0f * M_PI);
-		float distanceThreshold = correspondencesComputationParameters.distanceThreshold;
-		float distanceThreshold2 = distanceThreshold * distanceThreshold;
-		pcl_correspondences_temp.clear();
-		for (int i = 0; i < pcl_correspondences.size(); ++i)
+		else
 		{
-			if (pcl_correspondences[i].distance < distanceThreshold2)
+			pcl_correspondences_temp.clear();
+			for (int i = 0; i < cloudData_source_dynamic.size(); ++i)
 			{
-				int index_query = pcl_correspondences[i].index_query;
-				int index_match = pcl_correspondences[i].index_match;
-
-				Eigen::Vector3f query_normal = cloudData_source_dynamic[index_query].getNormalVector3fMap();
-				Eigen::Vector3f match_normal = cloudData_target[index_match].getNormalVector3fMap();
-				query_normal.normalize();
-				match_normal.normalize();
-
-				if (query_normal.dot(match_normal) > NAthreshold)
-					pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+				PointType point = cloudData_source_dynamic[i];
+				int K = 1;
+				std::vector<int> indices(K);
+				std::vector<float> distance2s(K);
+				if (tree_target->nearestKSearch(point, K, indices, distance2s) > 0)
+				{
+					pcl::Correspondence temp;
+					temp.index_query = i;
+					temp.index_match = indices[0];
+					//temp.distance = sqrtf(distance2s[0]);
+					temp.distance = distance2s[0];
+					pcl_correspondences_temp.push_back(temp);
+				}
 			}
-		}
-		pcl_correspondences.swap(pcl_correspondences_temp);
+			pcl_correspondences.swap(pcl_correspondences_temp);
 
-		//std::cerr << pcl_correspondences.size() << std::endl;
+			//std::cerr << pcl_correspondences.size() << std::endl;
 
-		if (correspondencesComputationParameters.boundaryTest)
-		{
+			float normalAngleThreshold = correspondencesComputationParameters.normalAngleThreshold;
+			float NAthreshold = cosf(normalAngleThreshold / 180.0f * M_PI);
+			float distanceThreshold = correspondencesComputationParameters.distanceThreshold;
+			float distanceThreshold2 = distanceThreshold * distanceThreshold;
 			pcl_correspondences_temp.clear();
 			for (int i = 0; i < pcl_correspondences.size(); ++i)
 			{
-				int index_match = pcl_correspondences[i].index_match;
-				if ((*boundaries_target)[index_match].boundary_point == 0)
-					pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+				if (pcl_correspondences[i].distance < distanceThreshold2)
+				{
+					int index_query = pcl_correspondences[i].index_query;
+					int index_match = pcl_correspondences[i].index_match;
+
+					Eigen::Vector3f query_normal = cloudData_source_dynamic[index_query].getNormalVector3fMap();
+					Eigen::Vector3f match_normal = cloudData_target[index_match].getNormalVector3fMap();
+					query_normal.normalize();
+					match_normal.normalize();
+
+					if (query_normal.dot(match_normal) > NAthreshold)
+						pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+				}
 			}
 			pcl_correspondences.swap(pcl_correspondences_temp);
-		}
 
-		//std::cerr << pcl_correspondences.size() << std::endl;
+			//std::cerr << pcl_correspondences.size() << std::endl;
 
-		CorrespondenceComputationMethod method = correspondencesComputationParameters.method;
-		switch(method)
-		{
+			if (correspondencesComputationParameters.boundaryTest)
+			{
+				pcl_correspondences_temp.clear();
+				for (int i = 0; i < pcl_correspondences.size(); ++i)
+				{
+					int index_match = pcl_correspondences[i].index_match;
+					if ((*boundaries_target)[index_match].boundary_point == 0)
+						pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+				}
+				pcl_correspondences.swap(pcl_correspondences_temp);
+			}
+
+			//std::cerr << pcl_correspondences.size() << std::endl;
+
+			CorrespondenceComputationMethod method = correspondencesComputationParameters.method;
+			switch(method)
+			{
 			case POINT_TO_POINT:
-			{
-				//Original ICP
-				for (int i = 0; i < pcl_correspondences.size(); ++i)
 				{
-					int query = pcl_correspondences[i].index_query;
-					int match = pcl_correspondences[i].index_match;
+					//Original ICP
+					for (int i = 0; i < pcl_correspondences.size(); ++i)
+					{
+						int query = pcl_correspondences[i].index_query;
+						int match = pcl_correspondences[i].index_match;
 
-					Correspondence correspondence_temp;
-					correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
-					correspondence_temp.targetPoint = cloudData_target[match];
-					correspondences.push_back(correspondence_temp);
+						Correspondence correspondence_temp;
+						correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
+						correspondence_temp.targetPoint = cloudData_target[match];
+						correspondences.push_back(correspondence_temp);
 
-					CorrespondenceIndex correspondenceIndex_temp;
-					correspondenceIndex_temp.sourceIndex = query;
-					correspondenceIndex_temp.targetIndex = match;
-					correspondenceIndices.push_back(correspondenceIndex_temp);
+						CorrespondenceIndex correspondenceIndex_temp;
+						correspondenceIndex_temp.sourceIndex = query;
+						correspondenceIndex_temp.targetIndex = match;
+						correspondenceIndices.push_back(correspondenceIndex_temp);
+					}
+					break;
 				}
-				break;
-			}
 			case POINT_TO_PLANE:
-			{
-				//Point-Plane based ICP
-				for (int i = 0; i < pcl_correspondences.size(); ++i)
 				{
-					int query = pcl_correspondences[i].index_query;
-					int match = pcl_correspondences[i].index_match;
+					//Point-Plane based ICP
+					for (int i = 0; i < pcl_correspondences.size(); ++i)
+					{
+						int query = pcl_correspondences[i].index_query;
+						int match = pcl_correspondences[i].index_match;
 
-					Correspondence correspondence_temp;
-					correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
+						Correspondence correspondence_temp;
+						correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
 
-					Eigen::Vector3f target_normal = cloudData_target[match].getNormalVector3fMap();
-					Eigen::Vector3f source_point = cloudData_source_dynamic[query].getVector3fMap();
-					Eigen::Vector3f target_point = cloudData_target[match].getVector3fMap();
+						Eigen::Vector3f target_normal = cloudData_target[match].getNormalVector3fMap();
+						Eigen::Vector3f source_point = cloudData_source_dynamic[query].getVector3fMap();
+						Eigen::Vector3f target_point = cloudData_target[match].getVector3fMap();
 
-					target_normal.normalize();
-					target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
+						target_normal.normalize();
+						target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
 
-					correspondence_temp.targetPoint = cloudData_target[match];
-					correspondence_temp.targetPoint.getVector3fMap() = target_point;
+						correspondence_temp.targetPoint = cloudData_target[match];
+						correspondence_temp.targetPoint.getVector3fMap() = target_point;
 
-					correspondences.push_back(correspondence_temp);
+						correspondences.push_back(correspondence_temp);
 
 
-					CorrespondenceIndex correspondenceIndex_temp;
-					correspondenceIndex_temp.sourceIndex = query;
-					correspondenceIndex_temp.targetIndex = match;
-					correspondenceIndices.push_back(correspondenceIndex_temp);
+						CorrespondenceIndex correspondenceIndex_temp;
+						correspondenceIndex_temp.sourceIndex = query;
+						correspondenceIndex_temp.targetIndex = match;
+						correspondenceIndices.push_back(correspondenceIndex_temp);
+					}
+					break;
 				}
-				break;
-			}
 			case POINT_TO_MLSSURFACE:
-			{
-				break;
+				{
+					break;
+				}
 			}
 		}
 	}
