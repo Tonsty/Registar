@@ -15,7 +15,7 @@ int main(int argc, char**argv)
   	ScanPtrs scanPtrs;
   	importScanPtrs(argv[p_file_indices_scans[0]], scanPtrs);
 
-  	std::vector<RGB> rgbs = generateUniformColors(scanPtrs.size(), 60, 300);
+  	std::vector<RGB_> rgbs = generateUniformColors(scanPtrs.size(), 60, 300);
 
   	for (int i = 0; i < scanPtrs.size(); ++i)
   	{

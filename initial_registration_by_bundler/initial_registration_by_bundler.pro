@@ -12,7 +12,7 @@ CONFIG(debug,debug|release){
  mac : TARGET = initial_registration_by_bundler_release
 }
 
-INCLUDEPATH += . /usr/local/include/pcl-1.7 /usr/include/eigen3
+INCLUDEPATH += . /usr/local/include/pcl-1.8 /usr/include/eigen3
 
 LIBS += -lboost_system \
         -L/usr/local/lib/ -lpcl_common -lpcl_io -lpcl_io_ply -lpcl_filters \
