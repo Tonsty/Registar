@@ -9,7 +9,10 @@
 #include "pclbase.h"
 #endif
 
-class CloudVisualizer;
+namespace registar
+{
+	class CloudVisualizer;
+}
 
 class PairwiseRegistrationDialog : public QDialog, public Ui_PairwiseRegistrationDialog
 {
@@ -19,7 +22,7 @@ public:
 	PairwiseRegistrationDialog(QWidget *parent = 0);
 	virtual ~PairwiseRegistrationDialog();
 
-	CloudVisualizer* addCloudVisualizerTab(QString targetBySource);
+	registar::CloudVisualizer* addCloudVisualizerTab(QString targetBySource);
 	void showResults(const Eigen::Matrix4f &transformation, float rmsError, int corrNumber);
 
 public slots:

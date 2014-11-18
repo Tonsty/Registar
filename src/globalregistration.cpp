@@ -3,6 +3,8 @@
 #include "../include/mathutilities.h"
 #include "../include/globalregistration.h"
 
+using namespace registar;
+
 CycleRegistration::CycleRegistration(QList<PairwiseRegistration*> prList, QObject *parent) : QObject(parent)
 {
 	this->prList = prList;

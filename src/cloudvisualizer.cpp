@@ -6,6 +6,8 @@
 #include "../include/cloud.h"
 #include "../include/cloudvisualizer.h"
 
+using namespace registar;
+
 CloudVisualizer::CloudVisualizer(QWidget *parent) : QVTKWidget(parent)
 {
 	createPCLVisualizer();
@@ -43,6 +45,14 @@ void CloudVisualizer::addCloud(Cloud* cloud)
 	else pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getTransformation());
 	QString cloudName = cloud->getCloudName();
 	addCloud(cloudData, cloudName);
+
+	//visualizer->addPolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
+	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());
+	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_PHONG, cloudName.toStdString());
+
+	//visualizer->addModelFromPLYFile(cloud->getFileName().toStdString(), cloudName.toStdString());
+	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());
+	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_PHONG, cloudName.toStdString());
 
 	if (drawBoundary && cloud->getBoundaries() != NULL)
 	{

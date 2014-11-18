@@ -7,24 +7,27 @@
 #include "cloud.h"
 #endif
 
-class CloudManager : public QObject
+namespace registar
 {
-	Q_OBJECT
+	class CloudManager : public QObject
+	{
+		Q_OBJECT
 
-public:
-	CloudManager(QObject *parent = 0);
-	virtual ~CloudManager();
+	public:
+		CloudManager(QObject *parent = 0);
+		virtual ~CloudManager();
 
-	Cloud* addCloud(CloudDataPtr cloudData, Cloud::FromWhere fromWhere,
-		const QString &fileName = "", const Eigen::Matrix4f &transformation = Eigen::Matrix4f::Identity() );
-	void removeCloud(const QString &cloudName);
-	Cloud* getCloud(const QString &cloudName);
+		Cloud* addCloud(CloudDataPtr cloudData, Polygons &polygons, Cloud::FromWhere fromWhere,
+			const QString &fileName = "", const Eigen::Matrix4f &transformation = Eigen::Matrix4f::Identity() );
+		void removeCloud(const QString &cloudName);
+		Cloud* getCloud(const QString &cloudName);
 
-	QList<Cloud*> getAllClouds();
-	QStringList getAllCloudNames();
+		QList<Cloud*> getAllClouds();
+		QStringList getAllCloudNames();
 
-private:
-	QString generateCloudName();
-};
+	private:
+		QString generateCloudName();
+	};
+}
 
 #endif

@@ -7,51 +7,54 @@
 #include "pairwiseregistration.h"
 #endif 
 
-enum CycleRegistrationRefineMethod
+namespace registar
 {
-	UNIFORM_REFINE,
-	NON_UNIFORM_REFINE,
-	MINIMIZE_REFINE
-};
+	enum CycleRegistrationRefineMethod
+	{
+		UNIFORM_REFINE,
+		NON_UNIFORM_REFINE,
+		MINIMIZE_REFINE
+	};
 
-class CycleRegistration : public QObject
-{
-	Q_OBJECT
-	
-public:
-	CycleRegistration(QList<PairwiseRegistration*> prList, QObject *parent = 0);
-	~CycleRegistration();
-	
-	QList<PairwiseRegistration*> prList;
-	void refine(CycleRegistrationRefineMethod method = UNIFORM_REFINE);
+	class CycleRegistration : public QObject
+	{
+		Q_OBJECT
 
-	void uniform_refine();
-	void non_uniform_refine();
-	void minimize_refine();
-};
+	public:
+		CycleRegistration(QList<PairwiseRegistration*> prList, QObject *parent = 0);
+		~CycleRegistration();
 
-class CycleRegistrationManager : public QObject
-{
-	Q_OBJECT
+		QList<PairwiseRegistration*> prList;
+		void refine(CycleRegistrationRefineMethod method = UNIFORM_REFINE);
 
-public:
-	CycleRegistrationManager(QObject *parent = 0);
-	~CycleRegistrationManager();
+		void uniform_refine();
+		void non_uniform_refine();
+		void minimize_refine();
+	};
 
-	CycleRegistration* addCycleRegistration(QList<PairwiseRegistration*> prList);
-	CycleRegistration* getCycleRegistration(QString cloudNameCycle);
-};
+	class CycleRegistrationManager : public QObject
+	{
+		Q_OBJECT
 
-class GlobalRegistration : public QObject
-{
-	Q_OBJECT
+	public:
+		CycleRegistrationManager(QObject *parent = 0);
+		~CycleRegistrationManager();
 
-public:
-	GlobalRegistration(QList<PairwiseRegistration*> prList, QList<CycleRegistration*> crList, QObject *parent = 0);
-	~GlobalRegistration();
+		CycleRegistration* addCycleRegistration(QList<PairwiseRegistration*> prList);
+		CycleRegistration* getCycleRegistration(QString cloudNameCycle);
+	};
 
-	QList<PairwiseRegistration*> prList;
-	QList<CycleRegistration*> crList;
-};
+	class GlobalRegistration : public QObject
+	{
+		Q_OBJECT
+
+	public:
+		GlobalRegistration(QList<PairwiseRegistration*> prList, QList<CycleRegistration*> crList, QObject *parent = 0);
+		~GlobalRegistration();
+
+		QList<PairwiseRegistration*> prList;
+		QList<CycleRegistration*> crList;
+	};
+}
 
 #endif 

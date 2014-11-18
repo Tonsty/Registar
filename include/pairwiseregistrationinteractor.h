@@ -5,30 +5,33 @@
 
 #include "pairwiseregistration.h"
 
-class CloudVisualizer;
-
-class PairwiseRegistrationInteractor : public PairwiseRegistration
+namespace registar
 {
-	Q_OBJECT
+	class CloudVisualizer;
 
-public:
+	class PairwiseRegistrationInteractor : public PairwiseRegistration
+	{
+		Q_OBJECT
 
-	PairwiseRegistrationInteractor(RegistrationData *target, RegistrationData *source,
-		QString registrationName, QObject *parent = 0);
-	virtual ~PairwiseRegistrationInteractor();
+	public:
 
-	virtual void initialize();
-	virtual void initializeTransformation(const Eigen::Matrix4f &transformation);
-	virtual void process(QVariantMap parameters);
+		PairwiseRegistrationInteractor(RegistrationData *target, RegistrationData *source,
+			QString registrationName, QObject *parent = 0);
+		virtual ~PairwiseRegistrationInteractor();
 
-	inline void setCloudVisualizer(CloudVisualizer *cloudVisualizer) {this->cloudVisualizer = cloudVisualizer;}
-	inline CloudVisualizer* getCloudVisualizer() {return cloudVisualizer;}
+		virtual void initialize();
+		virtual void initializeTransformation(const Eigen::Matrix4f &transformation);
+		virtual void process(QVariantMap parameters);
 
-protected:
-	CloudVisualizer *cloudVisualizer;
-private:
-	void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);
-	void exportTransformation();	
-};
+		inline void setCloudVisualizer(CloudVisualizer *cloudVisualizer) {this->cloudVisualizer = cloudVisualizer;}
+		inline CloudVisualizer* getCloudVisualizer() {return cloudVisualizer;}
+
+	protected:
+		CloudVisualizer *cloudVisualizer;
+	private:
+		void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);
+		void exportTransformation();	
+	};
+}
 
 #endif

@@ -33,6 +33,8 @@
 
 #include "../include/mainwindow.h"
 
+using namespace registar;
+
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
 	setupUi(this);
@@ -159,16 +161,25 @@ void MainWindow::on_openAction_triggered()
 		if (!(*it).isEmpty()) 
 		{
 			QString fileName = (*it);
+			PolygonMeshPtr polygonMesh(new PolygonMesh);
 			CloudDataPtr cloudData(new CloudData);
 			Eigen::Matrix4f transformation;
 			BoundariesPtr boundaries(new Boundaries);
 			QApplication::setOverrideCursor(Qt::WaitCursor);
-			CloudIO::importCloudData(fileName, cloudData);
+			if ( CloudIO::importPolygonMesh(fileName, polygonMesh) )
+			{
+				pcl::fromPCLPointCloud2(polygonMesh->cloud, *cloudData);
+			}
+			else if ( !CloudIO::importCloudData(fileName, cloudData) ) 
+			{
+				it++;
+				continue;
+			}
 			CloudIO::importTransformation(fileName, transformation);
 			CloudIO::importBoundaries(fileName, boundaries);
 			QApplication::restoreOverrideCursor();
 			QApplication::beep();
-			Cloud* cloud = cloudManager->addCloud(cloudData, Cloud::fromIO, fileName, transformation);
+			Cloud* cloud = cloudManager->addCloud(cloudData, polygonMesh->polygons, Cloud::fromIO, fileName, transformation);
 			cloud->setBoundaries(boundaries);
 			cloudBrowser->addCloud(cloud);
 			cloudVisualizer->addCloud(cloud);
@@ -385,7 +396,7 @@ void MainWindow::on_concatenationAction_triggered()
 		it++;
 	}
 
-	Cloud* con_cloud = cloudManager->addCloud(con_cloudData, Cloud::fromFilter);
+	Cloud* con_cloud = cloudManager->addCloud(con_cloudData, Polygons(0), Cloud::fromFilter);
 	con_cloud->setBoundaries(con_boundaries);
 	cloudBrowser->addCloud(con_cloud);
 	cloudVisualizer->addCloud(con_cloud);
@@ -612,11 +623,11 @@ void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap 
 		}
 		else
 		{
-			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Cloud::fromFilter);
+			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudInliers);
 			cloudVisualizer->addCloud(cloudInliers);
 
-			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Cloud::fromFilter);
+			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudOutliers);
 			cloudVisualizer->addCloud(cloudOutliers);
 		}
@@ -654,7 +665,7 @@ void MainWindow::on_voxelGridDialog_sendParameters(QVariantMap parameters)
 		}
 		else
 		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Cloud::fromFilter);
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
@@ -693,7 +704,7 @@ void MainWindow::on_movingLeastSquaresDialog_sendParameters(QVariantMap paramete
 		}
 		else
 		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Cloud::fromFilter);
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
@@ -780,11 +791,11 @@ void MainWindow::on_outliersRemovalDialog_sendParameters(QVariantMap parameters)
 		}
 		else
 		{
-			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Cloud::fromFilter);
+			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudInliers);
 			cloudVisualizer->addCloud(cloudInliers);
 
-			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Cloud::fromFilter);
+			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Polygons(0), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudOutliers);
 			cloudVisualizer->addCloud(cloudOutliers);
 		}
@@ -836,7 +847,7 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 		}
 		else
 		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Cloud::fromFilter);
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, cloud->getPolygons(), Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	

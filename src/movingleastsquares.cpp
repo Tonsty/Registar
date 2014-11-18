@@ -6,6 +6,8 @@
 
 #include "../include/movingleastsquares.h"
 
+using namespace registar;
+
 MovingLeastSquares::MovingLeastSquares(){}
 
 MovingLeastSquares::~MovingLeastSquares(){}

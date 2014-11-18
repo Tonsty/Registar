@@ -5,9 +5,13 @@
 
 #include "pclbase.h"
 
-Q_DECLARE_METATYPE(CloudDataPtr);
-Q_DECLARE_METATYPE(CloudDataConstPtr);
+namespace registar
+{
+	Q_DECLARE_METATYPE(CloudDataPtr);
+	Q_DECLARE_METATYPE(CloudDataConstPtr);
 
-Q_DECLARE_METATYPE(QList<bool>);
-Q_DECLARE_METATYPE(Eigen::Matrix4f);
+	Q_DECLARE_METATYPE(QList<bool>);
+	Q_DECLARE_METATYPE(Eigen::Matrix4f);
+}
+
 #endif

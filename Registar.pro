@@ -1,5 +1,5 @@
-VERSION = 1.0.1
 TEMPLATE = app
+TARGET= Registar
 CONFIG += debug_and_release debug_and_release_target warn_off 
 DEPENDPATH += .
 UI_DIR = ui/

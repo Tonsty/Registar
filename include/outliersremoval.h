@@ -5,15 +5,18 @@
 
 #include "pclbase.h"
 
-class OutliersRemoval
+namespace registar
 {
-public:
+	class OutliersRemoval
+	{
+	public:
 
-	OutliersRemoval();
-	virtual ~OutliersRemoval();
+		OutliersRemoval();
+		virtual ~OutliersRemoval();
 
-	static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
-	static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
-};
+		static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
+		static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
+	};
+}
 
 #endif

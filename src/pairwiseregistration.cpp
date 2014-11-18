@@ -5,6 +5,8 @@
 #include "../include/mathutilities.h"
 #include "../include/pairwiseregistration.h"
 
+using namespace registar;
+
 PairwiseRegistration::PairwiseRegistration(RegistrationData *target, RegistrationData *source, 
 	QString registrationName, QObject *parent) : QObject(parent)
 {

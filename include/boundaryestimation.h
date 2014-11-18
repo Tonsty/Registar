@@ -5,15 +5,18 @@
 
 #include "pclbase.h"
 
-class BoundaryEstimation
+namespace registar
 {
-public:
+	class BoundaryEstimation
+	{
+	public:
 
-	BoundaryEstimation();
-	virtual ~BoundaryEstimation();
+		BoundaryEstimation();
+		virtual ~BoundaryEstimation();
 
-	static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
-	static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered);
-};
+		static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
+		static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered);
+	};
+}
 
 #endif

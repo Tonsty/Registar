@@ -3,6 +3,8 @@
 
 #include "../include/cloudmanager.h"
 
+using namespace registar;
+
 CloudManager::CloudManager(QObject *parent) : QObject(parent) {}
 
 CloudManager::~CloudManager(){}
@@ -14,11 +16,11 @@ QString CloudManager::generateCloudName()
 	return QString("%1").arg(QString::number(cloudID++));
 }
 
-Cloud* CloudManager::addCloud(CloudDataPtr cloudData, Cloud::FromWhere fromWhere,
+Cloud* CloudManager::addCloud(CloudDataPtr cloudData, Polygons &polygons, Cloud::FromWhere fromWhere,
 	const QString &fileName, const Eigen::Matrix4f &transformation)
 {
 	QString cloudName = generateCloudName();
-	return new Cloud(cloudData, fromWhere, fileName, transformation, cloudName, this);
+	return new Cloud(cloudData, polygons, fromWhere, fileName, transformation, cloudName, this);
 }
 
 void CloudManager::removeCloud(const QString &cloudName)

@@ -3,6 +3,8 @@
 
 #include "../include/registrationdatamanager.h"
 
+using namespace registar;
+
 RegistrationData::RegistrationData(Cloud *cloud, QString dataName, QObject *parent) : QObject(parent)
 {
 	this->cloud = cloud;

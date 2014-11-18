@@ -5,6 +5,8 @@
 
 #include "../include/voxelgrid.h"
 
+using namespace registar;
+
 VoxelGrid::VoxelGrid(){}
 
 VoxelGrid::~VoxelGrid(){}

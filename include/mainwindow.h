@@ -5,8 +5,15 @@
 
 #include "../build/ui/ui_MainWindow.h"
 
-class CloudManager;
-class CloudVisualizer;
+namespace registar
+{
+	class CloudManager;
+	class CloudVisualizer;
+	class PairwiseRegistrationManager;
+	class RegistrationDataManager;
+	class CycleRegistrationManager;
+}
+
 class EuclideanClusterExtractionDialog;
 class VoxelGridDialog;
 class MovingLeastSquaresDialog;
@@ -15,12 +22,9 @@ class OutliersRemovalDialog;
 class NormalFieldDialog;
 
 class PairwiseRegistrationDialog;
-class PairwiseRegistrationManager;
-class RegistrationDataManager;
 
 class DiagramWindow;
 class GlobalRegistrationDialog;
-class CycleRegistrationManager;
 
 class ManualRegistration;
 
@@ -44,8 +48,8 @@ private:
 	bool okToContinue();
 	QString strippedName(const QString &fullFileName);
 
-	CloudManager *cloudManager;
-	CloudVisualizer *cloudVisualizer;
+	registar::CloudManager *cloudManager;
+	registar::CloudVisualizer *cloudVisualizer;
 	EuclideanClusterExtractionDialog *euclideanClusterExtractionDialog;
 	VoxelGridDialog *voxelGridDialog;
 	MovingLeastSquaresDialog *movingLeastSquaresDialog;
@@ -54,12 +58,12 @@ private:
 	NormalFieldDialog *normalFieldDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
-	PairwiseRegistrationManager *pairwiseRegistrationManager;
-	RegistrationDataManager *registrationDataManager;
+	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
+	registar::RegistrationDataManager *registrationDataManager;
 
 	DiagramWindow *diagramWindow;
 	GlobalRegistrationDialog *globalRegistrationDialog;
-	CycleRegistrationManager *cycleRegistrationManager;
+	registar::CycleRegistrationManager *cycleRegistrationManager;
 
 	ManualRegistration *manualRegistration;
 

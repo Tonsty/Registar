@@ -29,9 +29,9 @@ int main(int argc, char **argv)
   	GlobalRegistration globalRegistration( scanPtrs, links, loops );
 
   	GlobalRegistration::Parameters gr_para;
-  	//gr_para.doInitialPairRegistration = true;
-  	//gr_para.doIncrementalLoopRefine = true;
-  	//gr_para.doGlobalRefine = false;
+	//gr_para.doInitialPairRegistration = true;
+	//gr_para.doIncrementalLoopRefine = true;
+	//gr_para.doGlobalRefine = false;
 
 	//gr_para.doInitialPairRegistration = false;
 	//gr_para.doIncrementalLoopRefine = false;
@@ -48,13 +48,13 @@ int main(int argc, char **argv)
   	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
   	pr_para.sMethod = PairRegistration::UMEYAMA;
   	pr_para.distanceTest = true;
-  	pr_para.distThreshold = 0.001f;
+  	pr_para.distThreshold = 0.005f;
   	pr_para.angleTest = true;
   	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
   	pr_para.biDirection = true;
   	pr_para.iterationNum_max = 10;
-  	pr_para.iterationNum_min = 5;
+  	pr_para.iterationNum_min = 8;
 
   	gr_para.pr_para = pr_para;
 

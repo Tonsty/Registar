@@ -9,6 +9,8 @@
 #include "../pcl_bugfix/gpu_extract_clusters2.hpp"
 #include "../include/euclideanclusterextraction.h" 
 
+using namespace registar;
+
 EuclideanClusterExtraction::EuclideanClusterExtraction(){}
 
 EuclideanClusterExtraction::~EuclideanClusterExtraction(){}

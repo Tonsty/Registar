@@ -5,14 +5,17 @@
 
 #include "pclbase.h"
 
-class MovingLeastSquares
+namespace registar
 {
-	
-public:
-	MovingLeastSquares();
-	virtual ~MovingLeastSquares();
+	class MovingLeastSquares
+	{
 
-	static void filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
-};
+	public:
+		MovingLeastSquares();
+		virtual ~MovingLeastSquares();
+
+		static void filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
+	};
+}
 
 #endif

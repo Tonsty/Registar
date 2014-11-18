@@ -7,6 +7,8 @@
 
 #include "../include/boundaryestimation.h" 
 
+using namespace registar;
+
 BoundaryEstimation::BoundaryEstimation(){}
 
 BoundaryEstimation::~BoundaryEstimation(){}

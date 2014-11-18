@@ -7,6 +7,8 @@
 
 #include "../include/outliersremoval.h" 
 
+using namespace registar;
+
 OutliersRemoval::OutliersRemoval(){}
 
 OutliersRemoval::~OutliersRemoval(){}

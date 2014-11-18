@@ -11,134 +11,136 @@
 #include "registrationdatamanager.h"
 #endif
 
-struct Correspondence
+namespace registar
 {
-	PointType targetPoint;
-	PointType sourcePoint;
-};
+	struct Correspondence
+	{
+		PointType targetPoint;
+		PointType sourcePoint;
+	};
 
-typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
+	typedef std::vector<Correspondence, Eigen::aligned_allocator<Correspondence> > Correspondences;
 
-struct CorrespondenceIndex
-{
-	int targetIndex;
-	int sourceIndex;
-};
-typedef std::vector<CorrespondenceIndex, Eigen::aligned_allocator<CorrespondenceIndex> > CorrespondenceIndices;
+	struct CorrespondenceIndex
+	{
+		int targetIndex;
+		int sourceIndex;
+	};
+	typedef std::vector<CorrespondenceIndex, Eigen::aligned_allocator<CorrespondenceIndex> > CorrespondenceIndices;
 
-struct CorrespondencesComputationData
-{
-	CloudData cloudData_source_dynamic;
-	pcl::Correspondences pcl_correspondences;
-	pcl::Correspondences pcl_correspondences_temp;
-};
+	struct CorrespondencesComputationData
+	{
+		CloudData cloudData_source_dynamic;
+		pcl::Correspondences pcl_correspondences;
+		pcl::Correspondences pcl_correspondences_temp;
+	};
 
-enum CorrespondenceComputationMethod
-{
-	POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
-};
+	enum CorrespondenceComputationMethod
+	{
+		POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
+	};
 
-struct CorrespondencesComputationParameters
-{
-	CorrespondenceComputationMethod method;
-	float distanceThreshold;
-	float normalAngleThreshold;
-	bool boundaryTest;
-	bool biDirectional;
-};
+	struct CorrespondencesComputationParameters
+	{
+		CorrespondenceComputationMethod method;
+		float distanceThreshold;
+		float normalAngleThreshold;
+		bool boundaryTest;
+		bool biDirectional;
+	};
 
-struct PairwiseRegistrationComputationData
-{
-	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src;
-	Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_tgt;
-};
+	struct PairwiseRegistrationComputationData
+	{
+		Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_src;
+		Eigen::Matrix<float, 3, Eigen::Dynamic> cloud_tgt;
+	};
 
-enum PairwiseRegistrationComputationMethod
-{
-	SVD, UMEYAMA
-};
+	enum PairwiseRegistrationComputationMethod
+	{
+		SVD, UMEYAMA
+	};
 
-struct PairwiseRegistrationComputationParameters
-{
-	PairwiseRegistrationComputationMethod method;
-	bool allowScaling;
-};
+	struct PairwiseRegistrationComputationParameters
+	{
+		PairwiseRegistrationComputationMethod method;
+		bool allowScaling;
+	};
 
-class PairwiseRegistration : public QObject
-{
-	Q_OBJECT
+	class PairwiseRegistration : public QObject
+	{
+		Q_OBJECT
 
-public:
+	public:
 
-	PairwiseRegistration(RegistrationData *target, RegistrationData *source, 
-		QString registrationName, QObject *parent = 0);
-	virtual ~PairwiseRegistration();
+		PairwiseRegistration(RegistrationData *target, RegistrationData *source, 
+			QString registrationName, QObject *parent = 0);
+		virtual ~PairwiseRegistration();
 
-	virtual void initialize();
-	virtual void initializeTransformation(const Eigen::Matrix4f &transformation);
-	virtual void process(QVariantMap parameters);
+		virtual void initialize();
+		virtual void initializeTransformation(const Eigen::Matrix4f &transformation);
+		virtual void process(QVariantMap parameters);
 
-	void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); 
-	void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber);
+		void estimateRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber); 
+		void estimateVirtualRMSErrorByTransformation(const Eigen::Matrix4f &transformation, float &rmsError, int &ovlNumber);
 
-	inline RegistrationData* getTarget() {return target;}
-	inline RegistrationData* getSource() {return source;}
-	
-	inline Eigen::Matrix4f getTransformation() {return transformation;}
+		inline RegistrationData* getTarget() {return target;}
+		inline RegistrationData* getSource() {return source;}
 
-	inline void setFreezed(bool freezed) {this->freezed = freezed;}
-	inline bool getFreezed() {return freezed;}
+		inline Eigen::Matrix4f getTransformation() {return transformation;}
 
-	inline bool getErrorPrecomputed() {return errorPrecomputed;}
+		inline void setFreezed(bool freezed) {this->freezed = freezed;}
+		inline bool getFreezed() {return freezed;}
 
-	inline float getRMSError() {return rmsError_total;}
-	inline std::vector<float> getSquareErrors() {return squareErrors_total;}
+		inline bool getErrorPrecomputed() {return errorPrecomputed;}
 
-	static inline QString generateName(QString targetName, QString sourceName) {return targetName + "<-" + sourceName;}
+		inline float getRMSError() {return rmsError_total;}
+		inline std::vector<float> getSquareErrors() {return squareErrors_total;}
 
-	static void preCorrespondences(RegistrationData *target, RegistrationData *source,
-		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
-		Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 
-		int &inverseStartIndex, CorrespondencesComputationData &correspondencesComputationData);
+		static inline QString generateName(QString targetName, QString sourceName) {return targetName + "<-" + sourceName;}
 
-	static Eigen::Matrix4f registAr(Correspondences &correspondences, 
-		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, 
-		PairwiseRegistrationComputationData &pairwiseRegistrationComputationData);
+		static void preCorrespondences(RegistrationData *target, RegistrationData *source,
+			const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+			Correspondences &correspondences, CorrespondenceIndices &correspondenceIndices, 
+			int &inverseStartIndex, CorrespondencesComputationData &correspondencesComputationData);
 
-	static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
-		const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
-		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
+		static Eigen::Matrix4f registAr(Correspondences &correspondences, 
+			PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, 
+			PairwiseRegistrationComputationData &pairwiseRegistrationComputationData);
 
-	static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);
+		static Eigen::Matrix4f icp(RegistrationData *target, RegistrationData *source, 
+			const Eigen::Matrix4f &initialTransformation, CorrespondencesComputationParameters &correspondencesComputationParameters, 
+			PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters, int iterationNumber);
 
-protected:
-	Eigen::Matrix4f transformation;
+		static void computeSquareErrors(Correspondences &correspondences, std::vector<float> &squareErrors_total, float &rmsError_total);
 
-	RegistrationData *target;
-	RegistrationData *source;
+	protected:
+		Eigen::Matrix4f transformation;
 
-	bool freezed;
-	
-	bool errorPrecomputed;
-	float rmsError_total;
-	std::vector<float> squareErrors_total;
-};
+		RegistrationData *target;
+		RegistrationData *source;
 
-class PairwiseRegistrationManager : public QObject
-{
-	Q_OBJECT
+		bool freezed;
 
-public:
-	PairwiseRegistrationManager(QObject *parent = 0);
-	virtual ~PairwiseRegistrationManager();
-	PairwiseRegistration *addPairwiseRegistration(RegistrationData *target, RegistrationData *source, QString registrationName);
-	void addPairwiseRegistration(PairwiseRegistration *pairwiseRegistration);
-	void removePairwiseRegistration(QString registrationName);
-	PairwiseRegistration *getPairwiseRegistration(QString registrationName);
+		bool errorPrecomputed;
+		float rmsError_total;
+		std::vector<float> squareErrors_total;
+	};
 
-	QList<PairwiseRegistration*> getAllPairwiseRegistrations();
-	QStringList getAllPairwiseRegistrationNames();	
-};
+	class PairwiseRegistrationManager : public QObject
+	{
+		Q_OBJECT
 
+	public:
+		PairwiseRegistrationManager(QObject *parent = 0);
+		virtual ~PairwiseRegistrationManager();
+		PairwiseRegistration *addPairwiseRegistration(RegistrationData *target, RegistrationData *source, QString registrationName);
+		void addPairwiseRegistration(PairwiseRegistration *pairwiseRegistration);
+		void removePairwiseRegistration(QString registrationName);
+		PairwiseRegistration *getPairwiseRegistration(QString registrationName);
+
+		QList<PairwiseRegistration*> getAllPairwiseRegistrations();
+		QStringList getAllPairwiseRegistrationNames();	
+	};
+}
 
 #endif 

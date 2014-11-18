@@ -5,13 +5,16 @@
 
 #include "pclbase.h"
 
-class VoxelGrid
+namespace registar
 {
-public:
-	VoxelGrid();
-	virtual ~VoxelGrid();
+	class VoxelGrid
+	{
+	public:
+		VoxelGrid();
+		virtual ~VoxelGrid();
 
-	static void filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
-};
+		static void filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
+	};
+}
 
 #endif

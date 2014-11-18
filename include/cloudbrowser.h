@@ -3,7 +3,10 @@
 
 #include <QtGui/QTreeWidget>
 
-class Cloud;
+namespace registar
+{
+	class Cloud;
+}
 
 class CloudBrowser : public QTreeWidget
 {
@@ -13,9 +16,9 @@ public:
 	CloudBrowser(QWidget *parent = 0 );
 	virtual ~CloudBrowser();
 
-	void addCloud(Cloud* cloud);
-	void removeCloud(Cloud* cloud);
-	void updateCloud(Cloud* cloud);
+	void addCloud(registar::Cloud* cloud);
+	void removeCloud(registar::Cloud* cloud);
+	void updateCloud(registar::Cloud* cloud);
 
 	QStringList getSelectedCloudNames();
 	QList<bool> getSelectedCloudIsVisible();

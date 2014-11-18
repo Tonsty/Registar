@@ -17,6 +17,7 @@
 #include <vtkMath.h>
 #include <vtkProbeFilter.h>
 #include <vtkStripper.h>
+#include <vtkPolyDataNormals.h>
 
 #include <pcl/console/parse.h>
 
@@ -101,18 +102,25 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < inputPolyDatas.size(); i++)
 	{
 		vtkSmartPointer<vtkPolyData> inputPolyData = inputPolyDatas[i];
+		vtkSmartPointer<vtkPolyDataNormals> inputPolyDataNormals = vtkSmartPointer<vtkPolyDataNormals>::New();
 
 		vtkSmartPointer<vtkPolyDataMapper> inputMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 #if VTK_MAJOR_VERSION <= 5
-		inputMapper->SetInput(inputPolyData);
+		inputPolyDataNormals->SetInput(inputPolyData);
+		inputMapper->SetInput(inputPolyDataNormals->GetOutput());
+		//inputMapper->SetInput(inputPolyData);
 #else
-		inputMapper->SetInputData(inputPolyData);
+		inputPolyDataNormals->SetInputData(inputPolyData);
+		inputMapper->SetInputData(inputPolyDataNormals->GetOutput());
+		//inputMapper->SetInputData(inputPolyData);
 #endif
 		// Create input actor
 		vtkSmartPointer<vtkActor> inputActor = vtkSmartPointer<vtkActor>::New();
 		//inputActor->GetProperty()->SetColor(1.0, 0.8941, 0.7686); // bisque
 		inputActor->SetMapper(inputMapper);
-		//renderer->AddActor(inputActor); //display the cube
+		//inputActor->GetProperty()->SetInterpolationToGouraud();
+		inputActor->GetProperty()->SetRepresentationToPoints();
+		renderer->AddActor(inputActor); //display the cube
 
 		for (int j = 0; j < planes.size(); j++)
 		{
@@ -140,15 +148,15 @@ int main(int argc, char *argv[])
 
 			// Create plane actor
 			vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
-			//planeActor->GetProperty()->SetColor(1.0,1,0);
+			planeActor->GetProperty()->SetColor(1.0,1,0);
 			//planeActor->GetProperty()->SetColor(0,0,0);
-			float r, g, b;
-			r = rgbs[i].r/255.0;
-			g = rgbs[i].g/255.0;
-			b = rgbs[i].b/255.0;
+			//float r, g, b;
+			//r = rgbs[i].r/255.0;
+			//g = rgbs[i].g/255.0;
+			//b = rgbs[i].b/255.0;
+			//planeActor->GetProperty()->SetColor( r, g, b );
 			//std::cout << r << " " << g << " " << b << std::endl;
-			planeActor->GetProperty()->SetColor( r, g, b );
-			planeActor->GetProperty()->SetLineWidth(1);
+			planeActor->GetProperty()->SetLineWidth(5);
 			planeActor->SetMapper(cutterMapper);
 
 			renderer->AddActor(planeActor); //display the rectangle resulting from the cut

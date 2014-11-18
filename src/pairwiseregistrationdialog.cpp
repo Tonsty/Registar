@@ -5,6 +5,8 @@
 #include "../include/cloudvisualizer.h"
 #include "../include/pairwiseregistrationdialog.h"
 
+using namespace registar;
+
 PairwiseRegistrationDialog::PairwiseRegistrationDialog(QWidget *parent) : QDialog(parent)
 {
 	setupUi(this);

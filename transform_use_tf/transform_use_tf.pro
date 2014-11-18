@@ -1,4 +1,3 @@
-VERSION = 1.0.1
 TEMPLATE = app
 CONFIG += debug_and_release debug_and_release_target warn_off 
 DEPENDPATH += .

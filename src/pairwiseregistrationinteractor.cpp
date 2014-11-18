@@ -3,6 +3,8 @@
 #include "../include/cloudvisualizer.h"
 #include "../include/pairwiseregistrationinteractor.h"
 
+using namespace registar;
+
 PairwiseRegistrationInteractor::PairwiseRegistrationInteractor(RegistrationData *target, RegistrationData *source,
 	QString registrationName, QObject *parent) : PairwiseRegistration(target, source, registrationName, parent)
 {

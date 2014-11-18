@@ -6,6 +6,8 @@
 #include "../include/cloud.h" 
 #include "../include/cloudbrowser.h"
 
+using namespace registar;
+
 CloudBrowser::CloudBrowser(QWidget *parent) : QTreeWidget(parent)
 {
 	QStringList headLabels;

@@ -1,10 +1,13 @@
 #include "../include/cloud.h"
 
-Cloud::Cloud(CloudDataPtr cloudData, const FromWhere &fromWhere,
+using namespace registar;
+
+Cloud::Cloud(CloudDataPtr cloudData, Polygons &polygons, const FromWhere &fromWhere,
 	const QString &fileName, const Eigen::Matrix4f &transformation,
 	const QString &cloudName, QObject *parent) : QObject(parent)
 {
 	this->cloudData = cloudData;
+	this->polygons = polygons;
 	this->fromWhere = fromWhere; 
 	this->fileName = fileName;
 	this->transformation = transformation;
@@ -82,4 +85,14 @@ void Cloud::setBoundaries(BoundariesPtr boundaries)
 BoundariesPtr Cloud::getBoundaries()
 {
 	return this->boundaries;
+}
+
+void Cloud::setPolygons(const Polygons &polygons)
+{
+	this->polygons = polygons;
+}
+
+Polygons Cloud::getPolygons()
+{
+	return this->polygons;
 }

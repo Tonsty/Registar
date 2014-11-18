@@ -9,28 +9,51 @@
 
 #include "../include/cloudio.h"
 
+using namespace registar;
+
 CloudIO::CloudIO(){}
 
 CloudIO::~CloudIO(){}
 
-bool CloudIO::importCloudData(const QString &fileName, CloudDataPtr &cloudData)
+bool CloudIO::importCloudData(const QString &fileName, CloudDataPtr cloudData)
 {
 	pcl::PLYReader reader;
-	reader.read(fileName.toStdString(), *cloudData);
-	qDebug() << "sensor_origin (x,y,z,w):" << cloudData->sensor_origin_.x() << ", " << cloudData->sensor_origin_.y()
-			<< ", " << cloudData->sensor_origin_.z() << ", " << cloudData->sensor_origin_.w();
-	qDebug() << "sensor_orientation (w,x,y,z): " << cloudData->sensor_orientation_.w() << ", " << cloudData->sensor_orientation_.x() 
-			<< ", " << cloudData->sensor_orientation_.y() << ", " << cloudData->sensor_orientation_.z();
-	cloudData->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
-	cloudData->sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
+	if (reader.read(fileName.toStdString(), *cloudData) == 0)
+	{
+		//qDebug() << "sensor_origin (x,y,z,w):" << cloudData->sensor_origin_.x() << ", " << cloudData->sensor_origin_.y()
+		//		<< ", " << cloudData->sensor_origin_.z() << ", " << cloudData->sensor_origin_.w();
+		//qDebug() << "sensor_orientation (w,x,y,z): " << cloudData->sensor_orientation_.w() << ", " << cloudData->sensor_orientation_.x() 
+		//		<< ", " << cloudData->sensor_orientation_.y() << ", " << cloudData->sensor_orientation_.z();
+		cloudData->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
+		cloudData->sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
 
-	// QFileInfo fileInfo(fileName);
-	// QString pngFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".png";
-	// pcl::io::savePNGFile( pngFileName.toStdString(), *cloudData);
+		// QFileInfo fileInfo(fileName);
+		// QString pngFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".png";
+		// pcl::io::savePNGFile( pngFileName.toStdString(), *cloudData);
 
-	std::vector<int> nanIndicesVector;
-	pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+		std::vector<int> nanIndicesVector;
+		pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+	}
+	else return false;
 
+	return true;
+}
+
+bool CloudIO::importPolygonMesh(const QString &fileName, PolygonMeshPtr polygonMesh)
+{
+	pcl::PLYReader reader;
+	if (reader.read(fileName.toStdString(), *polygonMesh) == 0)
+	{
+		std::cout << "height: " << polygonMesh->cloud.height << " , " << "width: " <<  polygonMesh->cloud.width << std::endl;
+		std::cout << "polygons: " << polygonMesh->polygons.size() << std::endl;
+	}
+	else return false;
+
+	return true;
+}
+
+bool CloudIO::exportPolygonMesh(const QString &fileName, PolygonMeshConstPtr polygonMesh)
+{
 	return true;
 }
 
@@ -61,7 +84,7 @@ bool CloudIO::importTransformation(const QString &fileName, Eigen::Matrix4f &tra
 	return true;
 }
 
-bool CloudIO::importBoundaries(const QString &fileName, BoundariesPtr &boundaries)
+bool CloudIO::importBoundaries(const QString &fileName, BoundariesPtr boundaries)
 {
 	QFileInfo fileInfo(fileName);
 	QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
@@ -80,18 +103,19 @@ bool CloudIO::importBoundaries(const QString &fileName, BoundariesPtr &boundarie
 	return true;
 }
 
-bool CloudIO::exportCloudData(const QString &fileName, CloudDataPtr &cloudData)
+bool CloudIO::exportCloudData(const QString &fileName, CloudDataConstPtr cloudData)
 {
 	std::vector<int> nanIndicesVector;
-	pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+	CloudDataPtr temp(new CloudData);
+	pcl::removeNaNFromPointCloud( *cloudData, *temp, nanIndicesVector );
 
 	pcl::PLYWriter writer;
-	writer.write(fileName.toStdString(), *cloudData);
+	writer.write(fileName.toStdString(), *temp);
 
 	return true;
 }
 
-bool CloudIO::exportTransformation(const QString &fileName, Eigen::Matrix4f &transformation)
+bool CloudIO::exportTransformation(const QString &fileName, const Eigen::Matrix4f &transformation)
 {
 	QFileInfo fileInfo(fileName);
 	QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";
@@ -118,7 +142,7 @@ bool CloudIO::exportTransformation(const QString &fileName, Eigen::Matrix4f &tra
 	return true;
 }
 
-bool CloudIO::exportBoundaries(const QString &fileName, BoundariesPtr &boundaries)
+bool CloudIO::exportBoundaries(const QString &fileName, BoundariesConstPtr boundaries)
 {
 	QFileInfo fileInfo(fileName);
 	QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
@@ -126,6 +150,7 @@ bool CloudIO::exportBoundaries(const QString &fileName, BoundariesPtr &boundarie
 	qDebug() << bdFileName;
 
 	if(boundaries != NULL && boundaries->size() > 0) pcl::io::savePCDFile(bdFileName.toStdString(), *boundaries);
+
 	return true;
 }
 
