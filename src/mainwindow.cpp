@@ -395,8 +395,9 @@ void MainWindow::on_concatenationAction_triggered()
 		qDebug() << cloudName << " added!";
 		it++;
 	}
-
-	Cloud* con_cloud = cloudManager->addCloud(con_cloudData, Polygons(0), Cloud::fromFilter);
+	
+	Polygons polygons(0);
+	Cloud* con_cloud = cloudManager->addCloud(con_cloudData, polygons, Cloud::fromFilter);
 	con_cloud->setBoundaries(con_boundaries);
 	cloudBrowser->addCloud(con_cloud);
 	cloudVisualizer->addCloud(con_cloud);
@@ -623,11 +624,12 @@ void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap 
 		}
 		else
 		{
-			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Polygons(0), Cloud::fromFilter);
+			Polygons polygons(0);
+			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudInliers);
 			cloudVisualizer->addCloud(cloudInliers);
 
-			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Polygons(0), Cloud::fromFilter);
+			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudOutliers);
 			cloudVisualizer->addCloud(cloudOutliers);
 		}
@@ -665,7 +667,8 @@ void MainWindow::on_voxelGridDialog_sendParameters(QVariantMap parameters)
 		}
 		else
 		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Polygons(0), Cloud::fromFilter);
+			Polygons polygons(0);
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
@@ -704,7 +707,8 @@ void MainWindow::on_movingLeastSquaresDialog_sendParameters(QVariantMap paramete
 		}
 		else
 		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, Polygons(0), Cloud::fromFilter);
+			Polygons polygons(0);
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
@@ -791,11 +795,12 @@ void MainWindow::on_outliersRemovalDialog_sendParameters(QVariantMap parameters)
 		}
 		else
 		{
-			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, Polygons(0), Cloud::fromFilter);
+			Polygons polygons(0);
+			Cloud* cloudInliers = cloudManager->addCloud(cloudData_inliers, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudInliers);
 			cloudVisualizer->addCloud(cloudInliers);
-
-			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, Polygons(0), Cloud::fromFilter);
+			
+			Cloud* cloudOutliers= cloudManager->addCloud(cloudData_outliers, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudOutliers);
 			cloudVisualizer->addCloud(cloudOutliers);
 		}
@@ -846,8 +851,8 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
 		}
 		else
-		{
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, cloud->getPolygons(), Cloud::fromFilter);
+		{	Polygons polygons = cloud->getPolygons();
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	

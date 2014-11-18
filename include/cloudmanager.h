@@ -17,7 +17,7 @@ namespace registar
 		CloudManager(QObject *parent = 0);
 		virtual ~CloudManager();
 
-		Cloud* addCloud(CloudDataPtr cloudData, Polygons &polygons, Cloud::FromWhere fromWhere,
+		Cloud* addCloud(CloudDataPtr cloudData, const Polygons &polygons, Cloud::FromWhere fromWhere,
 			const QString &fileName = "", const Eigen::Matrix4f &transformation = Eigen::Matrix4f::Identity() );
 		void removeCloud(const QString &cloudName);
 		Cloud* getCloud(const QString &cloudName);

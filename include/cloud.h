@@ -23,7 +23,7 @@ namespace registar
 			fromNew, fromIO, fromFilter
 		};
 
-		Cloud(CloudDataPtr cloudData = CloudDataPtr(), Polygons &polygons = Polygons(0), const FromWhere &fromWhere = fromNew, 
+		Cloud(CloudDataPtr cloudData = CloudDataPtr(), const Polygons &polygons = Polygons(0), const FromWhere &fromWhere = fromNew, 
 			const QString &fileName = "", const Eigen::Matrix4f &transformation = Eigen::Matrix4f::Identity(),
 			const QString &cloudName = "", QObject *parent = 0);
 		virtual ~Cloud();

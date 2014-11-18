@@ -16,7 +16,7 @@ QString CloudManager::generateCloudName()
 	return QString("%1").arg(QString::number(cloudID++));
 }
 
-Cloud* CloudManager::addCloud(CloudDataPtr cloudData, Polygons &polygons, Cloud::FromWhere fromWhere,
+Cloud* CloudManager::addCloud(CloudDataPtr cloudData, const Polygons &polygons, Cloud::FromWhere fromWhere,
 	const QString &fileName, const Eigen::Matrix4f &transformation)
 {
 	QString cloudName = generateCloudName();

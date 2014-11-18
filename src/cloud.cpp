@@ -2,7 +2,7 @@
 
 using namespace registar;
 
-Cloud::Cloud(CloudDataPtr cloudData, Polygons &polygons, const FromWhere &fromWhere,
+Cloud::Cloud(CloudDataPtr cloudData, const Polygons &polygons, const FromWhere &fromWhere,
 	const QString &fileName, const Eigen::Matrix4f &transformation,
 	const QString &cloudName, QObject *parent) : QObject(parent)
 {
