@@ -22,7 +22,7 @@ void CloudBrowser::addCloud(Cloud *cloud)
 {
 	QString cloudName = cloud->getCloudName();
 	QString fileName = cloud->getFileName();
-	CloudDataPtr cloudData = cloud->getCloudData();
+	CloudDataConstPtr cloudData = cloud->getCloudData();
 
 	QStringList strings;
 	strings << cloudName << QFileInfo(fileName).fileName() << "Visible";
@@ -60,7 +60,7 @@ void CloudBrowser::updateCloud(Cloud* cloud)
 {
 	QString cloudName = cloud->getCloudName();
 	QString fileName = cloud->getFileName();
-	CloudDataPtr cloudData = cloud->getCloudData();
+	CloudDataConstPtr cloudData = cloud->getCloudData();
 
 	QList<QTreeWidgetItem*> treeWidgetItemList = findItems(cloudName, Qt::MatchExactly, 0);
 

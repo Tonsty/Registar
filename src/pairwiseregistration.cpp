@@ -160,7 +160,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 	{
 		CloudData &cloudData_target = *target->cloudData;
 		KdTreePtr tree_target = target->kdTree;
-		BoundariesPtr boundaries_target = target->boundaries;
+		BoundariesConstPtr boundaries_target = target->boundaries;
 		CloudData &cloudData_source = *source->cloudData;
 
 		CloudData &cloudData_source_dynamic = correspondencesComputationData.cloudData_source_dynamic;		

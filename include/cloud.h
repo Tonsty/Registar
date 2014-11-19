@@ -29,28 +29,28 @@ namespace registar
 		virtual ~Cloud();
 
 		void setCloudData(CloudDataPtr cloudData);
-		CloudDataPtr getCloudData();
+		CloudDataConstPtr getCloudData()const;
 
 		void setPolygons(const Polygons &polygons);
-		Polygons getPolygons();
+		const Polygons& getPolygons()const;
 
-		void setFromWhere(FromWhere fromWhere);
-		FromWhere getFromWhere();
+		void setFromWhere(const FromWhere &fromWhere);
+		const FromWhere &getFromWhere()const;
 
 		void setFileName(const QString &fileName);
-		QString getFileName();
+		const QString &getFileName()const;
 
 		void setCloudName(const QString &cloudName);
-		QString  getCloudName();
+		const QString &getCloudName()const;
 
 		void setTransformation(const Eigen::Matrix4f &transformation);
-		Eigen::Matrix4f getTransformation();
+		const Eigen::Matrix4f &getTransformation()const;
 
 		void setRegistrationTransformation(const Eigen::Matrix4f &registrationTransformation);
-		Eigen::Matrix4f getRegistrationTransformation();
+		const Eigen::Matrix4f &getRegistrationTransformation()const;
 
 		void setBoundaries(BoundariesPtr boundaries);
-		BoundariesPtr getBoundaries();
+		BoundariesConstPtr getBoundaries()const;
 
 	protected:
 		CloudDataPtr cloudData;

@@ -12,13 +12,13 @@ namespace registar
 		Q_OBJECT
 
 	public:
-		RegistrationData(Cloud *cloud, QString dataName, QObject *parent = 0);
+		RegistrationData(Cloud *cloud, const QString &dataName, QObject *parent = 0);
 		virtual ~RegistrationData();
 
 		Cloud * cloud;
 		CloudDataPtr cloudData;	
 		KdTreePtr kdTree;
-		BoundariesPtr boundaries;
+		BoundariesConstPtr boundaries;
 	};
 
 	class RegistrationDataManager : public QObject
@@ -28,9 +28,9 @@ namespace registar
 	public:
 		RegistrationDataManager(QObject *parent = 0);
 		virtual ~RegistrationDataManager();
-		RegistrationData* addRegistrationData(Cloud *cloud, QString dataName);
-		void removeRegistrationData(QString dataName);
-		RegistrationData* getRegistrationData(QString dataName);
+		RegistrationData* addRegistrationData(Cloud *cloud, const QString &dataName);
+		void removeRegistrationData(const QString &dataName);
+		RegistrationData* getRegistrationData(const QString &dataName);
 
 		QList<RegistrationData*> getAllRegistrationDatas();
 		QStringList getAllRegistrationDataNames();

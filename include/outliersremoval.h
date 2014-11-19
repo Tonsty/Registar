@@ -14,8 +14,8 @@ namespace registar
 		OutliersRemoval();
 		virtual ~OutliersRemoval();
 
-		static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
-		static void filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
+		static void filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
+		static void filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
 	};
 }
 

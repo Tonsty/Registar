@@ -13,7 +13,7 @@ OutliersRemoval::OutliersRemoval(){}
 
 OutliersRemoval::~OutliersRemoval(){}
 
-void OutliersRemoval::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
+void OutliersRemoval::filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
 {
 	int method = parameters["method"].toInt();
 	float searchRadius = parameters["searchRadius"].toFloat(); 
@@ -63,7 +63,7 @@ void OutliersRemoval::filter(CloudDataPtr cloudData, QVariantMap parameters, Clo
 	qDebug() << "Cloud Outliers Size : " << cloudData_outliers->size();
 }
 
-void OutliersRemoval::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
+void OutliersRemoval::filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
 {
 	CloudDataPtr cloudData_inliers, cloudData_outliers;
 	filter(cloudData, parameters, cloudData_inliers, cloudData_outliers);

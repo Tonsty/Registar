@@ -14,8 +14,8 @@ namespace registar
 		BoundaryEstimation();
 		virtual ~BoundaryEstimation();
 
-		static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
-		static void filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered);
+		static void filter(CloudDataConstPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers);
+		static void filter(CloudDataConstPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered);
 	};
 }
 

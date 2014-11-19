@@ -22,27 +22,27 @@ void Cloud::setCloudData(CloudDataPtr cloudData)
 	this->cloudData = cloudData;
 }
 
-CloudDataPtr Cloud::getCloudData()
+CloudDataConstPtr Cloud::getCloudData()const
 {
 	return this->cloudData;
 }
 
-void Cloud::setFromWhere(FromWhere fromWhere)
+void Cloud::setFromWhere(const FromWhere &fromWhere)
 {
 	this->fromWhere = fromWhere;
 }
 
-Cloud::FromWhere Cloud::getFromWhere()
+const Cloud::FromWhere& Cloud::getFromWhere()const
 {
 	return this->fromWhere;
 }
 
-void Cloud::setFileName(const QString &_fileName)
+void Cloud::setFileName(const QString &fileName)
 {
 	this->fileName = fileName;
 }
 
-QString Cloud::getFileName()
+const QString& Cloud::getFileName()const
 {
 	return this->fileName;
 }
@@ -52,7 +52,7 @@ void Cloud::setCloudName(const QString &cloudName)
 	this->setObjectName(cloudName);
 }
 
-QString  Cloud::getCloudName()
+const QString&  Cloud::getCloudName()const
 {
 	return this->objectName();
 }
@@ -62,7 +62,7 @@ void Cloud::setTransformation(const Eigen::Matrix4f &transformation)
 	this->transformation = transformation;
 }
 
-Eigen::Matrix4f Cloud::getTransformation()
+const Eigen::Matrix4f& Cloud::getTransformation()const
 {
 	return this->transformation;
 }
@@ -72,7 +72,7 @@ void Cloud::setRegistrationTransformation(const Eigen::Matrix4f &registrationTra
 	this->registrationTransformation = registrationTransformation;
 }
 
-Eigen::Matrix4f Cloud::getRegistrationTransformation()
+const Eigen::Matrix4f& Cloud::getRegistrationTransformation()const
 {
 	return this->registrationTransformation;
 }
@@ -82,7 +82,7 @@ void Cloud::setBoundaries(BoundariesPtr boundaries)
 	this->boundaries = boundaries;
 }
 
-BoundariesPtr Cloud::getBoundaries()
+BoundariesConstPtr Cloud::getBoundaries()const
 {
 	return this->boundaries;
 }
@@ -92,7 +92,7 @@ void Cloud::setPolygons(const Polygons &polygons)
 	this->polygons = polygons;
 }
 
-Polygons Cloud::getPolygons()
+const Polygons &Cloud::getPolygons()const
 {
 	return this->polygons;
 }

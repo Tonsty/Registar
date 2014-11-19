@@ -11,7 +11,7 @@ VoxelGrid::VoxelGrid(){}
 
 VoxelGrid::~VoxelGrid(){}
 
-void VoxelGrid::filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
+void VoxelGrid::filter(CloudDataConstPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
 {
 	float leafSizeX = parameters["leafSizeX"].toFloat();
 	float leafSizeY = parameters["leafSizeY"].toFloat();

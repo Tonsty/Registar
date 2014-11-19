@@ -13,7 +13,7 @@ BoundaryEstimation::BoundaryEstimation(){}
 
 BoundaryEstimation::~BoundaryEstimation(){}
 
-void BoundaryEstimation::filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
+void BoundaryEstimation::filter(CloudDataConstPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
 {
 	float searchRadius = parameters["searchRadius"].toFloat(); 
 	float angleThreshold = parameters["angleThreshold"].toFloat();
@@ -79,7 +79,7 @@ void BoundaryEstimation::filter(CloudDataPtr cloudData, QVariantMap parameters, 
 	qDebug() << "Cloud Outliers Size : " << cloudData_outliers->size();
 }
 
-void BoundaryEstimation::filter(CloudDataPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered)
+void BoundaryEstimation::filter(CloudDataConstPtr cloudData, QVariantMap parameters, BoundariesPtr &boundaries, CloudDataPtr &cloudData_filtered)
 {
 	CloudDataPtr cloudData_inliers, cloudData_outliers;
 	filter(cloudData, parameters, boundaries, cloudData_inliers, cloudData_outliers);

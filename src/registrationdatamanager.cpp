@@ -5,7 +5,7 @@
 
 using namespace registar;
 
-RegistrationData::RegistrationData(Cloud *cloud, QString dataName, QObject *parent) : QObject(parent)
+RegistrationData::RegistrationData(Cloud *cloud, const QString &dataName, QObject *parent) : QObject(parent)
 {
 	this->cloud = cloud;
 
@@ -26,18 +26,18 @@ RegistrationDataManager::RegistrationDataManager(QObject *parent) : QObject(pare
 
 RegistrationDataManager::~RegistrationDataManager(){}
 
-RegistrationData* RegistrationDataManager::addRegistrationData(Cloud *cloud, QString dataName)
+RegistrationData* RegistrationDataManager::addRegistrationData(Cloud *cloud, const QString& dataName)
 {
 	return new RegistrationData(cloud, dataName, this);
 }
 
-void RegistrationDataManager::removeRegistrationData(QString dataName)
+void RegistrationDataManager::removeRegistrationData(const QString& dataName)
 {
 	RegistrationData *registrationData = findChild<RegistrationData*>(dataName);
 	if(registrationData) delete registrationData;
 }
 
-RegistrationData* RegistrationDataManager::getRegistrationData(QString dataName)
+RegistrationData* RegistrationDataManager::getRegistrationData(const QString& dataName)
 {
 	return findChild<RegistrationData*>(dataName);
 }

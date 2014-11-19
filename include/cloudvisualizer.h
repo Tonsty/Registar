@@ -29,16 +29,26 @@ namespace registar
 		CloudVisualizer(QWidget *parent = 0);
 		virtual ~CloudVisualizer();
 
-		void addCloud(CloudDataPtr cloudData, QString cloudName);
-		void addCloud(CloudDataPtr cloudData, QString cloudName, float r, float g, float b);
-		void addCloud(Cloud* cloud);
-		void removeCloud(QString cloudName);	
-		void removeCloud(Cloud* cloud);
-		void updateCloud(CloudDataPtr cloudData, QString cloudName);
-		void updateCloud(CloudDataPtr cloudData, QString cloudName, float r, float g, float b);
-		void updateCloud(Cloud* cloud);
-		void resetCamera(CloudDataPtr cloudData);
-		void resetCamera(Cloud* cloud);
+		bool addCloud(CloudDataConstPtr cloudData, const QString &cloudName);
+		bool addCloud(CloudDataConstPtr cloudData, const QString &cloudName, const float &r, const float &g, const float &b);
+		bool addShape(CloudDataConstPtr cloudData, const Polygons &polygons, const QString &shapeName);
+		bool addCloudNormals(CloudDataConstPtr cloudData, const QString &cloudNormalsName);
+		bool addCloudBoundaries(CloudDataConstPtr cloudData, BoundariesConstPtr boundaries, const QString &cloudBoundriesName);
+		bool addCloud(const Cloud* cloud);
+
+		bool removeCloud(const QString &cloudName);
+		bool removeShape(const QString &shapeName);
+		bool removeCloud(const Cloud* cloud);
+
+		bool updateCloud(CloudDataConstPtr cloudData, const QString &cloudName);
+		bool updateCloud(CloudDataConstPtr cloudData, const QString &cloudName, const float &r, const float &g, const float &b);
+		bool updateShape(CloudDataConstPtr cloudData, const Polygons &polygons, const QString &shapeName);
+		bool updateCloudNormals(CloudDataConstPtr cloudData, const QString &cloudNormalsName);
+		bool updateCloudBoundaries(CloudDataConstPtr cloudData, BoundariesConstPtr boundaries, const QString &cloudBoundriesName);
+		bool updateCloud(const Cloud* cloud);
+
+		void resetCamera(CloudDataConstPtr cloudData);
+		void resetCamera(const Cloud* cloud);
 
 		void addAxis();
 		void removeAxis();
@@ -92,6 +102,8 @@ namespace registar
 	private:
 		void createPCLVisualizer();
 		void connectPCLVisualizerandQVTK();
+
+		vtkSmartPointer<vtkPolyData> generateVtkPolyData(CloudDataConstPtr cloudData, const Polygons& polygons);
 
 		ColorMode colorMode;
 		bool drawNormal;

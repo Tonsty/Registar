@@ -12,7 +12,7 @@ MovingLeastSquares::MovingLeastSquares(){}
 
 MovingLeastSquares::~MovingLeastSquares(){}
 
-void MovingLeastSquares::filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
+void MovingLeastSquares::filter(CloudDataConstPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
 {
 	pcl::MovingLeastSquares2<PointType, PointType>::UpsamplingMethod method = 
 	(pcl::MovingLeastSquares2<PointType,PointType>::UpsamplingMethod)(parameters["method"].toInt());

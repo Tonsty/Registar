@@ -14,7 +14,7 @@ namespace registar
 		MovingLeastSquares();
 		virtual ~MovingLeastSquares();
 
-		static void filter(CloudDataPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
+		static void filter(CloudDataConstPtr &cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered);
 	};
 }
 

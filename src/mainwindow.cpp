@@ -199,9 +199,9 @@ bool MainWindow::on_saveAction_triggered()
 	{
 		QString cloudName = (*it);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 		Eigen::Matrix4f transformation = cloud->getTransformation();
-		BoundariesPtr boundaries = cloud->getBoundaries();
+		BoundariesConstPtr boundaries = cloud->getBoundaries();
 		QString fileName = cloud->getFileName();
 		if (fileName.isEmpty())
 		{
@@ -236,9 +236,9 @@ bool MainWindow::on_saveAsAction_triggered()
 	{
 		QString cloudName = (*it);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 		Eigen::Matrix4f transformation = cloud->getTransformation();
-		BoundariesPtr boundaries = cloud->getBoundaries();
+		BoundariesConstPtr boundaries = cloud->getBoundaries();
 		QString fileName = cloud->getFileName();
 		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as PointCloud").arg(cloudName).arg(strippedName(fileName)), ".", tr("PointCloud files (*.ply)"));
 		if (newFileName.isEmpty())
@@ -363,8 +363,10 @@ void MainWindow::on_pairwiseRegistrationAction_triggered()
 	pairwiseRegistrationDialog->targetComboBox->clear();
 	pairwiseRegistrationDialog->sourceComboBox->clear();
 
-	pairwiseRegistrationDialog->targetComboBox->addItems(cloudManager->getAllCloudNames());
-	pairwiseRegistrationDialog->sourceComboBox->addItems(cloudManager->getAllCloudNames());
+	QStringList allCloudNames = cloudManager->getAllCloudNames();
+
+	pairwiseRegistrationDialog->targetComboBox->addItems(allCloudNames);
+	pairwiseRegistrationDialog->sourceComboBox->addItems(allCloudNames);
 
 	int tabCurrentIndex = pairwiseRegistrationDialog->tabWidget->currentIndex();
 	if (tabCurrentIndex != -1)
@@ -607,7 +609,7 @@ void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap 
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 		CloudDataPtr cloudData_inliers, cloudData_outliers;
 		
 		QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -618,6 +620,7 @@ void MainWindow::on_euclideanClusterExtractionDialog_sendParameters(QVariantMap 
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_inliers);
+			cloud->setPolygons(Polygons(0));
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
@@ -650,7 +653,7 @@ void MainWindow::on_voxelGridDialog_sendParameters(QVariantMap parameters)
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 
 		CloudDataPtr cloudData_filtered;
 		QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -661,6 +664,7 @@ void MainWindow::on_voxelGridDialog_sendParameters(QVariantMap parameters)
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_filtered);
+			cloud->setPolygons(Polygons(0));
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
@@ -690,7 +694,7 @@ void MainWindow::on_movingLeastSquaresDialog_sendParameters(QVariantMap paramete
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 
 		CloudDataPtr cloudData_filtered;
 		QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -701,6 +705,7 @@ void MainWindow::on_movingLeastSquaresDialog_sendParameters(QVariantMap paramete
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_filtered);
+			cloud->setPolygons(Polygons(0));
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
@@ -729,7 +734,7 @@ void MainWindow::on_boundaryEstimationDialog_sendParameters(QVariantMap paramete
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 		CloudDataPtr cloudData_inliers, cloudData_outliers;
 		BoundariesPtr boundaries;
 		
@@ -741,6 +746,7 @@ void MainWindow::on_boundaryEstimationDialog_sendParameters(QVariantMap paramete
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_inliers);
+			cloud->setPolygons(Polygons(0));
 			cloud->setBoundaries(BoundariesPtr());
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
@@ -778,7 +784,7 @@ void MainWindow::on_outliersRemovalDialog_sendParameters(QVariantMap parameters)
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 		CloudDataPtr cloudData_inliers, cloudData_outliers;
 		
 		QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -789,6 +795,7 @@ void MainWindow::on_outliersRemovalDialog_sendParameters(QVariantMap parameters)
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_inliers);
+			cloud->setPolygons(Polygons(0));
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
@@ -825,7 +832,7 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		CloudDataPtr cloudData = cloud->getCloudData();
+		CloudDataConstPtr cloudData = cloud->getCloudData();
 
 		CloudDataPtr cloudData_filtered;
 		QApplication::setOverrideCursor(Qt::WaitCursor);

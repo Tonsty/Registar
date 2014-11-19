@@ -16,7 +16,7 @@ EuclideanClusterExtraction::EuclideanClusterExtraction(){}
 EuclideanClusterExtraction::~EuclideanClusterExtraction(){}
 
 // void EuclideanClusterExtraction::filter(CloudDataPtr cloudData, QVariantMap parameters, std::vector<CloudDataPtr> cloudData_filtereds)
-void EuclideanClusterExtraction::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
+void EuclideanClusterExtraction::filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_inliers, CloudDataPtr &cloudData_outliers)
 {
 	// cloudData = parameters["cloudData"].value<CloudDataPtr>();
 	// cloudData_filtered = parameters["cloudData_filtered"].value<CloudDataPtr>();
@@ -107,7 +107,7 @@ void EuclideanClusterExtraction::filter(CloudDataPtr cloudData, QVariantMap para
 	// }
 }
 
-void EuclideanClusterExtraction::filter(CloudDataPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
+void EuclideanClusterExtraction::filter(CloudDataConstPtr cloudData, QVariantMap parameters, CloudDataPtr &cloudData_filtered)
 {
 	CloudDataPtr cloudData_inliers, cloudData_outliers;
 	filter(cloudData, parameters, cloudData_inliers, cloudData_outliers);
