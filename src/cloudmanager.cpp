@@ -45,7 +45,7 @@ QStringList CloudManager::getAllCloudNames()
 	QList<Cloud*> allClouds = getAllClouds();
 	for (int i = 0; i < allClouds.size(); ++i)
 	{
-		allCloudNames << allClouds[i]->getCloudName();
+		allCloudNames << QString(allClouds[i]->getCloudName());
 	}
 	return allCloudNames;
 }
