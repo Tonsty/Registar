@@ -2,6 +2,7 @@
 #include <boost/shared_ptr.hpp>
 #include <pcl/features/normal_3d.h>
 #include <pcl/common/transforms.h>
+#include <pcl/filters/filter.h>
 
 #include "../include/qtbase.h"
 #include "../include/cloudmanager.h"
@@ -18,6 +19,7 @@
 #include "../include/outliersremovaldialog.h"
 #include "../include/outliersremoval.h"
 #include "../include/normalfielddialog.h"
+#include "../include/virtualscandialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -54,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	boundaryEstimationDialog = 0;
 	outliersRemovalDialog = 0;
 	normalFieldDialog = 0;
+	virtualScanDialog = 0;
 	pairwiseRegistrationDialog = 0;
 
 	diagramWindow = 0;
@@ -349,6 +352,19 @@ void MainWindow::on_normalFieldAction_triggered()
 	normalFieldDialog->show();
 	normalFieldDialog->raise();
 	normalFieldDialog->activateWindow();
+}
+
+void MainWindow::on_virtualScanAction_triggered()
+{
+	if (!virtualScanDialog)
+	{
+		virtualScanDialog = new VirtualScanDialog(this);
+		connect(virtualScanDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_virtualScanDialog_sendParameters(QVariantMap)));
+	}
+	virtualScanDialog->show();
+	virtualScanDialog->raise();
+	virtualScanDialog->activateWindow();
 }
 
 void MainWindow::on_pairwiseRegistrationAction_triggered()
@@ -867,6 +883,49 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 		it_name++;
 		it_visible++;
 	}	
+}
+
+void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
+{
+	int xres, yres;
+	xres = parameters["xres"].toInt();
+	yres = parameters["yres"].toInt();
+	float view_angle = parameters["view_angle"].toFloat();
+	bool use_vertices = parameters["use_vertices"].toBool();
+
+	QSize size_hint(xres, yres);
+	centralWidget()->setFixedSize(size_hint);
+	size_hint = sizeHint();
+	resize(size_hint);
+
+	pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
+	cloudVisualizer->renderView(temp);
+
+	temp->is_dense = false;
+	temp->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
+	temp->sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
+
+	std::vector<int> nanIndicesVector;
+	//pcl::removeNaNFromPointCloud( *temp, *temp, nanIndicesVector );
+
+
+	CloudDataPtr cloudData1(new CloudData);
+	pcl::copyPointCloud(*temp, *cloudData1);
+
+	CloudDataPtr cloudData2(new CloudData);
+
+	pcl::removeNaNFromPointCloud( *cloudData1, *cloudData2, nanIndicesVector );
+	std::cout << *cloudData2 << std::endl;
+
+	pcl::PLYWriter writer;
+	writer.write( "temp.ply", *cloudData2);
+
+	Polygons polygons(0);
+	Cloud* cloud = cloudManager->addCloud(cloudData2, polygons, Cloud::fromFilter);
+	cloudBrowser->addCloud(cloud);
+	cloudVisualizer->addCloud(cloud);
+
+
 }
 
 void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parameters)

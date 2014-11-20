@@ -55,6 +55,8 @@ namespace registar
 		void addOrientationMarker();
 		void removeOrientationMarker();
 
+		void renderView(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud);
+
 		inline void setColorMode(ColorMode colorMode)
 		{
 			this->colorMode = colorMode;

@@ -20,6 +20,7 @@ class MovingLeastSquaresDialog;
 class BoundaryEstimationDialog;
 class OutliersRemovalDialog;
 class NormalFieldDialog;
+class VirtualScanDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -56,6 +57,7 @@ private:
 	BoundaryEstimationDialog *boundaryEstimationDialog;
 	OutliersRemovalDialog *outliersRemovalDialog;
 	NormalFieldDialog *normalFieldDialog;
+	VirtualScanDialog *virtualScanDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -108,6 +110,9 @@ private slots:
 
 	void on_normalFieldAction_triggered();
 	void on_normalFieldDialog_sendParameters(QVariantMap parameters);
+
+	void on_virtualScanAction_triggered();
+	void on_virtualScanDialog_sendParameters(QVariantMap parameters);
 
 	void on_concatenationAction_triggered();
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>236</width>
-    <height>198</height>
+    <width>255</width>
+    <height>201</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -162,5 +162,22 @@
  <resources>
   <include location="../res/Registar.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>NormalFieldDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>184</x>
+     <y>190</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

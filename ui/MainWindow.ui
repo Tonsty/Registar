@@ -57,6 +57,7 @@
     <addaction name="globalRegistrationMenu"/>
     <addaction name="confirmRegistrationAction"/>
     <addaction name="forceRigidRegistrationAction"/>
+    <addaction name="virtualScanAction"/>
    </widget>
    <widget class="QMenu" name="optionsMenu">
     <property name="title">
@@ -467,6 +468,11 @@
   <action name="forceRigidRegistrationAction">
    <property name="text">
     <string>Force Rigid Registraton</string>
+   </property>
+  </action>
+  <action name="virtualScanAction">
+   <property name="text">
+    <string>Virtual Scan</string>
    </property>
   </action>
  </widget>

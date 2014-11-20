@@ -76,7 +76,8 @@ HEADERS += include/mainwindow.h \
 			manual_registration/manual_registration.h \
 			include/mathutilities.h \
 			include/registrationdatamanager.h \
-			include/pairwiseregistrationinteractor.h
+			include/pairwiseregistrationinteractor.h \
+			include/virtualscandialog.h 
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -106,7 +107,8 @@ SOURCES += src/main.cpp \
 			src/globalregistration.cpp \
 			manual_registration/manual_registration.cpp \
 			src/registrationdatamanager.cpp \
-			src/pairwiseregistrationinteractor.cpp
+			src/pairwiseregistrationinteractor.cpp \
+			src/virtualscandialog.cpp
 #			src/globalregistrationinteractor.cpp \
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -120,6 +122,7 @@ FORMS += ui/MainWindow.ui \
 			ui/PairwiseRegistrationDialog.ui \
 			diagram/propertiesdialog.ui \
 			ui/GlobalRegistrationDialog.ui \
-			manual_registration/manual_registration.ui
+			manual_registration/manual_registration.ui \
+			ui/VirtualScanDialog.ui
 
 
