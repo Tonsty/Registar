@@ -5,6 +5,7 @@
 
 #ifndef Q_MOC_RUN
 #include <pcl/visualization/pcl_visualizer.h>
+#include "../pcl_bugfix/pcl_visualizer2.h"
 #include "pclbase.h"
 #endif
 
@@ -17,7 +18,7 @@ namespace registar
 		Q_OBJECT
 
 	public:
-		typedef pcl::visualization::PCLVisualizer Visualizer;
+		typedef pcl::visualization::PCLVisualizer2 Visualizer;
 		typedef Visualizer::Ptr VisualizerPtr;
 		typedef Visualizer::ConstPtr VisualizerConstPtr;
 

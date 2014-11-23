@@ -77,7 +77,8 @@ HEADERS += include/mainwindow.h \
 			include/mathutilities.h \
 			include/registrationdatamanager.h \
 			include/pairwiseregistrationinteractor.h \
-			include/virtualscandialog.h 
+			include/virtualscandialog.h \
+			pcl_bugfix/pcl_visualizer2.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -108,7 +109,8 @@ SOURCES += src/main.cpp \
 			manual_registration/manual_registration.cpp \
 			src/registrationdatamanager.cpp \
 			src/pairwiseregistrationinteractor.cpp \
-			src/virtualscandialog.cpp
+			src/virtualscandialog.cpp \
+			pcl_bugfix/pcl_visualizer2.cpp
 #			src/globalregistrationinteractor.cpp \
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc

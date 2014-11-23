@@ -893,10 +893,10 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 	float view_angle = parameters["view_angle"].toFloat();
 	bool use_vertices = parameters["use_vertices"].toBool();
 
-	QSize size_hint(xres, yres);
-	centralWidget()->setFixedSize(size_hint);
-	size_hint = sizeHint();
-	resize(size_hint);
+	// QSize size_hint(xres, yres);
+	// centralWidget()->setFixedSize(size_hint);
+	// size_hint = sizeHint();
+	// resize(size_hint);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
 	cloudVisualizer->renderView(temp);
@@ -905,26 +905,20 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 	temp->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
 	temp->sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
 
-	std::vector<int> nanIndicesVector;
-	//pcl::removeNaNFromPointCloud( *temp, *temp, nanIndicesVector );
-
-
-	CloudDataPtr cloudData1(new CloudData);
-	pcl::copyPointCloud(*temp, *cloudData1);
-
-	CloudDataPtr cloudData2(new CloudData);
-
-	pcl::removeNaNFromPointCloud( *cloudData1, *cloudData2, nanIndicesVector );
-	std::cout << *cloudData2 << std::endl;
-
-	pcl::PLYWriter writer;
-	writer.write( "temp.ply", *cloudData2);
+	CloudDataPtr cloudData(new CloudData);
+	pcl::copyPointCloud(*temp, *cloudData);
 
 	Polygons polygons(0);
-	Cloud* cloud = cloudManager->addCloud(cloudData2, polygons, Cloud::fromFilter);
+	Cloud* cloud = cloudManager->addCloud(cloudData, polygons, Cloud::fromFilter);
 	cloudBrowser->addCloud(cloud);
 	cloudVisualizer->addCloud(cloud);
 
+	std::vector<int> nanIndicesVector;
+	pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+	std::cout << *cloudData << std::endl;
+
+	// pcl::PLYWriter writer;
+	// writer.write( "temp.ply", *cloudData);
 
 }
 

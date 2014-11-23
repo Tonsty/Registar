@@ -41,7 +41,6 @@
 #define PCL_SURFACE_IMPL_MLS2_H_
 
 #include <pcl/point_traits.h>
-#include "mls2.h"
 #include <pcl/common/io.h>
 #include <pcl/common/centroid.h>
 #include <pcl/common/eigen.h>

@@ -13,7 +13,7 @@ using namespace registar;
 CloudVisualizer::CloudVisualizer(QWidget *parent) : QVTKWidget(parent)
 {
 	createPCLVisualizer();
-	connectPCLVisualizerandQVTK();
+	connectPCLVisualizerandQVTK(); 
 
 	//addOrientationMarker();
 	//addAxis();
@@ -30,6 +30,9 @@ void CloudVisualizer::createPCLVisualizer()
 {
 	visualizer.reset(new Visualizer("", false));
 	visualizer->setBackgroundColor(1.0, 1.0, 1.0);
+	//visualizer->setCameraPosition(0, 0, 1, 0, 0, 0, 0, 1, 0);
+	visualizer->setCameraClipDistances(0.001, 1.0);
+	visualizer->setCameraFieldOfView(90.0 / 180 * 3.1415926);
 	visualizer->setShowFPS(false);
 }
 
@@ -356,7 +359,7 @@ bool CloudVisualizer::updateCloudBoundaries(CloudDataConstPtr cloudData, Boundar
 
 void CloudVisualizer::addAxis()
 {
-	visualizer->addCoordinateSystem(2.0, 0);
+	visualizer->addCoordinateSystem(0.1);
 	update();
 }
 
@@ -391,7 +394,7 @@ void CloudVisualizer::resetCamera(CloudDataConstPtr cloudData)
 {
 	Eigen::Vector4f centroid;
 	pcl::compute3DCentroid(*cloudData, centroid);
-	visualizer->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
+	//visualizer->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
 	update();
 }
 
