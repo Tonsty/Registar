@@ -31,8 +31,8 @@ bool CloudIO::importCloudData(const QString &fileName, CloudDataPtr cloudData)
 		// QString pngFileName = fileInfo.path() + "/" + fileInfo.baseName() + ".png";
 		// pcl::io::savePNGFile( pngFileName.toStdString(), *cloudData);
 
-		std::vector<int> nanIndicesVector;
-		pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+		// std::vector<int> nanIndicesVector;
+		// pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
 	}
 	else return false;
 
@@ -105,12 +105,20 @@ bool CloudIO::importBoundaries(const QString &fileName, BoundariesPtr boundaries
 
 bool CloudIO::exportCloudData(const QString &fileName, CloudDataConstPtr cloudData)
 {
-	std::vector<int> nanIndicesVector;
-	CloudDataPtr temp(new CloudData);
-	pcl::removeNaNFromPointCloud( *cloudData, *temp, nanIndicesVector );
-
 	pcl::PLYWriter writer;
-	writer.write(fileName.toStdString(), *temp);
+	if (cloudData->isOrganized())
+	{
+		pcl::PCLPointCloud2 msg;
+		pcl::toPCLPointCloud2( *cloudData, msg );
+		writer.writeASCII( fileName.toStdString(), msg,  Eigen::Vector4f::Zero (), Eigen::Quaternionf::Identity (), 8, false );		
+	}
+	else
+	{
+		std::vector<int> nanIndicesVector;
+		CloudDataPtr temp(new CloudData);
+		pcl::removeNaNFromPointCloud( *cloudData, *temp, nanIndicesVector );
+		writer.write(fileName.toStdString(), *temp);
+	}
 
 	return true;
 }

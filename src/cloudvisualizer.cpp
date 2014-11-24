@@ -32,7 +32,7 @@ void CloudVisualizer::createPCLVisualizer()
 	visualizer->setBackgroundColor(1.0, 1.0, 1.0);
 	//visualizer->setCameraPosition(0, 0, 1, 0, 0, 0, 0, 1, 0);
 	visualizer->setCameraClipDistances(0.001, 1.0);
-	visualizer->setCameraFieldOfView(90.0 / 180 * 3.1415926);
+	visualizer->setCameraFieldOfView(45.0 / 180 * 3.1415926);
 	visualizer->setShowFPS(false);
 }
 
@@ -394,21 +394,6 @@ void CloudVisualizer::resetCamera(CloudDataConstPtr cloudData)
 {
 	Eigen::Vector4f centroid;
 	pcl::compute3DCentroid(*cloudData, centroid);
-	//visualizer->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
+	visualizer->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);
 	update();
-}
-
-
-void CloudVisualizer::renderView(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud)
-{
-	pcl::visualization::Camera camera;
-	visualizer->getCameraParameters(camera);
-	int xres, yres;
-	xres = camera.window_size[0];
-	yres = camera.window_size[1];
-	std::cout << xres << " , " << yres << std::endl;
-
-	visualizer->renderView(xres, yres, cloud);
-
-	std::cout << *cloud << std::endl;
 }
