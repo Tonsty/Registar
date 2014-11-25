@@ -14,7 +14,14 @@
 
 pcl::visualization::PCLVisualizer2::PCLVisualizer2 (const std::string &name, const bool create_interactor) : PCLVisualizer(name, create_interactor) {}
 
-pcl::visualization::PCLVisualizer2::~PCLVisualizer2 () { this->~PCLVisualizer(); }
+pcl::visualization::PCLVisualizer2::~PCLVisualizer2 () 
+{
+#ifdef WIN32
+	pcl::visualization::PCLVisualizer::~PCLVisualizer(); 
+#else
+	this->~PCLVisualizer();
+#endif
+}
 
 void pcl::visualization::PCLVisualizer2::renderView2 (int xres, int yres, pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud)
 {
