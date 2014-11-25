@@ -17,9 +17,9 @@ pcl::visualization::PCLVisualizer2::PCLVisualizer2 (const std::string &name, con
 pcl::visualization::PCLVisualizer2::~PCLVisualizer2 () 
 {
 #ifdef WIN32
-	pcl::visualization::PCLVisualizer::~PCLVisualizer(); 
+//	pcl::visualization::PCLVisualizer::~PCLVisualizer(); 
 #else
-	this->~PCLVisualizer();
+//	this->~PCLVisualizer();
 #endif
 }
 

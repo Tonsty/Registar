@@ -903,7 +903,7 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			centralWidget()->resize(size_wish);
 
 			pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
-			cloudVisualizer->getVisualizer()->renderView2(xres, yres, temp);
+			cloudVisualizer->getVisualizer()->renderView(xres, yres, temp);
 
 			temp->is_dense = false;
 			temp->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
@@ -936,7 +936,7 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			float view_angle = 45;
 			float radius_sphere = 1.0f;
 			bool use_vertices = true;
-			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere2(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
+			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
 
 			for (int i = 0; i < clouds.size(); ++i)
 			{
