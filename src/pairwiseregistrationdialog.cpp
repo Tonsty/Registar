@@ -121,7 +121,7 @@ CloudVisualizer* PairwiseRegistrationDialog::addCloudVisualizerTab(QString targe
 {
 	CloudVisualizer *cloudVisualizer = new CloudVisualizer(this);
 	cloudVisualizer->setObjectName(targetBySource);
-	//cloudVisualizer->setColorMode(CloudVisualizer::colorCustom);
+	cloudVisualizer->setColorMode(CloudVisualizer::colorOriginal);
 	
 	int index = tabWidget->addTab(cloudVisualizer, targetBySource);
 	tabWidget->setCurrentIndex(index);

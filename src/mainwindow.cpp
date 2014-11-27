@@ -20,6 +20,8 @@
 #include "../include/outliersremoval.h"
 #include "../include/normalfielddialog.h"
 #include "../include/virtualscandialog.h"
+#include "../include/depthcameradialog.h"
+#include "../include/virtualscan.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -57,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	outliersRemovalDialog = 0;
 	normalFieldDialog = 0;
 	virtualScanDialog = 0;
+	depthCameraDialog = 0;
 	pairwiseRegistrationDialog = 0;
 
 	diagramWindow = 0;
@@ -362,9 +365,27 @@ void MainWindow::on_virtualScanAction_triggered()
 		connect(virtualScanDialog, SIGNAL(sendParameters(QVariantMap)),
 			this, SLOT(on_virtualScanDialog_sendParameters(QVariantMap)));
 	}
+
+	virtualScanDialog->targetComboBox->clear();
+	QStringList allCloudNames = cloudManager->getAllCloudNames();
+	virtualScanDialog->targetComboBox->addItems(allCloudNames);
+
 	virtualScanDialog->show();
 	virtualScanDialog->raise();
 	virtualScanDialog->activateWindow();
+}
+
+void MainWindow::on_depthCameraAction_triggered()
+{
+	if (!depthCameraDialog)
+	{
+		depthCameraDialog = new DepthCameraDialog(this);
+		connect(depthCameraDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_depthCameraDialog_sendParameters(QVariantMap)));
+	}
+	depthCameraDialog->show();
+	depthCameraDialog->raise();
+	depthCameraDialog->activateWindow();
 }
 
 void MainWindow::on_pairwiseRegistrationAction_triggered()
@@ -885,13 +906,17 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 	}	
 }
 
-void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
+void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 {
 	int method = parameters["method"].toInt();
+	bool camera_coordiante = parameters["camera_coordinate"].toBool();
 	int xres, yres;
 	xres = parameters["xres"].toInt();
 	yres = parameters["yres"].toInt();
 	float view_angle = parameters["view_angle"].toFloat();
+	float noise_std = parameters["noise_std"].toFloat();
+	int tesselation_level = parameters["tesselation_level"].toInt();
+	float radius_sphere = parameters["radius_sphere"].toFloat();
 	bool use_vertices = parameters["use_vertices"].toBool();
 
 	switch(method)
@@ -903,7 +928,8 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			centralWidget()->resize(size_wish);
 
 			pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
-			cloudVisualizer->getVisualizer()->renderView(xres, yres, temp);
+			Eigen::Matrix4f pose;
+			cloudVisualizer->getVisualizer()->renderView2(xres, yres, temp, pose);
 
 			temp->is_dense = false;
 			temp->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
@@ -911,9 +937,10 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 
 			CloudDataPtr cloudData(new CloudData);
 			pcl::copyPointCloud(*temp, *cloudData);
-
-			Polygons polygons(0);
-			Cloud* cloud = cloudManager->addCloud(cloudData, polygons, Cloud::fromFilter);
+			Eigen::Matrix4f transformation;
+			if(camera_coordiante) transformation = Eigen::Matrix4f::Identity();
+			else transformation = pose.inverse();
+			Cloud* cloud = cloudManager->addCloud(cloudData, Polygons(0), Cloud::fromFilter, "", transformation);
 			cloudBrowser->addCloud(cloud);
 			cloudVisualizer->addCloud(cloud);
 
@@ -932,37 +959,67 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			pcl::PointCloud<pcl::PointXYZ>::CloudVectorType clouds;
 			std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > poses;
 			std::vector<float> enthropies;
-			int tesselation_level = 0;
-			float view_angle = 45;
-			float radius_sphere = 1.0f;
-			bool use_vertices = true;
-			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
+			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere2(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
 
 			for (int i = 0; i < clouds.size(); ++i)
 			{
+				clouds[i].is_dense = false;
+				clouds[i].sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
+				clouds[i].sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
 				CloudDataPtr cloudData(new CloudData);
 				pcl::copyPointCloud(clouds[i], *cloudData);
-
-				Polygons polygons(0);
-				Cloud* cloud = cloudManager->addCloud(cloudData, polygons, Cloud::fromFilter);
+				Eigen::Matrix4f transformation;
+				if (camera_coordiante) transformation = Eigen::Matrix4f::Identity();
+				else transformation = poses[i].inverse();
+				Cloud* cloud = cloudManager->addCloud(cloudData, Polygons(0), Cloud::fromFilter, "", transformation);
 				cloudBrowser->addCloud(cloud);
 				cloudVisualizer->addCloud(cloud);
 
-				std::vector<int> nanIndicesVector;
-				pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
-				std::cout << *cloudData << std::endl;
-				pcl::PLYWriter writer;
-				std::stringstream ss;
-				ss << "temp_" << i << ".ply";
- 				writer.write( ss.str(), *cloudData);	
+				std::cout << "scan " << i << " : " << enthropies[i] << std::endl;
+
+				//std::vector<int> nanIndicesVector;
+				//pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
+				//std::cout << *cloudData << std::endl;
+				//pcl::PLYWriter writer;
+				//std::stringstream ss;
+				//ss << "temp_" << i << ".ply";
+ 				//writer.write( ss.str(), *cloudData);	
 			}
 
 			break;
 		}
-
 	}
+}
 
+void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
+{
+	QString cloudName_target = parameters["target"].toString();
+	Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
 
+	int method = parameters["method"].toInt();
+	bool camera_coordiante = parameters["camera_coordiante"].toBool();
+	int nr_scans = parameters["nr_scans"].toInt();             
+	int nr_points_in_scans = parameters["nr_points_in_scans"].toInt();   
+	float vert_res = parameters["vert_res"].toFloat(); 
+	float hor_res = parameters["hor_res"].toFloat();
+	float max_dist = parameters["max_dist"].toFloat();
+	float view_angle = parameters["view_angle"].toFloat();
+	bool use_vertices = parameters["use_vertices"].toBool();
+
+	switch(method)
+	{
+	case 0:
+		{
+			vtkSmartPointer<vtkPolyData> vtk_polydata = CloudVisualizer::generateVtkPolyData(cloud_target->getCloudData(), cloud_target->getPolygons());
+			pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
+			VirtualScan::scan(nr_scans, nr_points_in_scans, vert_res, hor_res, max_dist, vtk_polydata, temp);
+			break;
+		}
+	case 1:
+		{
+			break;
+		}
+	}
 }
 
 void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parameters)

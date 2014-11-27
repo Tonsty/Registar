@@ -18,7 +18,7 @@ CloudVisualizer::CloudVisualizer(QWidget *parent) : QVTKWidget(parent)
 	//addOrientationMarker();
 	//addAxis();
 
-	setColorMode(CloudVisualizer::colorOriginal);
+	setColorMode(CloudVisualizer::colorCustom);
 	setDrawNormal(false);
 	setRegistrationMode(false);
 	setDrawBoundary(false);
@@ -30,7 +30,6 @@ void CloudVisualizer::createPCLVisualizer()
 {
 	visualizer.reset(new Visualizer("", false));
 	visualizer->setBackgroundColor(1.0, 1.0, 1.0);
-	//visualizer->setCameraPosition(0, 0, 1, 0, 0, 0, 0, 1, 0);
 	visualizer->setCameraClipDistances(0.001, 1.0);
 	visualizer->setCameraFieldOfView(45.0 / 180 * 3.1415926);
 	visualizer->setShowFPS(false);
@@ -47,15 +46,19 @@ vtkSmartPointer<vtkPolyData> CloudVisualizer::generateVtkPolyData(CloudDataConst
 {
 	vtkSmartPointer<vtkPolyData> vtk_polydata = vtkSmartPointer<vtkPolyData>::New();
 	vtkSmartPointer<vtkPoints> vtk_points = vtkSmartPointer<vtkPoints>::New();
+	vtk_points->SetNumberOfPoints(cloudData->size());
+	vtk_points->Modified();
 	for (int i = 0; i < cloudData->size(); i++)
 	{
 		PointType point = (*cloudData)[i];
-		vtk_points->InsertNextPoint(point.x, point.y, point.z);
+		vtk_points->SetPoint(i, point.x, point.y, point.z);
 	}
 	vtk_polydata->SetPoints(vtk_points);
 	vtkSmartPointer<vtkUnsignedCharArray> vtk_colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
 	vtk_colors->SetNumberOfComponents(3);
 	vtk_colors->SetName("Colors");
+	vtk_colors->SetNumberOfTuples(cloudData->size());
+	vtk_colors->Modified();
 	for (int i = 0; i < cloudData->size(); i++)
 	{
 		PointType point = (*cloudData)[i];
@@ -63,12 +66,13 @@ vtkSmartPointer<vtkPolyData> CloudVisualizer::generateVtkPolyData(CloudDataConst
 		color[0] = point.r;
 		color[1] = point.g;
 		color[2] = point.b;
-		vtk_colors->InsertNextTupleValue(color);
+		vtk_colors->SetTupleValue(i, color);
 	}
 	vtk_polydata->GetPointData()->SetScalars(vtk_colors);
 	vtkSmartPointer<vtkDoubleArray> vtk_normals = vtkSmartPointer<vtkDoubleArray>::New();
 	vtk_normals->SetNumberOfComponents(3);
 	vtk_normals->SetNumberOfTuples(vtk_polydata->GetNumberOfPoints());
+	vtk_normals->Modified();
 	for (int i = 0; i < cloudData->size(); i++)
 	{
 		PointType point = (*cloudData)[i];
@@ -78,19 +82,21 @@ vtkSmartPointer<vtkPolyData> CloudVisualizer::generateVtkPolyData(CloudDataConst
 		normal[2] = point.normal_z;
 		vtk_normals->SetTuple(i, normal);
 	}
-	//vtk_polydata->GetPointData()->SetNormals(vtk_normals);
+	vtk_polydata->GetPointData()->SetNormals(vtk_normals);
 	vtkSmartPointer<vtkCellArray> vtk_polygons = vtkSmartPointer<vtkCellArray>::New();
+	vtkSmartPointer<vtkIdTypeArray> cells = vtkSmartPointer<vtkIdTypeArray>::New();
+	cells->SetNumberOfComponents(4);
+	cells->SetNumberOfTuples(polygons.size());
+	cells->Modified();
 	for (int i = 0; i < polygons.size(); i++)
 	{
 		Polygon polygon = polygons[i];
-		vtkSmartPointer<vtkPolygon> vtk_polygon = vtkSmartPointer<vtkPolygon>::New();
-		vtk_polygon->GetPointIds()->SetNumberOfIds(polygon.vertices.size());
-		for (int j = 0; j < polygon.vertices.size(); j++)
-		{
-			vtk_polygon->GetPointIds()->SetId(j, polygon.vertices[j]);
-		}
-		vtk_polygons->InsertNextCell(vtk_polygon);
+		cells->SetComponent(i, 0, 3);
+		cells->SetComponent(i, 1, polygon.vertices[0]);
+		cells->SetComponent(i, 2, polygon.vertices[1]);
+		cells->SetComponent(i, 3, polygon.vertices[2]);
 	}
+	vtk_polygons->SetCells(polygons.size(), cells);
 	vtk_polydata->SetPolys(vtk_polygons);
 
 	return vtk_polydata;
@@ -104,11 +110,14 @@ bool CloudVisualizer::addCloud(const Cloud* cloud)
 	else pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getTransformation());
 	QString cloudName = cloud->getCloudName();
 	Polygons polygons = cloud->getPolygons();
-	//visualizer->addPolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
-	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());
-	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_FLAT, cloudName.toStdString());
 	if (polygons.size() == 0) addCloud(cloudData, cloudName);
-	else addShape(cloudData, polygons, cloudName + "_shape");
+	else 
+	{
+		visualizer->addPolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
+		visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.8, 0.8, 0.8, cloudName.toStdString());
+		update();
+		//addShape(cloudData, polygons, cloudName + "_shape");
+	}
 	if(drawNormal) addCloudNormals(cloudData, cloudName + "_normals"); 
 	if (drawBoundary && cloud->getBoundaries() != NULL) addCloudBoundaries(cloudData, cloud->getBoundaries(), cloudName + "_boundaries");
 	return true;
@@ -117,7 +126,6 @@ bool CloudVisualizer::addCloud(const Cloud* cloud)
 bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloudName)
 {
 	bool flag = true;
-	//visualizer->addPointCloud(cloudData, cloudName.toStdString());
 	switch(colorMode)
 	{
 		case colorNone:
@@ -133,8 +141,6 @@ bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloud
 		}
 		case colorCustom:
 		{
-			// pcl::visualization::PointCloudColorHandlerCustom<PointType> red (cloudData, 255, 0, 0);
-			// visualizer->addPointCloud<PointType>(cloudData, red, cloudName.toStdString());
 			pcl::visualization::PointCloudColorHandlerRandom<PointType> randomRGB(cloudData);
 			flag = visualizer->addPointCloud<PointType>(cloudData, randomRGB, cloudName.toStdString());	
 			break;
@@ -147,9 +153,6 @@ bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloud
 bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloudName, const float &r, const float &g, const float &b)
 {
 	bool flag = true;
-	//visualizer->addPointCloud(cloudData, cloudName.toStdString());
-	// pcl::visualization::PointCloudColorHandlerCustom<PointType> red (cloudData, 255, 0, 0);
-	// visualizer->addPointCloud<PointType>(cloudData, red, cloudName.toStdString());
 	pcl::visualization::PointCloudColorHandlerCustom<PointType> rgb_handler (cloudData, r, g, b);
 	flag = visualizer->addPointCloud<PointType>(cloudData, rgb_handler, cloudName.toStdString());	
 	update();
@@ -164,6 +167,7 @@ bool CloudVisualizer::addShape(CloudDataConstPtr cloudData, const Polygons& poly
 	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, shapeName.toStdString());
 	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_PHONG, shapeName.toStdString());
 	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_GOURAUD, shapeName.toStdString());
+	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_FLAT, shapeName.toStdString());
 	update();
 	return flag;
 }
@@ -211,7 +215,12 @@ bool CloudVisualizer::removeCloud(const Cloud* cloud)
 {
 	QString cloudName = cloud->getCloudName();
 	if (cloud->getPolygons().size() == 0) removeCloud(cloudName);
-	else removeShape(cloudName + "_shape");
+	else 
+	{
+		removeCloud(cloudName);
+		update();
+		//removeShape(cloudName + "_shape");
+	}
 	if (drawNormal) removeCloud(cloudName + "_normals");
 	if (drawBoundary) removeCloud(cloudName + "_boundaries");
 	return true;
@@ -233,15 +242,11 @@ bool CloudVisualizer::removeShape(const QString &shapeName)
 
 bool CloudVisualizer::updateCloud(const Cloud* cloud)
 {
-	// CloudDataPtr cloudData = cloud->getCloudData();
 	CloudDataPtr cloudData(new CloudData);
 	if (registrationMode) pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getRegistrationTransformation());
 	else pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getTransformation());
 	QString cloudName = cloud->getCloudName();
 	Polygons polygons = cloud->getPolygons();
-	//visualizer->updatePolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
-	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());
-	//visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_FLAT, cloudName.toStdString());
 	if (polygons.size() == 0)
 	{
 		if(removeShape(cloudName + "_shape")) addCloud(cloudData, cloudName);
@@ -249,8 +254,10 @@ bool CloudVisualizer::updateCloud(const Cloud* cloud)
 	}
 	else 
 	{
-		if(removeCloud(cloudName)) addShape(cloudData, polygons, cloudName + "_shape");
-		else updateShape(cloudData, polygons, cloudName + "_shape");
+		visualizer->updatePolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
+		update();
+		//if(removeCloud(cloudName)) addShape(cloudData, polygons, cloudName + "_shape");
+		//else updateShape(cloudData, polygons, cloudName + "_shape");
 	}
 	
 	if(drawNormal) updateCloudNormals(cloudData, cloudName + "_normals");
@@ -265,7 +272,6 @@ bool CloudVisualizer::updateCloud(const Cloud* cloud)
 bool CloudVisualizer::updateCloud(CloudDataConstPtr cloudData, const QString &cloudName)
 {
 	bool flag = true;
-	//visualizer->updatePointCloud(cloudData, cloudName.toStdString());
 	switch(colorMode)
 	{
 		case colorNone:
@@ -281,8 +287,6 @@ bool CloudVisualizer::updateCloud(CloudDataConstPtr cloudData, const QString &cl
 		}
 		case colorCustom:
 		{
-			// pcl::visualization::PointCloudColorHandlerCustom<PointType> blue(cloudData, 0, 0, 255);
-			// visualizer->updatePointCloud<PointType>(cloudData, blue, cloudName.toStdString());
 			pcl::visualization::PointCloudColorHandlerRandom<PointType> randomRGB(cloudData);
 			flag = visualizer->updatePointCloud<PointType>(cloudData, randomRGB, cloudName.toStdString());		
 			break;
@@ -295,9 +299,6 @@ bool CloudVisualizer::updateCloud(CloudDataConstPtr cloudData, const QString &cl
 bool CloudVisualizer::updateCloud(CloudDataConstPtr cloudData, const QString &cloudName, const float &r, const float &g, const float &b)
 {
 	bool flag = true;
-	//visualizer->updatePointCloud(cloudData, cloudName.toStdString());
-	// pcl::visualization::PointCloudColorHandlerCustom<PointType> blue(cloudData, 0, 0, 255);
-	// visualizer->updatePointCloud<PointType>(cloudData, blue, cloudName.toStdString());
 	pcl::visualization::PointCloudColorHandlerCustom<PointType> rgb_handler (cloudData, r, g, b);
 	flag = visualizer->updatePointCloud<PointType>(cloudData, rgb_handler, cloudName.toStdString());	
 	update();
@@ -312,7 +313,8 @@ bool CloudVisualizer::updateShape(CloudDataConstPtr cloudData, const Polygons &p
 	flag = visualizer->addModelFromPolyData(vtk_polydata, cloudName.toStdString());
 	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());
 	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_PHONG, cloudName.toStdString());
-	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_GOURAUD, cloudName.toStdString());
+	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_GOURAUD, cloudName.toStdString());
+	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_FLAT, cloudName.toStdString());
 	update();
 	return flag;
 }

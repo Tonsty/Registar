@@ -23,7 +23,7 @@ pcl::visualization::PCLVisualizer2::~PCLVisualizer2 ()
 #endif
 }
 
-void pcl::visualization::PCLVisualizer2::renderView2 (int xres, int yres, pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud)
+void pcl::visualization::PCLVisualizer2::renderView2 (const int &xres, const int &yres, pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud, Eigen::Matrix4f &pose)
 {
 	vtkSmartPointer<vtkRendererCollection> rens_ = this->getRendererCollection();
 	vtkSmartPointer<vtkRenderWindow> win_ = this->getRenderWindow();
@@ -46,7 +46,6 @@ void pcl::visualization::PCLVisualizer2::renderView2 (int xres, int yres, pcl::P
   	float *depth = new float[xres * yres];
   	win_->GetZbufferData (0, 0, xres - 1, yres - 1, &(depth[0]));
 
-  	// Transform cloud to give camera coordinates instead of world coordinates!
   	vtkRenderer *ren = rens_->GetFirstRenderer ();
   	vtkCamera *camera = ren->GetActiveCamera ();
   	vtkSmartPointer<vtkMatrix4x4> projection_transform = camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
@@ -60,27 +59,7 @@ void pcl::visualization::PCLVisualizer2::renderView2 (int xres, int yres, pcl::P
       	mat3 (i, j) = static_cast<float> (projection_transform->Element[i][j]);
     }
 
-  	// std::cout << "ren->GetTiledAspectRatio () : "<< ren->GetTiledAspectRatio() << std::endl;
-  	// double *aspect = ren->GetAspect();
-  	// std::cout << "ren->GetAspect() : " << aspect[0] << " , " << aspect[1] << std::endl;
-  	// double *position = camera->GetPosition();
-  	// std::cout << "camera->GetPosition() : " << position[0] << " , " << position[1] << " , " << position[2] << std::endl;
-  	// double *focal_point = camera->GetFocalPoint();
-  	// std::cout << "camera->GetFocalPoint() : " << focal_point[0] << " , " << focal_point[1] << " , " << focal_point[2] << std::endl;  
-  	// double *view_up = camera->GetViewUp();
-  	// std::cout << "camera->GetViewUp() : " << view_up[0] << " , " << view_up[1] << " , " << view_up[2] << std::endl;    
-  	// double *clipping_range = camera->GetClippingRange();
-  	// std::cout << "camera->GetClippingRange() : " << clipping_range[0] << " , " << clipping_range[1] << std::endl;
-  	// std::cout << "camera->GetViewAngle() : " << camera->GetViewAngle() << std::endl;
-
-  	// std::cout << "mat2:\n" << mat2 << std::endl;
-  	// std::cout << "mat3:\n" << mat3 << std::endl;
-
-  	Eigen::Matrix4f temp2 = mat2.inverse();
-  	mat2 = temp2;
-
-  	Eigen::Matrix4f temp3 =  mat3.inverse();
-  	mat3 = temp3;  
+  	mat3 = mat3.inverse().eval();
 
   	int ptr = 0;
   	for (int y = 0; y < yres; ++y)
@@ -97,18 +76,19 @@ void pcl::visualization::PCLVisualizer2::renderView2 (int xres, int yres, pcl::P
 
       		Eigen::Vector4f world_coords (dwidth  * float (x + 0.5) - 1.0f, dheight * float (y + 0.5) - 1.0f, depth[ptr], 1.0f);
       		world_coords = mat3 * world_coords;
+			// vtk view coordinate system is different than the standard camera coordinates (z forward, y down, x right), thus, the fliping in y and z
+			world_coords[1] *= -1.0;
+			world_coords[2] *= -1.0;
 
-      		float w3 = 1.0f / world_coords[3];
-      		world_coords[0] *= w3;
-      		world_coords[1] *= w3;
-      		world_coords[2] *= w3;
-      		world_coords[3] = 1;
-
-      		world_coords = mat2 * world_coords;
-
-          pt.getVector3fMap()= world_coords.head<3>() / world_coords[3];
+			pt.getVector3fMap()= world_coords.head<3>() / world_coords[3];
     	}
   	}
+
+	//recover from YZ flip
+	Eigen::Matrix4f flipYZ_mat = Eigen::Matrix4f::Identity();
+	flipYZ_mat(1, 1) = -1.0f;
+	flipYZ_mat(2, 2) = -1.0f;
+	pose = flipYZ_mat * mat2;
 
   	delete[] depth;	
 }
@@ -185,7 +165,8 @@ void pcl::visualization::PCLVisualizer2::renderViewTesselatedSphere2(int xres, i
   mapper->GetBounds (bb);
   double ms = (std::max) ((std::fabs) (bb[0] - bb[1]),
                           (std::max) ((std::fabs) (bb[2] - bb[3]), (std::fabs) (bb[4] - bb[5])));
-  double max_side = radius_sphere / 2.0;
+  //double max_side = radius_sphere / 2.0;
+  double max_side = 1.0 / 2.0;
   double scale_factor = max_side / ms;
 
   vtkSmartPointer<vtkTransform> trans_scale = vtkSmartPointer<vtkTransform>::New ();
@@ -383,8 +364,8 @@ void pcl::visualization::PCLVisualizer2::renderViewTesselatedSphere2(int xres, i
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
 
     cloud->points.resize (xres * yres);
-    cloud->width = xres * yres;
-    cloud->height = 1;
+    cloud->width = xres;
+    cloud->height = yres;
 
     double coords[3];
     float * depth = new float[xres * yres];
@@ -399,15 +380,18 @@ void pcl::visualization::PCLVisualizer2::renderViewTesselatedSphere2(int xres, i
       {
         float value = depth[y * xres + x];
         if (value == 1.0)
-          continue;
+		{
+			pcl::PointXYZ &pt = cloud->points[y * xresolution + x];
+			pt.x = pt.y = pt.z = std::numeric_limits<float>::quiet_NaN ();
+			continue;
+		}
 
-        worldPicker->Pick (static_cast<double> (x), static_cast<double> (y), value, renderer);
+        worldPicker->Pick (static_cast<double> (x + 0.5), static_cast<double> (y + 0.5), value, renderer);
         worldPicker->GetPickPosition (coords);
-        cloud->points[count_valid_depth_pixels].x = static_cast<float> (coords[0]);
-        cloud->points[count_valid_depth_pixels].y = static_cast<float> (coords[1]);
-        cloud->points[count_valid_depth_pixels].z = static_cast<float> (coords[2]);
-        cloud->points[count_valid_depth_pixels].getVector4fMap () = backToRealScale_eigen
-            * cloud->points[count_valid_depth_pixels].getVector4fMap ();
+        cloud->points[y * xresolution + x].x = static_cast<float> (coords[0]);
+        cloud->points[y * xresolution + x].y = static_cast<float> (coords[1]);
+        cloud->points[y * xresolution + x].z = static_cast<float> (coords[2]);
+        cloud->points[y * xresolution + x].getVector4fMap () = backToRealScale_eigen * cloud->points[y * xresolution + x].getVector4fMap ();
         count_valid_depth_pixels++;
       }
     }
@@ -509,8 +493,8 @@ void pcl::visualization::PCLVisualizer2::renderViewTesselatedSphere2(int xres, i
 
     enthropies.push_back (static_cast<float> (visible_area / totalArea));
 
-    cloud->points.resize (count_valid_depth_pixels);
-    cloud->width = count_valid_depth_pixels;
+    //cloud->points.resize (count_valid_depth_pixels);
+    //cloud->width = count_valid_depth_pixels;
 
     //transform cloud to give camera coordinates instead of world coordinates!
     vtkSmartPointer<vtkMatrix4x4> view_transform = cam_tmp->GetViewTransformMatrix ();

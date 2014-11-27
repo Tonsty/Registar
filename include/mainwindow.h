@@ -21,6 +21,7 @@ class BoundaryEstimationDialog;
 class OutliersRemovalDialog;
 class NormalFieldDialog;
 class VirtualScanDialog;
+class DepthCameraDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -58,6 +59,7 @@ private:
 	OutliersRemovalDialog *outliersRemovalDialog;
 	NormalFieldDialog *normalFieldDialog;
 	VirtualScanDialog *virtualScanDialog;
+	DepthCameraDialog *depthCameraDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -113,6 +115,9 @@ private slots:
 
 	void on_virtualScanAction_triggered();
 	void on_virtualScanDialog_sendParameters(QVariantMap parameters);
+
+	void on_depthCameraAction_triggered();
+	void on_depthCameraDialog_sendParameters(QVariantMap parameters);
 
 	void on_concatenationAction_triggered();
 

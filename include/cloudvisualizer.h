@@ -101,6 +101,7 @@ namespace registar
 			return drawBoundary;
 		}
 
+		static vtkSmartPointer<vtkPolyData> generateVtkPolyData(CloudDataConstPtr cloudData, const Polygons& polygons);
 
 	protected:
 		VisualizerPtr visualizer;
@@ -108,8 +109,6 @@ namespace registar
 	private:
 		void createPCLVisualizer();
 		void connectPCLVisualizerandQVTK();
-
-		vtkSmartPointer<vtkPolyData> generateVtkPolyData(CloudDataConstPtr cloudData, const Polygons& polygons);
 
 		ColorMode colorMode;
 		bool drawNormal;

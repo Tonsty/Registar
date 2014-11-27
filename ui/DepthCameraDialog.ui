@@ -1,32 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VirtualScanDialog</class>
- <widget class="QDialog" name="VirtualScanDialog">
+ <class>DepthCameraDialog</class>
+ <widget class="QDialog" name="DepthCameraDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>298</width>
-    <height>331</height>
+    <height>279</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Virtual Scan Dialog</string>
+   <string>Depth Camera Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Scanning Target</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="targetComboBox"/>
-     </item>
-     <item row="1" column="0">
+     <item row="0" column="0" colspan="2">
       <widget class="QComboBox" name="methodComboBox">
        <item>
         <property name="text">
@@ -40,14 +30,17 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="0" column="2">
       <widget class="QCheckBox" name="useVerticesCheckBox">
        <property name="text">
         <string>use_vertices</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="1" column="0" colspan="2">
       <widget class="QRadioButton" name="cameraCoorRadioButton">
        <property name="text">
         <string>Camera Coordinate</string>
@@ -57,111 +50,94 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="1" column="2">
       <widget class="QRadioButton" name="worldCoorRadioButton">
        <property name="text">
         <string>World Coordinate</string>
        </property>
-       <property name="checked">
-        <bool>false</bool>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>xres</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QLineEdit" name="xresLineEdit">
+       <property name="text">
+        <string>600</string>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>nr_scans</string>
+        <string>yres</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="nrScansLineEdit">
+     <item row="3" column="1" colspan="2">
+      <widget class="QLineEdit" name="yresLineEdit">
        <property name="text">
-        <string>900</string>
+        <string>600</string>
        </property>
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>nr_points_in_scans</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="nrPointsInScansLineEdit">
-       <property name="text">
-        <string>900</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>vert_res</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="vertResLineEdit">
-       <property name="text">
-        <string>0.25</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>hor_res</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLineEdit" name="horResLineEdit">
-       <property name="text">
-        <string>0.25</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>max_dist</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLineEdit" name="maxDistLineEdit">
-       <property name="text">
-        <string>30000</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>view_angle</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="4" column="1" colspan="2">
       <widget class="QLineEdit" name="viewAngleLineEdit">
        <property name="text">
         <string>45</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>noise_std</string>
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="5" column="1" colspan="2">
       <widget class="QLineEdit" name="noiseSTDLineEdit">
        <property name="text">
         <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>tesselation_level</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QLineEdit" name="tesselationLevelLineEdit">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>radius_sphere</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1" colspan="2">
+      <widget class="QLineEdit" name="radiusSphereLineEdit">
+       <property name="text">
+        <string>1</string>
        </property>
       </widget>
      </item>
@@ -169,10 +145,10 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="defaultButton">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="helpButton">
        <property name="text">
-        <string>Default</string>
+        <string>Help</string>
        </property>
       </widget>
      </item>
@@ -190,10 +166,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="helpButton">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="defaultButton">
        <property name="text">
-        <string>Help</string>
+        <string>Default</string>
        </property>
       </widget>
      </item>
@@ -206,7 +182,7 @@
   <connection>
    <sender>closeButton</sender>
    <signal>clicked()</signal>
-   <receiver>VirtualScanDialog</receiver>
+   <receiver>DepthCameraDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

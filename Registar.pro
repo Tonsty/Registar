@@ -78,7 +78,9 @@ HEADERS += include/mainwindow.h \
 			include/registrationdatamanager.h \
 			include/pairwiseregistrationinteractor.h \
 			include/virtualscandialog.h \
-			pcl_bugfix/pcl_visualizer2.h
+			pcl_bugfix/pcl_visualizer2.h \
+			include/depthcameradialog.h \
+			include/virtualscan.h 
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -110,8 +112,10 @@ SOURCES += src/main.cpp \
 			src/registrationdatamanager.cpp \
 			src/pairwiseregistrationinteractor.cpp \
 			src/virtualscandialog.cpp \
-			pcl_bugfix/pcl_visualizer2.cpp
-#			src/globalregistrationinteractor.cpp \
+			pcl_bugfix/pcl_visualizer2.cpp \
+			src/depthcameradialog.cpp \
+			src/virtualscan.cpp
+#			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
 FORMS += ui/MainWindow.ui \
@@ -125,6 +129,7 @@ FORMS += ui/MainWindow.ui \
 			diagram/propertiesdialog.ui \
 			ui/GlobalRegistrationDialog.ui \
 			manual_registration/manual_registration.ui \
-			ui/VirtualScanDialog.ui
+			ui/VirtualScanDialog.ui \
+			ui/DepthCameraDialog.ui
 
 

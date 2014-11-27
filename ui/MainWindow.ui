@@ -57,6 +57,7 @@
     <addaction name="globalRegistrationMenu"/>
     <addaction name="confirmRegistrationAction"/>
     <addaction name="forceRigidRegistrationAction"/>
+    <addaction name="depthCameraAction"/>
     <addaction name="virtualScanAction"/>
    </widget>
    <widget class="QMenu" name="optionsMenu">
@@ -473,6 +474,11 @@
   <action name="virtualScanAction">
    <property name="text">
     <string>Virtual Scan</string>
+   </property>
+  </action>
+  <action name="depthCameraAction">
+   <property name="text">
+    <string>Depth Camera</string>
    </property>
   </action>
  </widget>
