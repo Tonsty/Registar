@@ -47,6 +47,8 @@ namespace registar
 		float normalAngleThreshold;
 		bool boundaryTest;
 		bool biDirectional;
+		bool use_scpu;
+		bool use_mcpu;
 	};
 
 	struct PairwiseRegistrationComputationData

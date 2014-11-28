@@ -52,7 +52,9 @@ void PairwiseRegistrationInteractor::process(QVariantMap parameters)
 		correspondencesComputationParameters.distanceThreshold = parameters["distanceThreshold"].toFloat();
 		correspondencesComputationParameters.normalAngleThreshold = parameters["normalAngleThreshold"].toFloat();
 		correspondencesComputationParameters.boundaryTest = parameters["boundaryTest"].toBool();
-		correspondencesComputationParameters.biDirectional = true;
+		correspondencesComputationParameters.biDirectional = parameters["biDirectional"].toBool();
+		correspondencesComputationParameters.use_scpu = parameters["use_scpu"].toBool();
+		correspondencesComputationParameters.use_mcpu = parameters["use_mcpu"].toBool();
 
 		CorrespondencesComputationData correspondencesComputationData;
 		Correspondences correspondences;
@@ -73,7 +75,9 @@ void PairwiseRegistrationInteractor::process(QVariantMap parameters)
 		correspondencesComputationParameters.distanceThreshold = parameters["distanceThreshold"].toFloat();
 		correspondencesComputationParameters.normalAngleThreshold = parameters["normalAngleThreshold"].toFloat();
 		correspondencesComputationParameters.boundaryTest = parameters["boundaryTest"].toBool();
-		correspondencesComputationParameters.biDirectional = true;
+		correspondencesComputationParameters.biDirectional = parameters["biDirectional"].toBool();
+		correspondencesComputationParameters.use_scpu = parameters["use_scpu"].toBool();
+		correspondencesComputationParameters.use_mcpu = parameters["use_mcpu"].toBool();
 
 		PairwiseRegistrationComputationParameters pairwiseRegistrationComputationParameters;
 
@@ -112,19 +116,55 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
     float greenError = 0.0001f ;
     float blueError = 0.0f;
 
-    CloudDataPtr cloudData_target_temp(new CloudData);
-    pcl::copyPointCloud(*target->cloudData, *cloudData_target_temp);
-
-    CloudDataPtr cloudData_source_temp(new CloudData);
-    pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_source_temp, transformation);
-
-	for (int i = 0; i < cloudData_target_temp->size(); ++i) 
+	if (correspondenceIndices.size() > inverseStartIndex)
 	{
-		(*cloudData_target_temp)[i].r = 0;
-		(*cloudData_target_temp)[i].g = 0;
-		(*cloudData_target_temp)[i].b = 250;
-		//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
+		CloudDataPtr cloudData_target_temp(new CloudData);
+		pcl::copyPointCloud(*target->cloudData, *cloudData_target_temp);
+		for (int i = 0; i < cloudData_target_temp->size(); ++i) 
+		{
+			(*cloudData_target_temp)[i].r = 0;
+			(*cloudData_target_temp)[i].g = 0;
+			(*cloudData_target_temp)[i].b = 250;
+			//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
+		}
+		//qDebug() << QString::number(inverseStartIndex);
+		//qDebug() << QString::number(correspondenceIndices.size() - inverseStartIndex);
+		for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
+		{
+			int index = correspondenceIndices[i].targetIndex;
+			//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
+			float error = sqrtf(squareErrors_total[i]);
+			if (error >= redError ) 
+			{
+				(*cloudData_target_temp)[index].r = red[0];
+				(*cloudData_target_temp)[index].g = red[1];
+				(*cloudData_target_temp)[index].b = red[2];
+				continue;
+			}
+			if (error >= greenError)
+			{
+				float fraction = (error - greenError) / (redError - greenError);
+				Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
+				(*cloudData_target_temp)[index].r = color[0];
+				(*cloudData_target_temp)[index].g = color[1];
+				(*cloudData_target_temp)[index].b = color[2];  		
+				continue;
+			}
+			if (error >= blueError)
+			{
+				float fraction = (error - blueError) / (greenError - blueError);
+				Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
+				(*cloudData_target_temp)[index].r = color[0];
+				(*cloudData_target_temp)[index].g = color[1];
+				(*cloudData_target_temp)[index].b = color[2];  
+				continue;
+			}
+		}
+		if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target_temp, "target");
 	}
+
+	CloudDataPtr cloudData_source_temp(new CloudData);
+	pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_source_temp, transformation);
 	for (int i = 0; i < cloudData_source_temp->size(); ++i)
 	{
 		(*cloudData_source_temp)[i].r = 0;
@@ -132,42 +172,6 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
 		(*cloudData_source_temp)[i].b = 250;
 		//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
 	} 
-
-    //qDebug() << QString::number(inverseStartIndex);
-    //qDebug() << QString::number(correspondenceIndices.size() - inverseStartIndex);
-
-    for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
-    {
-    	int index = correspondenceIndices[i].targetIndex;
-    	//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
-    	float error = sqrtf(squareErrors_total[i]);
-    	if (error >= redError ) 
-    	{
-    		(*cloudData_target_temp)[index].r = red[0];
-    		(*cloudData_target_temp)[index].g = red[1];
-    		(*cloudData_target_temp)[index].b = red[2];
-    		continue;
-    	}
-    	if (error >= greenError)
-    	{
-    		float fraction = (error - greenError) / (redError - greenError);
-    		Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
-    		(*cloudData_target_temp)[index].r = color[0];
-    		(*cloudData_target_temp)[index].g = color[1];
-      		(*cloudData_target_temp)[index].b = color[2];  		
-    		continue;
-    	}
-    	if (error >= blueError)
-    	{
-    		float fraction = (error - blueError) / (greenError - blueError);
-    		Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
-    		(*cloudData_target_temp)[index].r = color[0];
-    		(*cloudData_target_temp)[index].g = color[1];
-      		(*cloudData_target_temp)[index].b = color[2];  
-    		continue;
-    	}
-    }
-
     for (int i = 0; i < inverseStartIndex; ++i)
     {
     	int index = correspondenceIndices[i].sourceIndex;
@@ -199,7 +203,7 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
     		continue;
     	}
     }
-
-	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target_temp, "target");
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_temp, "source");
+
+
 }

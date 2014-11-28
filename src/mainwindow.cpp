@@ -393,6 +393,7 @@ void MainWindow::on_pairwiseRegistrationAction_triggered()
 	if (!pairwiseRegistrationDialog)
 	{
 		pairwiseRegistrationDialog = new PairwiseRegistrationDialog(this);
+		pairwiseRegistrationDialog->setWindowFlags( Qt::Dialog | Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint);
 		connect(pairwiseRegistrationDialog, SIGNAL(sendParameters(QVariantMap)),
 			this, SLOT(on_pairwiseRegistrationDialog_sendParameters(QVariantMap)));
 	}
@@ -1066,8 +1067,16 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 			dynamic_cast<PairwiseRegistrationInteractor*>(pairwiseRegistration)->setCloudVisualizer(cloudVisualizer);
 
-			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
-			if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+			if(cloudVisualizer) 
+			{
+				cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+				cloudVisualizer->resetCamera(registrationData_target->cloudData);
+			}
+			if(cloudVisualizer) 
+			{
+				cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+				cloudVisualizer->resetCamera(registrationData_target->cloudData);
+			}
 
 			pairwiseRegistrationDialog->showResults(
 				pairwiseRegistration->getTransformation(), 

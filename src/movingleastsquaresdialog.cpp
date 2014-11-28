@@ -27,9 +27,9 @@ void MovingLeastSquaresDialog::on_applyButton_clicked()
 	parameters["computeNormal"] = computeNormalCheckBox->isChecked();
 	parameters["overwrite"] = overwriteCheckBox->isChecked();
 
-	parameters["use_scpu"] = scpuRadioButton->isChecked();;
-	parameters["use_mcpu"] = mcpuRadioButton->isChecked();;	
-	parameters["use_gpu"] = gpuRadioButton->isChecked();;
+	parameters["use_scpu"] = scpuRadioButton->isChecked();
+	parameters["use_mcpu"] = mcpuRadioButton->isChecked();	
+	parameters["use_gpu"] = gpuRadioButton->isChecked();
 
 	emit sendParameters(parameters);
 }

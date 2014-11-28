@@ -18,7 +18,7 @@ CloudVisualizer::CloudVisualizer(QWidget *parent) : QVTKWidget(parent)
 	//addOrientationMarker();
 	//addAxis();
 
-	setColorMode(CloudVisualizer::colorCustom);
+	setColorMode(CloudVisualizer::colorOriginal);
 	setDrawNormal(false);
 	setRegistrationMode(false);
 	setDrawBoundary(false);
@@ -30,7 +30,7 @@ void CloudVisualizer::createPCLVisualizer()
 {
 	visualizer.reset(new Visualizer("", false));
 	visualizer->setBackgroundColor(1.0, 1.0, 1.0);
-	visualizer->setCameraClipDistances(0.001, 1.0);
+	visualizer->setCameraClipDistances(0.001, 1000.0);
 	visualizer->setCameraFieldOfView(45.0 / 180 * 3.1415926);
 	visualizer->setShowFPS(false);
 }

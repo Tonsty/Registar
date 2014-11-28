@@ -169,7 +169,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 		pcl::Correspondences &pcl_correspondences = correspondencesComputationData.pcl_correspondences;
 		pcl::Correspondences &pcl_correspondences_temp = correspondencesComputationData.pcl_correspondences_temp;
 
-		bool use_omp = true;
+		bool use_omp = correspondencesComputationParameters.use_mcpu;
 		if ( use_omp )
 		{
 			int _threads = omp_get_num_procs();
@@ -222,11 +222,16 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 
 					Eigen::Vector3f query_normal = cloudData_source_dynamic[index_query].getNormalVector3fMap();
 					Eigen::Vector3f match_normal = cloudData_target[index_match].getNormalVector3fMap();
-					query_normal.normalize();
-					match_normal.normalize();
 
-					if (query_normal.dot(match_normal) > NAthreshold)
+					if (query_normal.squaredNorm() == 0 || match_normal.squaredNorm() == 0) 
 						pcl_correspondences_temp_in_threads[tn].push_back(pcl_correspondences[i]);
+					else
+					{
+						query_normal.normalize();
+						match_normal.normalize();
+						if (query_normal.dot(match_normal) > NAthreshold)
+							pcl_correspondences_temp_in_threads[tn].push_back(pcl_correspondences[i]);
+					}
 				}
 			}
 			for (int i = 0; i < pcl_correspondences_temp_in_threads.size(); i++)
@@ -297,14 +302,15 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 						Eigen::Vector3f source_point = cloudData_source_dynamic[query].getVector3fMap();
 						Eigen::Vector3f target_point = cloudData_target[match].getVector3fMap();
 
-						target_normal.normalize();
-						target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
-
+						if ( target_normal.squaredNorm() != 0)
+						{
+							target_normal.normalize();
+							target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
+						}
 						correspondence_temp.targetPoint = cloudData_target[match];
 						correspondence_temp.targetPoint.getVector3fMap() = target_point;
 
 						correspondences.push_back(correspondence_temp);
-
 
 						CorrespondenceIndex correspondenceIndex_temp;
 						correspondenceIndex_temp.sourceIndex = query;
@@ -356,11 +362,16 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 
 					Eigen::Vector3f query_normal = cloudData_source_dynamic[index_query].getNormalVector3fMap();
 					Eigen::Vector3f match_normal = cloudData_target[index_match].getNormalVector3fMap();
-					query_normal.normalize();
-					match_normal.normalize();
-
-					if (query_normal.dot(match_normal) > NAthreshold)
+					if (query_normal.squaredNorm() == 0 || match_normal.squaredNorm() == 0)
 						pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+					else
+					{
+						query_normal.normalize();
+						match_normal.normalize();
+						if (query_normal.dot(match_normal) > NAthreshold)
+							pcl_correspondences_temp.push_back(pcl_correspondences[i]);
+					}
+
 				}
 			}
 			pcl_correspondences.swap(pcl_correspondences_temp);
@@ -419,14 +430,15 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 						Eigen::Vector3f source_point = cloudData_source_dynamic[query].getVector3fMap();
 						Eigen::Vector3f target_point = cloudData_target[match].getVector3fMap();
 
-						target_normal.normalize();
-						target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
-
+						if ( target_normal.squaredNorm() != 0)
+						{
+							target_normal.normalize();
+							target_point = source_point - (source_point - target_point).dot(target_normal) * target_normal;
+						}
 						correspondence_temp.targetPoint = cloudData_target[match];
 						correspondence_temp.targetPoint.getVector3fMap() = target_point;
 
 						correspondences.push_back(correspondence_temp);
-
 
 						CorrespondenceIndex correspondenceIndex_temp;
 						correspondenceIndex_temp.sourceIndex = query;
@@ -441,6 +453,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 				}
 			}
 		}
+		inverseStartIndex = correspondenceIndices.size();
 	}
 }
 

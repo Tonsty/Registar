@@ -35,6 +35,9 @@ void PairwiseRegistrationDialog::on_prePushButton_clicked()
 	parameters["distanceThreshold"] = distanceDoubleSpinBox->value();
 	parameters["normalAngleThreshold"] = normalDoubleSpinBox->value();
 	parameters["boundaryTest"] = boundaryTestCheckBox->isChecked();
+	parameters["biDirectional"] = biDirectionalCheckBox->isChecked();
+	parameters["use_scpu"] = scpuRadioButton->isChecked();
+	parameters["use_mcpu"] = mcpuRadioButton->isChecked();
 	emit sendParameters(parameters);
 }
 
@@ -48,8 +51,11 @@ void PairwiseRegistrationDialog::on_icpPushButton_clicked()
 	parameters["distanceThreshold"] = distanceDoubleSpinBox->value();
 	parameters["normalAngleThreshold"] = normalDoubleSpinBox->value();
 	parameters["boundaryTest"] = boundaryTestCheckBox->isChecked();
+	parameters["biDirectional"] = biDirectionalCheckBox->isChecked();
 	parameters["icpNumber"] = icpNumberSpinBox->value();
 	parameters["allowScaling"] = scalingCheckBox->isChecked();
+	parameters["use_scpu"] = scpuRadioButton->isChecked();
+	parameters["use_mcpu"] = mcpuRadioButton->isChecked();
 	emit sendParameters(parameters);
 }
 
@@ -121,8 +127,6 @@ CloudVisualizer* PairwiseRegistrationDialog::addCloudVisualizerTab(QString targe
 {
 	CloudVisualizer *cloudVisualizer = new CloudVisualizer(this);
 	cloudVisualizer->setObjectName(targetBySource);
-	cloudVisualizer->setColorMode(CloudVisualizer::colorOriginal);
-	
 	int index = tabWidget->addTab(cloudVisualizer, targetBySource);
 	tabWidget->setCurrentIndex(index);
 
