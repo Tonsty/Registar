@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 
 	cloudManager = new CloudManager(this);
 	cloudVisualizer = new CloudVisualizer(this);
+	cloudVisualizer->setColorMode(CloudVisualizer::colorCustom);
 	pairwiseRegistrationManager = new PairwiseRegistrationManager(this);
 	registrationDataManager = new RegistrationDataManager(this);
 

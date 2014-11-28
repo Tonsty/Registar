@@ -183,6 +183,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 				int tn = omp_get_thread_num();
 
 				PointType point = cloudData_source_dynamic[i];
+				if ( pcl_isnan(point.x) || pcl_isnan(point.y) || pcl_isnan(point.z) ) continue;
 				int K = 1;
 				std::vector<int> indices(K);
 				std::vector<float> distance2s(K);
@@ -331,6 +332,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 			for (int i = 0; i < cloudData_source_dynamic.size(); ++i)
 			{
 				PointType point = cloudData_source_dynamic[i];
+				if ( pcl_isnan(point.x) || pcl_isnan(point.y) || pcl_isnan(point.z) ) continue;
 				int K = 1;
 				std::vector<int> indices(K);
 				std::vector<float> distance2s(K);
