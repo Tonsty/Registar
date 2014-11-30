@@ -113,6 +113,9 @@ ManualRegistration::ManualRegistration (QWidget *parent): QMainWindow(parent)
 
   cloud_src_modified_ = true; // first iteration is always a new pointcloud
   cloud_dst_modified_ = true;
+
+  ball_radius_src_ = 1.0f;
+  ball_radius_dst_ = 1.0f;
 }
 
 void ManualRegistration::SourcePointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
@@ -128,7 +131,7 @@ void ManualRegistration::SourcePointPickCallback (const pcl::visualization::Poin
   src_point_selected_ = true;
 
   vis_src_->removeShape( "point_src");
-  vis_src_->addSphere( src_point_, 0.001, 1.0, 0.0, 0.0, "point_src");
+  vis_src_->addSphere( src_point_, ball_radius_src_, 1.0, 0.0, 0.0, "point_src");
 }
 
 void ManualRegistration::DstPointPickCallback (const pcl::visualization::PointPickingEvent& event, void*)
@@ -144,7 +147,7 @@ void ManualRegistration::DstPointPickCallback (const pcl::visualization::PointPi
   dst_point_selected_ = true;
 
   vis_dst_->removeShape( "point_dst");
-  vis_dst_->addSphere( dst_point_, 0.001, 0.0, 0.0, 1.0, "point_dst");
+  vis_dst_->addSphere( dst_point_, ball_radius_dst_, 0.0, 0.0, 1.0, "point_dst");
 }
 
 void ManualRegistration::confirmSrcPointPressed()
@@ -158,7 +161,7 @@ void ManualRegistration::confirmSrcPointPressed()
     stringstream sstream;
     sstream << src_pc_.size();
     vis_src_->removeShape( "point_src");
-    vis_src_->addSphere( src_point_, 0.001, 1.0, 0.0, 0.0, "point_" + sstream.str());
+    vis_src_->addSphere( src_point_, ball_radius_src_, 1.0, 0.0, 0.0, "point_" + sstream.str());
   }
   else
   {
@@ -177,7 +180,7 @@ void ManualRegistration::confirmDstPointPressed()
     stringstream sstream;
     sstream << dst_pc_.size();
     vis_dst_->removeShape( "point_dst");
-    vis_dst_->addSphere( dst_point_, 0.001, 0.0, 0.0, 1.0, "point_" + sstream.str());
+    vis_dst_->addSphere( dst_point_, ball_radius_dst_, 0.0, 0.0, 1.0, "point_" + sstream.str());
   }
   else
   {
@@ -274,6 +277,9 @@ void ManualRegistration::showSrcCloud()
   vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
   Eigen::Vector4f centroid;
   pcl::compute3DCentroid(*cloud_src_, centroid);
+  PointT min_pt, max_pt;
+  pcl::getMinMax3D(*cloud_src_, min_pt, max_pt);
+  ball_radius_src_ = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 200;
   vis_src_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);  
 }
 
@@ -282,6 +288,9 @@ void ManualRegistration::showDstCloud()
   vis_dst_->addPointCloud<PointT>(cloud_dst_, "cloud_dst_");
   Eigen::Vector4f centroid;
   pcl::compute3DCentroid(*cloud_dst_, centroid);
+  PointT min_pt, max_pt;
+  pcl::getMinMax3D(*cloud_dst_, min_pt, max_pt);
+  ball_radius_dst_ = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 200;
   vis_dst_->setCameraPosition(0, 0, 0, centroid(0), centroid(1), centroid(2), 0, 1, 0);  
 }
 // void ManualRegistration::timeoutSlot ()

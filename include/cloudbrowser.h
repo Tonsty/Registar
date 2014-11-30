@@ -26,7 +26,7 @@ public:
 	QStringList getVisibleCloudNames();
 
 signals:
-	void cloudVisibleStateChanged(QString cloudName, bool isVisible);
+	void cloudVisibleStateChanged(QStringList cloudNameList, bool isVisible);
 
 private slots:
 	void on_itemChanged(QTreeWidgetItem* treeWidgetItem, int column);

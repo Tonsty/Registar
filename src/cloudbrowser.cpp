@@ -142,13 +142,30 @@ void CloudBrowser::on_itemChanged(QTreeWidgetItem* treeWidgetItem, int column)
 	{
 		QString cloudName = treeWidgetItem->text(0);
 		Qt::CheckState checkState = treeWidgetItem->checkState(column);
-		if (checkState == Qt::Checked)
+		bool isVisible = true;
+		if (checkState == Qt::Checked) isVisible = true;
+		else if (checkState == Qt::Unchecked) isVisible = false;
+		
+		QStringList cloudNameList = getSelectedCloudNames();
+		if (!cloudNameList.contains(cloudName))
 		{
-			emit cloudVisibleStateChanged(cloudName, true);
+			cloudNameList.clear();
+			cloudNameList << cloudName;
 		}
-		else if(checkState == Qt::Unchecked)
+		else
 		{
-			emit cloudVisibleStateChanged(cloudName, false);
+			QList<QTreeWidgetItem*> seletcedItems = selectedItems();
+			QList<QTreeWidgetItem*>::Iterator it = seletcedItems.begin();
+			while (it != seletcedItems.end())
+			{
+				if ( !(*it)->text(0).isEmpty() )
+				{
+					Qt::CheckState sub_checkState = (*it)->checkState(2);
+					if (sub_checkState != checkState) (*it)->setCheckState(2, checkState);
+				}
+				it++;
+			}
 		}
+		emit cloudVisibleStateChanged(cloudNameList, isVisible);
 	}
 }

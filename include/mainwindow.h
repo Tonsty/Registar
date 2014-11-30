@@ -80,7 +80,7 @@ private slots:
 	void on_showCloudBrowserAction_toggled(bool isChecked);
 	void on_showPointBrowserAction_toggled(bool isChecked);
 
-	void on_cloudBrowser_cloudVisibleStateChanged(QString cloudName, bool isVisible);
+	void on_cloudBrowser_cloudVisibleStateChanged(QStringList cloudNameList, bool isVisible);
 	
 	void on_colorNoneAction_toggled(bool isChecked);
 	void on_colorOriginalAction_toggled(bool isChecked);

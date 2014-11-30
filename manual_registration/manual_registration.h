@@ -131,6 +131,9 @@ class ManualRegistration : public QMainWindow
     pcl::PointCloud<PointT>::Ptr cloud_src_;
     pcl::PointCloud<PointT>::Ptr cloud_dst_;
 
+	float ball_radius_src_;
+	float ball_radius_dst_;
+
     QString name_src_;
     QString name_dst_;
 

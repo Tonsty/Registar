@@ -267,15 +267,23 @@ bool MainWindow::on_saveAsAction_triggered()
 	return true;
 }
 
-void MainWindow::on_cloudBrowser_cloudVisibleStateChanged(QString cloudName, bool isVisible)
+void MainWindow::on_cloudBrowser_cloudVisibleStateChanged(QStringList cloudNameList, bool isVisible)
 {
 	if (isVisible)
 	{
-		cloudVisualizer->addCloud(cloudManager->getCloud(cloudName));
+		for (int i = 0; i < cloudNameList.size(); i++) 
+		{
+			qDebug() << cloudNameList[i];
+			cloudVisualizer->addCloud(cloudManager->getCloud(cloudNameList[i]));
+		}
 	}
 	else
 	{
-		cloudVisualizer->removeCloud(cloudManager->getCloud(cloudName));
+		for (int i = 0; i < cloudNameList.size(); i++) 
+		{
+			qDebug() << cloudNameList[i];
+			cloudVisualizer->removeCloud(cloudManager->getCloud(cloudNameList[i]));
+		}
 	}
 }
 
