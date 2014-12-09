@@ -102,6 +102,7 @@ private slots:
 	void on_diagramAction_triggered();
 	void on_globalRegistrationAction_triggered();
 	void on_confirmRegistrationAction_triggered();
+	void on_applyTransformationAction_triggered();
 	void on_forceRigidRegistrationAction_triggered();
 
 	void on_euclideanClusterExtractionDialog_sendParameters(QVariantMap parameters);

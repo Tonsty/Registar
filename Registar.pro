@@ -80,7 +80,8 @@ HEADERS += include/mainwindow.h \
 			include/virtualscandialog.h \
 			pcl_bugfix/pcl_visualizer2.h \
 			include/depthcameradialog.h \
-			include/virtualscan.h 
+			include/virtualscan.h \
+			set_color/set_color.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -114,7 +115,8 @@ SOURCES += src/main.cpp \
 			src/virtualscandialog.cpp \
 			pcl_bugfix/pcl_visualizer2.cpp \
 			src/depthcameradialog.cpp \
-			src/virtualscan.cpp
+			src/virtualscan.cpp \
+			set_color/set_color.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc

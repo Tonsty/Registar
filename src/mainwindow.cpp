@@ -22,6 +22,7 @@
 #include "../include/virtualscandialog.h"
 #include "../include/depthcameradialog.h"
 #include "../include/virtualscan.h"
+#include "../set_color/set_color.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -622,6 +623,29 @@ void MainWindow::on_confirmRegistrationAction_triggered()
 	}	
 }
 
+void MainWindow::on_applyTransformationAction_triggered()
+{
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		CloudDataPtr cloudData(new CloudData);
+		pcl::transformPointCloudWithNormals(*cloud->getCloudData(), *cloudData, cloud->getTransformation());
+		cloud->setCloudData(cloudData);
+		cloud->setTransformation(Eigen::Matrix4f::Identity());
+		cloud->setRegistrationTransformation(Eigen::Matrix4f::Identity());
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
+		qDebug() << cloudName << "transformation applied!";
+		it_name++;
+	}	
+}
+
 void MainWindow::on_forceRigidRegistrationAction_triggered()
 {
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
@@ -971,6 +995,8 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 			std::vector<float> enthropies;
 			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere2(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
 
+			std::vector<RGB_> rgbs = generateUniformColors(clouds.size(), 60, 300);
+
 			for (int i = 0; i < clouds.size(); ++i)
 			{
 				clouds[i].is_dense = false;
@@ -981,6 +1007,12 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 				Eigen::Matrix4f transformation;
 				if (camera_coordiante) transformation = Eigen::Matrix4f::Identity();
 				else transformation = poses[i].inverse();
+				for (int j = 0; j < cloudData->size(); j++) 
+				{
+					(*cloudData)[j].r = rgbs[i].r;
+					(*cloudData)[j].g = rgbs[i].g;
+					(*cloudData)[j].b = rgbs[i].b;
+				}
 				Cloud* cloud = cloudManager->addCloud(cloudData, Polygons(0), Cloud::fromFilter, "", transformation);
 				cloudBrowser->addCloud(cloud);
 				cloudVisualizer->addCloud(cloud);

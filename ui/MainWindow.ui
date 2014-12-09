@@ -57,6 +57,7 @@
     <addaction name="globalRegistrationMenu"/>
     <addaction name="confirmRegistrationAction"/>
     <addaction name="forceRigidRegistrationAction"/>
+    <addaction name="applyTransformationAction"/>
     <addaction name="depthCameraAction"/>
     <addaction name="virtualScanAction"/>
    </widget>
@@ -98,6 +99,7 @@
     <addaction name="separator"/>
     <addaction name="menuTransformation"/>
     <addaction name="menuFieldsOperation"/>
+    <addaction name="addNoiseAction"/>
     <addaction name="separator"/>
     <addaction name="concatenationAction"/>
    </widget>
@@ -482,6 +484,16 @@
   <action name="depthCameraAction">
    <property name="text">
     <string>Depth Camera</string>
+   </property>
+  </action>
+  <action name="applyTransformationAction">
+   <property name="text">
+    <string>Apply Transformation</string>
+   </property>
+  </action>
+  <action name="addNoiseAction">
+   <property name="text">
+    <string>Add Noise</string>
    </property>
   </action>
  </widget>
