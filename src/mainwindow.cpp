@@ -1022,7 +1022,21 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 		{
 			vtkSmartPointer<vtkPolyData> vtk_polydata = CloudVisualizer::generateVtkPolyData(cloud_target->getCloudData(), cloud_target->getPolygons());
 			pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
-			VirtualScan::scan(nr_scans, nr_points_in_scans, vert_res, hor_res, max_dist, vtk_polydata, temp);
+			Eigen::Matrix4f pose = cloudVisualizer->getVisualizer()->getViewerPose().matrix();
+			pcl::visualization::Camera camera;
+			cloudVisualizer->getVisualizer()->getCameraParameters(camera);
+			std::cout << pose << std::endl;
+			//std::cout << camera.pos[0] << "\t" << camera.pos[1] << "\t" << camera.pos[2] << std::endl;
+			//std::cout << camera.focal[0] - camera.pos[0] << "\t" << camera.focal[1] - camera.pos[2] << "\t" << camera.focal[2] - camera.pos[2] << std::endl;
+			//std::cout << camera.view[0] << "\t" << camera.view[1] << "\t" << camera.view[2] << std::endl;
+			Eigen::Vector3d pos(camera.pos);
+			Eigen::Vector3d focal(camera.focal);
+			Eigen::Vector3d view(camera.view);
+			std::cout << (pos - focal).normalized() << std::endl;
+			std::cout << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 0, 1) << std::endl;
+			std::cout << (pos - focal).cross(view).cross(pos - focal).normalized() << std::endl;
+			std::cout << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 1, 0) << std::endl;
+			//VirtualScan::scan(nr_scans, nr_points_in_scans, vert_res, hor_res, max_dist, pose, vtk_polydata, temp);
 			break;
 		}
 	case 1:

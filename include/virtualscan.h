@@ -10,7 +10,7 @@ namespace registar
 	{
 	public:
 		static void scan(const int nr_scans, const int nr_points_in_scans, const double vert_res, const double hor_res, const double max_dist,
-								vtkSmartPointer<vtkPolyData> vtk_polydata, pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud);
+								const Eigen::Matrix4f &pose, vtkSmartPointer<vtkPolyData> vtk_polydata, pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud);
 	};
 }
 

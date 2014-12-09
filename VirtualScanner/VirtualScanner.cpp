@@ -250,7 +250,7 @@ int main (int argc, char** argv)
 		if (fabs(eye[1]) < EPS) eye[1] = 0;
 		if (fabs(eye[2]) < EPS) eye[2] = 0;
 
-		viewray[0] = -eye[0];k
+		viewray[0] = -eye[0];
 		viewray[1] = -eye[1];
 		viewray[2] = -eye[2];
 		eye[0] *= scan_dist;

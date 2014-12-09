@@ -3,6 +3,7 @@
 #include <QtCore/QtCore>
 #include <QtGui/QAction>
 
+
 #include "../include/cloud.h" 
 #include "../include/cloudbrowser.h"
 
@@ -141,7 +142,7 @@ void CloudBrowser::on_itemChanged(QTreeWidgetItem* treeWidgetItem, int column)
 	if (!treeWidgetItem->text(0).isEmpty() && (column == 2))
 	{
 		QString cloudName = treeWidgetItem->text(0);
-		Qt::CheckState checkState = treeWidgetItem->checkState(column);
+		Qt::CheckState checkState = treeWidgetItem->checkState(2);
 		bool isVisible = true;
 		if (checkState == Qt::Checked) isVisible = true;
 		else if (checkState == Qt::Unchecked) isVisible = false;
