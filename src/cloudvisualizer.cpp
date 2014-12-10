@@ -114,8 +114,25 @@ bool CloudVisualizer::addCloud(const Cloud* cloud)
 	else 
 	{
 		visualizer->addPolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
-		visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.8, 0.8, 0.8, cloudName.toStdString());
+		switch(colorMode)
+		{
+			case colorNone:
+			{
+				visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.8, 0.8, 0.8, cloudName.toStdString());
+				break;
+			}
+			case colorCustom:
+			{
+				double r, g, b;
+				pcl::visualization::getRandomColors (r, g, b);
+				visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, r, g, b, cloudName.toStdString());
+				break;
+			}
+			case colorOriginal:
+				break;
+		}
 		update();
+
 		//addShape(cloudData, polygons, cloudName + "_shape");
 	}
 	if(drawNormal) addCloudNormals(cloudData, cloudName + "_normals"); 
@@ -219,6 +236,7 @@ bool CloudVisualizer::removeCloud(const Cloud* cloud)
 	{
 		removeCloud(cloudName);
 		update();
+
 		//removeShape(cloudName + "_shape");
 	}
 	if (drawNormal) removeCloud(cloudName + "_normals");
@@ -255,7 +273,29 @@ bool CloudVisualizer::updateCloud(const Cloud* cloud)
 	else 
 	{
 		visualizer->updatePolygonMesh<PointType>(cloudData, cloud->getPolygons(), cloudName.toStdString());
+		switch(colorMode)
+		{
+			case colorNone:
+			{
+				visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.8, 0.8, 0.8, cloudName.toStdString());
+				break;
+			}
+			case colorCustom:
+			{
+				double r, g, b;
+				pcl::visualization::getRandomColors (r, g, b);
+				visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, r, g, b, cloudName.toStdString());
+				break;
+			}
+			case colorOriginal:
+			{
+				removeCloud(cloudName);
+				addCloud(cloud);
+				break;
+			}
+		}
 		update();
+
 		//if(removeCloud(cloudName)) addShape(cloudData, polygons, cloudName + "_shape");
 		//else updateShape(cloudData, polygons, cloudName + "_shape");
 	}
