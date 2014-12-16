@@ -1,6 +1,5 @@
 #include <QtGui/QtGui>
 #include <boost/shared_ptr.hpp>
-#include <pcl/features/normal_3d.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/filter.h>
 

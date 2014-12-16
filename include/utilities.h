@@ -5,6 +5,7 @@
 #include <time.h>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <pcl/features/normal_3d.h>
 
 #include "pclbase.h"
 
