@@ -1,6 +1,6 @@
 #include <QtCore/QDebug>
 
-#include "../include/mathutilities.h"
+#include "../include/utilities.h"
 #include "../include/globalregistration.h"
 
 using namespace registar;

@@ -74,14 +74,15 @@ HEADERS += include/mainwindow.h \
 			include/globalregistrationdialog.h \
 			include/globalregistration.h \
 			manual_registration/manual_registration.h \
-			include/mathutilities.h \
+			include/utilities.h \
 			include/registrationdatamanager.h \
 			include/pairwiseregistrationinteractor.h \
 			include/virtualscandialog.h \
 			pcl_bugfix/pcl_visualizer2.h \
 			include/depthcameradialog.h \
 			include/virtualscan.h \
-			set_color/set_color.h
+			set_color/set_color.h \
+			include/addnoisedialog.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -116,7 +117,8 @@ SOURCES += src/main.cpp \
 			pcl_bugfix/pcl_visualizer2.cpp \
 			src/depthcameradialog.cpp \
 			src/virtualscan.cpp \
-			set_color/set_color.cpp
+			set_color/set_color.cpp \
+			src/addnoisedialog.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -132,6 +134,7 @@ FORMS += ui/MainWindow.ui \
 			ui/GlobalRegistrationDialog.ui \
 			manual_registration/manual_registration.ui \
 			ui/VirtualScanDialog.ui \
-			ui/DepthCameraDialog.ui
+			ui/DepthCameraDialog.ui \
+			ui/AddNoiseDialog.ui
 
 

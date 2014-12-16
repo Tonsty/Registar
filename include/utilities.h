@@ -1,8 +1,10 @@
-#ifndef MATHUTILITIES_H
-#define MATHUTILITIES_H
+#ifndef UTILITIES_H
+#define UTILITIES_H
 
 #include <Eigen/Dense>
 #include <time.h>
+#include <boost/random.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 #include "pclbase.h"
 
@@ -96,6 +98,59 @@ namespace registar
 		randomRigidTransf.block<3,3>(0,0) = randomRotation( angleScale ).toRotationMatrix();
 		randomRigidTransf.block<3,1>(0,3) = randomTranslation( translationScale );
 		return randomRigidTransf;
+	}
+
+	inline void flipPointCloudNormalsTowardsViewpoint(const CloudData &cloud_in, const pcl::PointXYZ &view_point, CloudData &cloud_out)
+	{
+		pcl::copyPointCloud(cloud_in, cloud_out);
+	
+		for (int i = 0; i < cloud_in.size(); ++i)
+		{
+			pcl::flipNormalTowardsViewpoint(cloud_in[i], view_point.x, view_point.y, view_point.z, 
+				cloud_out[i].normal_x, cloud_out[i].normal_y, cloud_out[i].normal_z); 
+		}
+	}
+
+	inline void setPointCloudColor(CloudData &cloud, const unsigned char &r, const unsigned char &g, const unsigned char &b)
+	{
+		for (int i = 0; i < cloud.size(); i++)
+		{
+			cloud[i].r = r;
+			cloud[i].g = b;
+			cloud[i].b = b;
+		}
+	}
+
+	inline void addNoiseToPointCloud(const CloudData &cloud_in, const float &noise_std, CloudData &cloud_out)
+	{
+		pcl::copyPointCloud(cloud_in, cloud_out);
+		
+		boost::mt19937 rng (static_cast<unsigned int> (std::time (0)));
+		boost::normal_distribution<float> normal_distrib (0.0f, noise_std * noise_std);
+		boost::variate_generator<boost::mt19937&, boost::normal_distribution<float> > gaussian_rng (rng, normal_distrib);
+		
+		for (int i = 0; i < cloud_in.size(); i++)
+		{
+			cloud_out[i].x = cloud_in[i].x + gaussian_rng();
+			cloud_out[i].y = cloud_in[i].y + gaussian_rng();
+			cloud_out[i].z = cloud_in[i].z + gaussian_rng();
+		}
+
+	}
+
+	inline void addNoiseAlongViewPointToPointCloud(const CloudData &cloud_in, const float &noise_std, const pcl::PointXYZ &view_point, CloudData &cloud_out)
+	{
+		pcl::copyPointCloud(cloud_in, cloud_out);
+
+		boost::mt19937 rng (static_cast<unsigned int> (std::time (0)));
+		boost::normal_distribution<float> normal_distrib (0.0f, noise_std * noise_std);
+		boost::variate_generator<boost::mt19937&, boost::normal_distribution<float> > gaussian_rng (rng, normal_distrib);
+
+		for (int i = 0; i < cloud_in.size(); i++)
+		{
+			Eigen::Vector3f view_direction = (cloud_in[i].getVector3fMap() - view_point.getVector3fMap()).normalized();
+			cloud_out[i].getVector3fMap() = cloud_in[i].getVector3fMap() + view_direction * gaussian_rng();
+		}
 	}
 }
 

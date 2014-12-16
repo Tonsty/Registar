@@ -7,7 +7,7 @@ command = r'"C:\Program Files\VCG\MeshLab\meshlabserver.exe"';
 script_file = r"E:\Registar-master\Scripts\remove_unreferenced_vertices.mlx";
 options = "vn vc";
 
-output_directory = "ml_remove_unreferenced_vertices";
+output_directory = ".";
 
 filenamelist = glob.glob("*.ply");
 filenamelist.sort();

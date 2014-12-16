@@ -2,6 +2,8 @@
 #include <vtkRenderWindow.h>
 #include <vtkDoubleArray.h>
 #include <vtkPolygon.h>
+
+#include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
 #include <pcl/common/centroid.h>
 
@@ -191,8 +193,12 @@ bool CloudVisualizer::addShape(CloudDataConstPtr cloudData, const Polygons& poly
 
 bool CloudVisualizer::addCloudNormals(CloudDataConstPtr cloudData, const QString &cloudNormalsName)
 {
+	PointType min_pt, max_pt;
+	pcl::getMinMax3D(*cloudData, min_pt, max_pt);
+	float normal_len = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 300;
+
 	bool flag;
-	flag = visualizer->addPointCloudNormals<PointType>(cloudData, 1, 0.02, cloudNormalsName.toStdString());
+	flag = visualizer->addPointCloudNormals<PointType>(cloudData, 1, normal_len, cloudNormalsName.toStdString());
 	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.0, 1.0, 0.0, cloudNormalsName.toStdString());
 	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.2, cloudNormalsName.toStdString());
 	// pcl::PointCloud<pcl::PointXYZ>::Ptr cloudXYZ(new pcl::PointCloud<pcl::PointXYZ>);
@@ -361,9 +367,13 @@ bool CloudVisualizer::updateShape(CloudDataConstPtr cloudData, const Polygons &p
 
 bool CloudVisualizer::updateCloudNormals(CloudDataConstPtr cloudData, const QString &cloudNormalsName)
 {
+	PointType min_pt, max_pt;
+	pcl::getMinMax3D(*cloudData, min_pt, max_pt);
+	float normal_len = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 300;
+
 	bool flag = true;
 	visualizer->removePointCloud(cloudNormalsName.toStdString());
-	flag = visualizer->addPointCloudNormals<PointType>(cloudData, 1, 0.02, cloudNormalsName.toStdString());
+	flag = visualizer->addPointCloudNormals<PointType>(cloudData, 1, normal_len, cloudNormalsName.toStdString());
 	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0.0, 1.0, 0.0, cloudNormalsName.toStdString());
 	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.2, cloudNormalsName.toStdString());
 	// visualizer->removePointCloud((cloudName + "_curvatures").toStdString());

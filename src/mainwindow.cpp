@@ -23,6 +23,7 @@
 #include "../include/depthcameradialog.h"
 #include "../include/virtualscan.h"
 #include "../set_color/set_color.h"
+#include "../include/addnoisedialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -34,7 +35,7 @@
 #include "../include/globalregistration.h"
 
 #include "../manual_registration/manual_registration.h"
-#include "../include/mathutilities.h"
+#include "../include/utilities.h"
 
 #include "../include/mainwindow.h"
 
@@ -63,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	virtualScanDialog = 0;
 	depthCameraDialog = 0;
 	pairwiseRegistrationDialog = 0;
+	addNoiseDialog = 0;
 
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
@@ -365,6 +367,19 @@ void MainWindow::on_normalFieldAction_triggered()
 	normalFieldDialog->show();
 	normalFieldDialog->raise();
 	normalFieldDialog->activateWindow();
+}
+
+void MainWindow::on_addNoiseAction_triggered()
+{
+	if (!addNoiseDialog)
+	{
+		addNoiseDialog = new AddNoiseDialog(this);
+		connect(addNoiseDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_addNoiseDialog_sendParameters(QVariantMap)));
+	}
+	addNoiseDialog->show();
+	addNoiseDialog->raise();
+	addNoiseDialog->activateWindow();
 }
 
 void MainWindow::on_virtualScanAction_triggered()
@@ -909,14 +924,11 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 
 		cloudData_filtered.reset(new CloudData);
-		pcl::copyPointCloud(*cloudData, *cloudData_filtered);
-		for (int i = 0; i < cloudData_filtered->size(); ++i)
-		{
-			pcl::flipNormalTowardsViewpoint(
-				(*cloudData_filtered)[i], X, Y, Z, 
-				(*cloudData_filtered)[i].normal_x, (*cloudData_filtered)[i].normal_y, 
-				(*cloudData_filtered)[i].normal_z); 
-		}
+		pcl::PointXYZ view_point;
+		view_point.x = X;
+		view_point.y = Y;
+		view_point.z = Z;
+		flipPointCloudNormalsTowardsViewpoint(*cloudData, view_point, *cloudData_filtered);
 
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
@@ -929,12 +941,79 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
 		}
 		else
-		{	Polygons polygons = cloud->getPolygons();
-			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter);
+		{	
+			Polygons polygons = cloud->getPolygons();
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter, "", transformation);
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
 		
+		it_name++;
+		it_visible++;
+	}	
+}
+
+void MainWindow::on_addNoiseDialog_sendParameters(QVariantMap parameters)
+{
+	float X = parameters["X"].toFloat();
+	float Y = parameters["Y"].toFloat();
+	float Z = parameters["Z"].toFloat();
+	float noise_std = parameters["noise_std"].toFloat();
+	int method = parameters["method"].toInt();
+
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		CloudDataConstPtr cloudData = cloud->getCloudData();
+
+		CloudDataPtr cloudData_filtered;
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+
+		cloudData_filtered.reset(new CloudData);
+		switch (method)
+		{
+			case 0:
+			{
+				addNoiseToPointCloud(*cloudData, noise_std, *cloudData_filtered);
+				break;
+			}
+			case 1:
+			{
+				pcl::PointXYZ view_point;
+				view_point.x = X;
+				view_point.y = Y;
+				view_point.z = Z;
+				addNoiseAlongViewPointToPointCloud(*cloudData, noise_std, view_point, *cloudData_filtered);
+			}
+		}
+
+		
+		QApplication::restoreOverrideCursor();
+		QApplication::beep();
+
+		if( parameters["overwrite"].value<bool>() )
+		{
+			cloud->setCloudData(cloudData_filtered);
+			cloudBrowser->updateCloud(cloud);
+			bool isVisible = (*it_visible);
+			if(isVisible)cloudVisualizer->updateCloud(cloud);
+		}
+		else
+		{	
+			Polygons polygons = cloud->getPolygons();
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter, "", transformation);
+			cloudBrowser->addCloud(cloudFiltered);
+			cloudVisualizer->addCloud(cloudFiltered);
+		}	
+
 		it_name++;
 		it_visible++;
 	}	
@@ -1007,12 +1086,10 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 				Eigen::Matrix4f transformation;
 				if (camera_coordiante) transformation = Eigen::Matrix4f::Identity();
 				else transformation = poses[i].inverse();
-				for (int j = 0; j < cloudData->size(); j++) 
-				{
-					(*cloudData)[j].r = rgbs[i].r;
-					(*cloudData)[j].g = rgbs[i].g;
-					(*cloudData)[j].b = rgbs[i].b;
-				}
+
+				//Set Color to PointCloud
+				setPointCloudColor(*cloudData, rgbs[i].r, rgbs[i].g, rgbs[i].b);
+
 				Cloud* cloud = cloudManager->addCloud(cloudData, Polygons(0), Cloud::fromFilter, "", transformation);
 				cloudBrowser->addCloud(cloud);
 				cloudVisualizer->addCloud(cloud);

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NormalFieldDialog</class>
- <widget class="QDialog" name="NormalFieldDialog">
+ <class>AddNoiseDialog</class>
+ <widget class="QDialog" name="AddNoiseDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>255</width>
-    <height>201</height>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Normal Field Dialog</string>
+   <string>Add Noise Dialog</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../res/Registar.qrc">
@@ -23,7 +23,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Oriented by View Point</string>
+        <string>Noise Along View Point</string>
        </property>
       </widget>
      </item>
@@ -71,23 +71,32 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>noise_std</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="noiseSTDLineEdit">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="methodComboBox">
        <item>
         <property name="text">
-         <string>Custom</string>
+         <string>Random Direction</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>From Visualizer Camera</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>From Scanning Camera</string>
+         <string>Along View Point</string>
         </property>
        </item>
       </widget>
@@ -166,7 +175,7 @@
   <connection>
    <sender>closeButton</sender>
    <signal>clicked()</signal>
-   <receiver>NormalFieldDialog</receiver>
+   <receiver>AddNoiseDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

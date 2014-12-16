@@ -7,7 +7,7 @@ command = r'"C:\Program Files\VCG\MeshLab\meshlabserver.exe"';
 script_file = r"E:\Registar-master\Scripts\compute_normal.mlx";
 options = "vn vc";
 
-output_directory = "ml_with_normal";
+output_directory = ".";
 
 filenamelist = glob.glob("*.ply");
 filenamelist.sort();

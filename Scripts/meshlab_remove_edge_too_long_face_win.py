@@ -7,7 +7,7 @@ command = r'"C:\Program Files\VCG\MeshLab\meshlabserver.exe"';
 script_file = r"E:\Registar-master\Scripts\armadillo_remove_edge_too_long_face.mlx";
 options = "vn vc";
 
-output_directory = "cleaned";
+output_directory = ".";
 
 filenamelist = glob.glob("*.ply");
 filenamelist.sort();
