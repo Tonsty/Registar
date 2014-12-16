@@ -2,7 +2,7 @@
 #include <QtCore/QStringList>
 #include <pcl/common/transforms.h>
 
-#include "../include/mathutilities.h"
+#include "../include/utilities.h"
 #include "../include/pairwiseregistration.h"
 
 using namespace registar;
