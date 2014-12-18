@@ -23,6 +23,7 @@
 #include "../include/virtualscan.h"
 #include "../set_color/set_color.h"
 #include "../include/addnoisedialog.h"
+#include "../include/randomtransformationdialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	depthCameraDialog = 0;
 	pairwiseRegistrationDialog = 0;
 	addNoiseDialog = 0;
+	randomTransformationDialog = 0;
 
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
@@ -379,6 +381,19 @@ void MainWindow::on_addNoiseAction_triggered()
 	addNoiseDialog->show();
 	addNoiseDialog->raise();
 	addNoiseDialog->activateWindow();
+}
+
+void MainWindow::on_randomTransformationAction_triggered()
+{
+	if (!randomTransformationDialog)
+	{
+		randomTransformationDialog = new RandomTransformationDialog(this);
+		connect(randomTransformationDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_randomTransformationDialog_sendParameters(QVariantMap)));
+	}
+	randomTransformationDialog->show();
+	randomTransformationDialog->raise();
+	randomTransformationDialog->activateWindow();
 }
 
 void MainWindow::on_virtualScanAction_triggered()
@@ -993,7 +1008,6 @@ void MainWindow::on_addNoiseDialog_sendParameters(QVariantMap parameters)
 			}
 		}
 
-		
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
 
@@ -1012,6 +1026,37 @@ void MainWindow::on_addNoiseDialog_sendParameters(QVariantMap parameters)
 			cloudBrowser->addCloud(cloudFiltered);
 			cloudVisualizer->addCloud(cloudFiltered);
 		}	
+
+		it_name++;
+		it_visible++;
+	}	
+}
+
+void MainWindow::on_randomTransformationDialog_sendParameters(QVariantMap parameters)
+{
+	float max_angle = parameters["max_angle"].toFloat();
+	float max_distance = parameters["max_distance"].toFloat();
+
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		Eigen::Matrix4f transformation = cloud->getTransformation();
+		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(max_angle / 180 * M_PI, max_distance) * transformation;
+		cloud->setRegistrationTransformation(randomRigidTransf);
+		QApplication::restoreOverrideCursor();
+		QApplication::beep();
+
+		cloudBrowser->updateCloud(cloud);
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
 
 		it_name++;
 		it_visible++;

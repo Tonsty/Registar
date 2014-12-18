@@ -23,6 +23,7 @@ class NormalFieldDialog;
 class VirtualScanDialog;
 class DepthCameraDialog;
 class AddNoiseDialog;
+class RandomTransformationDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -62,6 +63,7 @@ private:
 	VirtualScanDialog *virtualScanDialog;
 	DepthCameraDialog *depthCameraDialog;
 	AddNoiseDialog *addNoiseDialog;
+	RandomTransformationDialog *randomTransformationDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -117,6 +119,8 @@ private slots:
 	void on_normalFieldDialog_sendParameters(QVariantMap parameters);
 	void on_addNoiseAction_triggered();
 	void on_addNoiseDialog_sendParameters(QVariantMap parameters);
+	void on_randomTransformationAction_triggered();
+	void on_randomTransformationDialog_sendParameters(QVariantMap parameters);
 
 	void on_virtualScanAction_triggered();
 	void on_virtualScanDialog_sendParameters(QVariantMap parameters);

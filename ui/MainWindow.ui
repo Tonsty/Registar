@@ -84,6 +84,7 @@
      <addaction name="translationAction"/>
      <addaction name="rotationAction"/>
      <addaction name="scaleAction"/>
+     <addaction name="randomTransformationAction"/>
     </widget>
     <widget class="QMenu" name="menuFieldsOperation">
      <property name="title">
@@ -494,6 +495,11 @@
   <action name="addNoiseAction">
    <property name="text">
     <string>Add Noise</string>
+   </property>
+  </action>
+  <action name="randomTransformationAction">
+   <property name="text">
+    <string>Random Transformation</string>
    </property>
   </action>
  </widget>
