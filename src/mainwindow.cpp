@@ -24,6 +24,7 @@
 #include "../set_color/set_color.h"
 #include "../include/addnoisedialog.h"
 #include "../include/randomtransformationdialog.h"
+#include "../include/savecontentdialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -66,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	pairwiseRegistrationDialog = 0;
 	addNoiseDialog = 0;
 	randomTransformationDialog = 0;
+	saveContentDialog = 0;
 
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
@@ -204,6 +206,12 @@ void MainWindow::on_openAction_triggered()
 bool MainWindow::on_saveAction_triggered()
 {
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+
+	if (cloudNameList.size() == 0) return true;
+	
+	if (!saveContentDialog) saveContentDialog = new SaveContentDialog();
+	int flag = saveContentDialog->exec();
+	if (flag == QDialog::Rejected) return true;
 	
 	QStringList::Iterator it = cloudNameList.begin();
 	while (it != cloudNameList.end())
@@ -226,9 +234,9 @@ bool MainWindow::on_saveAction_triggered()
 			fileName = newfileName;
 		}
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		CloudIO::exportCloudData(fileName, cloudData);		
-		CloudIO::exportTransformation(fileName, transformation);
-		CloudIO::exportBoundaries(fileName, boundaries);
+		if( saveContentDialog->savePointCheckBox->isChecked() ) CloudIO::exportCloudData(fileName, cloudData);		
+		if( saveContentDialog->saveTransformationCheckBox->isChecked() ) CloudIO::exportTransformation(fileName, transformation);
+		if( saveContentDialog->saveBoundaryCheckBox->isChecked() ) CloudIO::exportBoundaries(fileName, boundaries);
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
 		qDebug() << cloudName << " saved!";
@@ -241,6 +249,12 @@ bool MainWindow::on_saveAction_triggered()
 bool MainWindow::on_saveAsAction_triggered()
 {	
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+
+	if (cloudNameList.size() == 0) return true;
+
+	if (!saveContentDialog) saveContentDialog = new SaveContentDialog();
+	int flag = saveContentDialog->exec();
+	if (flag == QDialog::Rejected) return true;
 
 	QStringList::Iterator it = cloudNameList.begin();
 	while (it != cloudNameList.end())
@@ -259,9 +273,9 @@ bool MainWindow::on_saveAsAction_triggered()
 			continue;
 		}
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		CloudIO::exportCloudData(newFileName, cloudData);
-		CloudIO::exportTransformation(newFileName, transformation);
-		CloudIO::exportBoundaries(newFileName, boundaries);
+		if( saveContentDialog->savePointCheckBox->isChecked() ) CloudIO::exportCloudData(newFileName, cloudData);
+		if( saveContentDialog->saveTransformationCheckBox->isChecked() ) CloudIO::exportTransformation(newFileName, transformation);
+		if( saveContentDialog->saveBoundaryCheckBox->isChecked() ) CloudIO::exportBoundaries(newFileName, boundaries);
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
 		qDebug() << cloudName << " saved as " << newFileName;

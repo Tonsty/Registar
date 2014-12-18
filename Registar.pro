@@ -83,7 +83,8 @@ HEADERS += include/mainwindow.h \
 			include/virtualscan.h \
 			set_color/set_color.h \
 			include/addnoisedialog.h \
-			include/randomtransformationdialog.h
+			include/randomtransformationdialog.h \
+			include/savecontentdialog.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -120,7 +121,8 @@ SOURCES += src/main.cpp \
 			src/virtualscan.cpp \
 			set_color/set_color.cpp \
 			src/addnoisedialog.cpp \
-			src/randomtransformationdialog.cpp
+			src/randomtransformationdialog.cpp \
+			src/savecontentdialog.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -138,6 +140,7 @@ FORMS += ui/MainWindow.ui \
 			ui/VirtualScanDialog.ui \
 			ui/DepthCameraDialog.ui \
 			ui/AddNoiseDialog.ui \
-			ui/RandomTransformationDialog.ui
+			ui/RandomTransformationDialog.ui \
+			ui/SaveContentDialog.ui
 
 

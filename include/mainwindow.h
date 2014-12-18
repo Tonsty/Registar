@@ -24,6 +24,7 @@ class VirtualScanDialog;
 class DepthCameraDialog;
 class AddNoiseDialog;
 class RandomTransformationDialog;
+class SaveContentDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -64,6 +65,7 @@ private:
 	DepthCameraDialog *depthCameraDialog;
 	AddNoiseDialog *addNoiseDialog;
 	RandomTransformationDialog *randomTransformationDialog;
+	SaveContentDialog *saveContentDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
