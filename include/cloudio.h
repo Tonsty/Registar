@@ -13,17 +13,23 @@ namespace registar
 		CloudIO();
 		virtual ~CloudIO();
 
-		static bool importCloudData(const QString &fileName, CloudDataPtr cloudData);
-		static bool exportCloudData(const QString &fileName, CloudDataConstPtr cloudData);
+		static bool importPLYCloudData(const QString &fileName, CloudDataPtr cloudData);
+		static bool exportPLYCloudData(const QString &fileName, CloudDataConstPtr cloudData);
 
-		static bool importPolygonMesh(const QString &fileName, PolygonMeshPtr polygonMesh);
-		static bool exportPolygonMesh(const QString &fileName, PolygonMeshConstPtr polygonMesh);
+		static bool importPLYPolygonMesh(const QString &fileName, PolygonMeshPtr polygonMesh);
+		static bool exportPLYPolygonMesh(const QString &fileName, PolygonMeshConstPtr polygonMesh);
 
 		static bool importTransformation(const QString &fileName, Eigen::Matrix4f &transformation);
 		static bool exportTransformation(const QString &fileName, const Eigen::Matrix4f &transformation);
 
 		static bool importBoundaries(const QString &fileName, BoundariesPtr boundaries);
 		static bool exportBoundaries(const QString &fileName, BoundariesConstPtr boundaries);
+
+		static bool importVTKCloudData(const QString &fileName, CloudDataPtr cloudData);
+		static bool exportVTKCloudData(const QString &fileName, CloudDataConstPtr cloudData);
+
+		static bool importVTKPolygonMesh(const QString &fileName, PolygonMeshPtr polygonMesh);
+		static bool exportVTKPolygonMesh(const QString &fileName, PolygonMeshConstPtr polygonMesh );
 	};
 }
 

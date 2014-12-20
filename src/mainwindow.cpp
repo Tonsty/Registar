@@ -166,7 +166,7 @@ void MainWindow::on_aboutAction_triggered()
 
 void MainWindow::on_openAction_triggered()
 {
-	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open PointCloud"), ".", tr("PointCloud files (*.ply)"));
+	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open File"), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
 
 	QStringList::Iterator it = fileNameList.begin();
 	while (it != fileNameList.end())
@@ -179,11 +179,11 @@ void MainWindow::on_openAction_triggered()
 			Eigen::Matrix4f transformation;
 			BoundariesPtr boundaries(new Boundaries);
 			QApplication::setOverrideCursor(Qt::WaitCursor);
-			if ( CloudIO::importPolygonMesh(fileName, polygonMesh) )
+			if ( CloudIO::importPLYPolygonMesh(fileName, polygonMesh) )
 			{
 				pcl::fromPCLPointCloud2(polygonMesh->cloud, *cloudData);
 			}
-			else if ( !CloudIO::importCloudData(fileName, cloudData) ) 
+			else if ( !CloudIO::importPLYCloudData(fileName, cloudData) ) 
 			{
 				it++;
 				continue;
@@ -224,17 +224,41 @@ bool MainWindow::on_saveAction_triggered()
 		QString fileName = cloud->getFileName();
 		if (fileName.isEmpty())
 		{
-			QString newfileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as PointCloud").arg(cloudName).arg(strippedName(fileName)), ".", tr("PointCloud files (*.ply)"));
-			if (newfileName.isEmpty())
+			QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 as").arg(cloudName), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
+			if (newFileName.isEmpty())
 			{
 				qDebug() << cloudName << "cancel saveAs!";
 				it++;
 				continue;
 			}
-			fileName = newfileName;
+			fileName = newFileName;
 		}
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		if( saveContentDialog->savePointCheckBox->isChecked() ) CloudIO::exportCloudData(fileName, cloudData);		
+		if( saveContentDialog->savePointCheckBox->isChecked() ) 
+		{
+			if (fileName.mid( fileName.size()-4, 4) == ".ply")
+			{
+				if (cloud->getPolygons().size() > 0)
+				{
+					PolygonMeshPtr polygonMesh(new PolygonMesh);
+					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
+					polygonMesh->polygons = cloud->getPolygons();
+					CloudIO::exportPLYPolygonMesh(fileName, polygonMesh);
+				}
+				else CloudIO::exportPLYCloudData(fileName, cloudData);
+			}
+			else if (fileName.mid( fileName.size()-4, 4) == ".vtk")
+			{
+				if (cloud->getPolygons().size() > 0)
+				{
+					PolygonMeshPtr polygonMesh(new PolygonMesh);
+					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
+					polygonMesh->polygons = cloud->getPolygons();
+					CloudIO::exportVTKPolygonMesh(fileName, polygonMesh);
+				}
+				else CloudIO::exportVTKCloudData(fileName, cloudData);
+			}
+		}
 		if( saveContentDialog->saveTransformationCheckBox->isChecked() ) CloudIO::exportTransformation(fileName, transformation);
 		if( saveContentDialog->saveBoundaryCheckBox->isChecked() ) CloudIO::exportBoundaries(fileName, boundaries);
 		QApplication::restoreOverrideCursor();
@@ -265,15 +289,40 @@ bool MainWindow::on_saveAsAction_triggered()
 		Eigen::Matrix4f transformation = cloud->getTransformation();
 		BoundariesConstPtr boundaries = cloud->getBoundaries();
 		QString fileName = cloud->getFileName();
-		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as PointCloud").arg(cloudName).arg(strippedName(fileName)), ".", tr("PointCloud files (*.ply)"));
+		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as").arg(cloudName).arg(strippedName(fileName)), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
 		if (newFileName.isEmpty())
 		{
 			qDebug() << cloudName << "cancel saveAs!";
 			it++;
 			continue;
 		}
+		fileName = newFileName;
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		if( saveContentDialog->savePointCheckBox->isChecked() ) CloudIO::exportCloudData(newFileName, cloudData);
+		if( saveContentDialog->savePointCheckBox->isChecked() ) 
+		{
+			if (fileName.mid( fileName.size()-4, 4) == ".ply")
+			{
+				if (cloud->getPolygons().size() > 0)
+				{
+					PolygonMeshPtr polygonMesh(new PolygonMesh);
+					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
+					polygonMesh->polygons = cloud->getPolygons();
+					CloudIO::exportPLYPolygonMesh(fileName, polygonMesh);
+				}
+				else CloudIO::exportPLYCloudData(fileName, cloudData);
+			}
+			else if (fileName.mid( fileName.size()-4, 4) == ".vtk")
+			{
+				if (cloud->getPolygons().size() > 0)
+				{
+					PolygonMeshPtr polygonMesh(new PolygonMesh);
+					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
+					polygonMesh->polygons = cloud->getPolygons();
+					CloudIO::exportVTKPolygonMesh(fileName, polygonMesh);
+				}
+				else CloudIO::exportVTKCloudData(fileName, cloudData);
+			}
+		}
 		if( saveContentDialog->saveTransformationCheckBox->isChecked() ) CloudIO::exportTransformation(newFileName, transformation);
 		if( saveContentDialog->saveBoundaryCheckBox->isChecked() ) CloudIO::exportBoundaries(newFileName, boundaries);
 		QApplication::restoreOverrideCursor();
