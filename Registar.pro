@@ -84,7 +84,9 @@ HEADERS += include/mainwindow.h \
 			set_color/set_color.h \
 			include/addnoisedialog.h \
 			include/randomtransformationdialog.h \
-			include/savecontentdialog.h
+			include/savecontentdialog.h \
+			include/hausdorffdistancedialog.h \
+			include/hausdorffdistance.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -113,6 +115,7 @@ SOURCES += src/main.cpp \
 			src/globalregistrationdialog.cpp \
 			src/globalregistration.cpp \
 			manual_registration/manual_registration.cpp \
+			src/utilities.cpp \
 			src/registrationdatamanager.cpp \
 			src/pairwiseregistrationinteractor.cpp \
 			src/virtualscandialog.cpp \
@@ -122,7 +125,9 @@ SOURCES += src/main.cpp \
 			set_color/set_color.cpp \
 			src/addnoisedialog.cpp \
 			src/randomtransformationdialog.cpp \
-			src/savecontentdialog.cpp
+			src/savecontentdialog.cpp \
+			src/hausdorffdistancedialog.cpp \
+			src/hausdorffdistance.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -141,6 +146,7 @@ FORMS += ui/MainWindow.ui \
 			ui/DepthCameraDialog.ui \
 			ui/AddNoiseDialog.ui \
 			ui/RandomTransformationDialog.ui \
-			ui/SaveContentDialog.ui
+			ui/SaveContentDialog.ui \
+			ui/HausdorffDistanceDialog.ui
 
 

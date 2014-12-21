@@ -97,6 +97,7 @@
     <addaction name="movingLeastSquaresAction"/>
     <addaction name="boundaryEstimationAction"/>
     <addaction name="outliersRemovalAction"/>
+    <addaction name="hausdorffDistanceAction"/>
     <addaction name="separator"/>
     <addaction name="menuTransformation"/>
     <addaction name="menuFieldsOperation"/>
@@ -500,6 +501,11 @@
   <action name="randomTransformationAction">
    <property name="text">
     <string>Random Transformation</string>
+   </property>
+  </action>
+  <action name="hausdorffDistanceAction">
+   <property name="text">
+    <string>Hausdorff Distance</string>
    </property>
   </action>
  </widget>

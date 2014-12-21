@@ -6,6 +6,8 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <pcl/features/normal_3d.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
 
 #include "pclbase.h"
 
@@ -153,6 +155,18 @@ namespace registar
 			cloud_out[i].getVector3fMap() = cloud_in[i].getVector3fMap() + view_direction * gaussian_rng();
 		}
 	}
+
+	inline void toPolygonMesh(const CloudData &cloud_in, const Polygons &polygons_in, PolygonMesh &polygonMesh_out)
+	{
+		pcl::toPCLPointCloud2(cloud_in, polygonMesh_out.cloud);
+		polygonMesh_out.polygons = polygons_in;
+	}
+
+	vtkSmartPointer<vtkPolyData> generateVTKPolyData(CloudDataConstPtr cloudData, const Polygons& polygons);
+
+	vtkSmartPointer<vtkPolyData> generateVTKPolyData(PolygonMeshConstPtr polygonMesh );
+
+	void hausdorffDistance(const CloudData &cloud_in, vtkSmartPointer<vtkPolyData> polyData_target, CloudData &cloud_out);
 }
 
 #endif

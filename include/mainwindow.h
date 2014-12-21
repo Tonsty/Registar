@@ -25,6 +25,7 @@ class DepthCameraDialog;
 class AddNoiseDialog;
 class RandomTransformationDialog;
 class SaveContentDialog;
+class HausdorffDistanceDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -66,6 +67,7 @@ private:
 	AddNoiseDialog *addNoiseDialog;
 	RandomTransformationDialog *randomTransformationDialog;
 	SaveContentDialog *saveContentDialog;
+	HausdorffDistanceDialog *hausdorffDistanceDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -123,6 +125,8 @@ private slots:
 	void on_addNoiseDialog_sendParameters(QVariantMap parameters);
 	void on_randomTransformationAction_triggered();
 	void on_randomTransformationDialog_sendParameters(QVariantMap parameters);
+	void on_hausdorffDistanceAction_triggered();
+	void on_hausdorffDistanceDialog_sendParameters(QVariantMap parameters);
 
 	void on_virtualScanAction_triggered();
 	void on_virtualScanDialog_sendParameters(QVariantMap parameters);

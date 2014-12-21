@@ -101,8 +101,6 @@ namespace registar
 			return drawBoundary;
 		}
 
-		static vtkSmartPointer<vtkPolyData> generateVtkPolyData(CloudDataConstPtr cloudData, const Polygons& polygons);
-
 	protected:
 		VisualizerPtr visualizer;
 

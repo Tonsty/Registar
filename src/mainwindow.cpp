@@ -25,6 +25,7 @@
 #include "../include/addnoisedialog.h"
 #include "../include/randomtransformationdialog.h"
 #include "../include/savecontentdialog.h"
+#include "../include/hausdorffdistancedialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -68,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	addNoiseDialog = 0;
 	randomTransformationDialog = 0;
 	saveContentDialog = 0;
+	hausdorffDistanceDialog = 0;
 
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
@@ -241,8 +243,7 @@ bool MainWindow::on_saveAction_triggered()
 				if (cloud->getPolygons().size() > 0)
 				{
 					PolygonMeshPtr polygonMesh(new PolygonMesh);
-					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
-					polygonMesh->polygons = cloud->getPolygons();
+					toPolygonMesh(*cloudData, cloud->getPolygons(), *polygonMesh);
 					CloudIO::exportPLYPolygonMesh(fileName, polygonMesh);
 				}
 				else CloudIO::exportPLYCloudData(fileName, cloudData);
@@ -252,8 +253,7 @@ bool MainWindow::on_saveAction_triggered()
 				if (cloud->getPolygons().size() > 0)
 				{
 					PolygonMeshPtr polygonMesh(new PolygonMesh);
-					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
-					polygonMesh->polygons = cloud->getPolygons();
+					toPolygonMesh(*cloudData, cloud->getPolygons(), *polygonMesh);
 					CloudIO::exportVTKPolygonMesh(fileName, polygonMesh);
 				}
 				else CloudIO::exportVTKCloudData(fileName, cloudData);
@@ -305,8 +305,7 @@ bool MainWindow::on_saveAsAction_triggered()
 				if (cloud->getPolygons().size() > 0)
 				{
 					PolygonMeshPtr polygonMesh(new PolygonMesh);
-					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
-					polygonMesh->polygons = cloud->getPolygons();
+					toPolygonMesh(*cloudData, cloud->getPolygons(), *polygonMesh);
 					CloudIO::exportPLYPolygonMesh(fileName, polygonMesh);
 				}
 				else CloudIO::exportPLYCloudData(fileName, cloudData);
@@ -316,8 +315,7 @@ bool MainWindow::on_saveAsAction_triggered()
 				if (cloud->getPolygons().size() > 0)
 				{
 					PolygonMeshPtr polygonMesh(new PolygonMesh);
-					pcl::toPCLPointCloud2(*cloudData, polygonMesh->cloud);
-					polygonMesh->polygons = cloud->getPolygons();
+					toPolygonMesh(*cloudData, cloud->getPolygons(), *polygonMesh);
 					CloudIO::exportVTKPolygonMesh(fileName, polygonMesh);
 				}
 				else CloudIO::exportVTKCloudData(fileName, cloudData);
@@ -457,6 +455,24 @@ void MainWindow::on_randomTransformationAction_triggered()
 	randomTransformationDialog->show();
 	randomTransformationDialog->raise();
 	randomTransformationDialog->activateWindow();
+}
+
+void MainWindow::on_hausdorffDistanceAction_triggered()
+{
+	if (!hausdorffDistanceDialog)
+	{
+		hausdorffDistanceDialog = new HausdorffDistanceDialog(this);
+		connect(hausdorffDistanceDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_hausdorffDistanceDialog_sendParameters(QVariantMap)));
+	}
+
+	hausdorffDistanceDialog->targetComboBox->clear();
+	QStringList allCloudNames = cloudManager->getAllCloudNames();
+	hausdorffDistanceDialog->targetComboBox->addItems(allCloudNames);
+
+	hausdorffDistanceDialog->show();
+	hausdorffDistanceDialog->raise();
+	hausdorffDistanceDialog->activateWindow();
 }
 
 void MainWindow::on_virtualScanAction_triggered()
@@ -1236,7 +1252,7 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 	{
 	case 0:
 		{
-			vtkSmartPointer<vtkPolyData> vtk_polydata = CloudVisualizer::generateVtkPolyData(cloud_target->getCloudData(), cloud_target->getPolygons());
+			vtkSmartPointer<vtkPolyData> vtk_polydata = generateVTKPolyData(cloud_target->getCloudData(), cloud_target->getPolygons());
 			pcl::PointCloud<pcl::PointXYZ>::Ptr temp(new pcl::PointCloud<pcl::PointXYZ>);
 			Eigen::Matrix4f pose = cloudVisualizer->getVisualizer()->getViewerPose().matrix();
 			pcl::visualization::Camera camera;
@@ -1260,6 +1276,40 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			break;
 		}
 	}
+}
+
+void MainWindow::on_hausdorffDistanceDialog_sendParameters(QVariantMap parameters)
+{
+	QString cloudName_target = parameters["target"].toString();
+	Cloud *cloud_target = cloudManager->getCloud(cloudName_target);
+	vtkSmartPointer<vtkPolyData> polyData_target = generateVTKPolyData(cloud_target->getCloudData(), cloud_target->getPolygons());
+
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		CloudDataPtr cloudData_filtered(new CloudData);
+		hausdorffDistance(*cloud->getCloudData(), polyData_target, *cloudData_filtered);
+		cloud->setCloudData(cloudData_filtered);
+		QApplication::restoreOverrideCursor();
+		QApplication::beep();
+
+		cloudBrowser->updateCloud(cloud);
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
+
+		it_name++;
+		it_visible++;
+	}
+
+
 }
 
 void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parameters)

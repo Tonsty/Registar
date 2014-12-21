@@ -2,9 +2,6 @@
 #define DEPTHCAMERADIALOG_H
 
 #include <QtGui/QDialog>
-#include "ui_NormalFieldDialog.h"
-
-#include <QtGui/QDialog>
 #include "ui_DepthCameraDialog.h"
 
 class DepthCameraDialog : public QDialog, public Ui_DepthCameraDialog

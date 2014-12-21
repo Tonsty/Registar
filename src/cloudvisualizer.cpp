@@ -1,7 +1,5 @@
 #include <QtCore/QDebug>
 #include <vtkRenderWindow.h>
-#include <vtkDoubleArray.h>
-#include <vtkPolygon.h>
 
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
@@ -9,6 +7,7 @@
 
 #include "../include/cloud.h"
 #include "../include/cloudvisualizer.h"
+#include "../include/utilities.h"
 
 using namespace registar;
 
@@ -42,66 +41,6 @@ void CloudVisualizer::connectPCLVisualizerandQVTK()
 	SetRenderWindow(visualizer->getRenderWindow());
 	visualizer->setupInteractor(GetInteractor(), GetRenderWindow());
 	visualizer->getInteractorStyle()->setKeyboardModifier(pcl::visualization::INTERACTOR_KB_MOD_SHIFT);
-}
-
-vtkSmartPointer<vtkPolyData> CloudVisualizer::generateVtkPolyData(CloudDataConstPtr cloudData, const Polygons& polygons)
-{
-	vtkSmartPointer<vtkPolyData> vtk_polydata = vtkSmartPointer<vtkPolyData>::New();
-	vtkSmartPointer<vtkPoints> vtk_points = vtkSmartPointer<vtkPoints>::New();
-	vtk_points->SetNumberOfPoints(cloudData->size());
-	vtk_points->Modified();
-	for (int i = 0; i < cloudData->size(); i++)
-	{
-		PointType point = (*cloudData)[i];
-		vtk_points->SetPoint(i, point.x, point.y, point.z);
-	}
-	vtk_polydata->SetPoints(vtk_points);
-	vtkSmartPointer<vtkUnsignedCharArray> vtk_colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-	vtk_colors->SetNumberOfComponents(3);
-	vtk_colors->SetName("Colors");
-	vtk_colors->SetNumberOfTuples(cloudData->size());
-	vtk_colors->Modified();
-	for (int i = 0; i < cloudData->size(); i++)
-	{
-		PointType point = (*cloudData)[i];
-		unsigned char color[3];
-		color[0] = point.r;
-		color[1] = point.g;
-		color[2] = point.b;
-		vtk_colors->SetTupleValue(i, color);
-	}
-	vtk_polydata->GetPointData()->SetScalars(vtk_colors);
-	vtkSmartPointer<vtkDoubleArray> vtk_normals = vtkSmartPointer<vtkDoubleArray>::New();
-	vtk_normals->SetNumberOfComponents(3);
-	vtk_normals->SetNumberOfTuples(vtk_polydata->GetNumberOfPoints());
-	vtk_normals->Modified();
-	for (int i = 0; i < cloudData->size(); i++)
-	{
-		PointType point = (*cloudData)[i];
-		double normal[3];
-		normal[0] = point.normal_x;
-		normal[1] = point.normal_y;
-		normal[2] = point.normal_z;
-		vtk_normals->SetTuple(i, normal);
-	}
-	vtk_polydata->GetPointData()->SetNormals(vtk_normals);
-	vtkSmartPointer<vtkCellArray> vtk_polygons = vtkSmartPointer<vtkCellArray>::New();
-	vtkSmartPointer<vtkIdTypeArray> cells = vtkSmartPointer<vtkIdTypeArray>::New();
-	cells->SetNumberOfComponents(4);
-	cells->SetNumberOfTuples(polygons.size());
-	cells->Modified();
-	for (int i = 0; i < polygons.size(); i++)
-	{
-		Polygon polygon = polygons[i];
-		cells->SetComponent(i, 0, 3);
-		cells->SetComponent(i, 1, polygon.vertices[0]);
-		cells->SetComponent(i, 2, polygon.vertices[1]);
-		cells->SetComponent(i, 3, polygon.vertices[2]);
-	}
-	vtk_polygons->SetCells(polygons.size(), cells);
-	vtk_polydata->SetPolys(vtk_polygons);
-
-	return vtk_polydata;
 }
 
 bool CloudVisualizer::addCloud(const Cloud* cloud)
@@ -181,7 +120,7 @@ bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloud
 bool CloudVisualizer::addShape(CloudDataConstPtr cloudData, const Polygons& polygons, const QString &shapeName)
 {
 	bool flag = true;
-	vtkSmartPointer<vtkPolyData> vtk_polydata = generateVtkPolyData(cloudData, polygons);
+	vtkSmartPointer<vtkPolyData> vtk_polydata = generateVTKPolyData(cloudData, polygons);
 	flag = visualizer->addModelFromPolyData(vtk_polydata, shapeName.toStdString());
 	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, shapeName.toStdString());
 	//visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_SHADING, pcl::visualization::PCL_VISUALIZER_SHADING_PHONG, shapeName.toStdString());
@@ -354,7 +293,7 @@ bool CloudVisualizer::updateCloud(CloudDataConstPtr cloudData, const QString &cl
 bool CloudVisualizer::updateShape(CloudDataConstPtr cloudData, const Polygons &polygons, const QString &cloudName)
 {
 	bool flag = true;
-	vtkSmartPointer<vtkPolyData> vtk_polydata = generateVtkPolyData(cloudData, polygons);
+	vtkSmartPointer<vtkPolyData> vtk_polydata = generateVTKPolyData(cloudData, polygons);
 	visualizer->removeShape(cloudName.toStdString());
 	flag = visualizer->addModelFromPolyData(vtk_polydata, cloudName.toStdString());
 	visualizer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, cloudName.toStdString());

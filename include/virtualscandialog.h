@@ -2,9 +2,6 @@
 #define VIRTUALSCANDIALOG_H
 
 #include <QtGui/QDialog>
-#include "ui_NormalFieldDialog.h"
-
-#include <QtGui/QDialog>
 #include "ui_VirtualScanDialog.h"
 
 class VirtualScanDialog : public QDialog, public Ui_VirtualScanDialog
