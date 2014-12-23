@@ -27,14 +27,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="saveTransformationCheckBox">
+      <widget class="QCheckBox" name="saveBoundaryCheckBox">
        <property name="text">
         <string>boundary</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="saveBoundaryCheckBox">
+      <widget class="QCheckBox" name="saveTransformationCheckBox">
        <property name="text">
         <string> transformation</string>
        </property>

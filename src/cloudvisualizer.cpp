@@ -169,6 +169,7 @@ bool CloudVisualizer::addCloudBoundaries(CloudDataConstPtr cloudData, Boundaries
 		}
 	}
 	flag = addCloud(cloudBoundaries, cloudBoundriesName);
+	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, cloudBoundriesName.toStdString());
 	update();
 	return flag;
 }
@@ -344,6 +345,8 @@ bool CloudVisualizer::updateCloudBoundaries(CloudDataConstPtr cloudData, Boundar
 	}
 	removeCloud(cloudBoundriesName);
 	flag = addCloud(cloudBoundaries, cloudBoundriesName);
+	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, cloudBoundriesName.toStdString());
+	update();
 	return flag;
 }
 
