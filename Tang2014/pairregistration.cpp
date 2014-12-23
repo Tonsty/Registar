@@ -3,7 +3,7 @@
 #endif
 
 #include "pairregistration.h"
-#include "../include/mathutilities.h"
+#include "../include/utilities.h"
 
 #include <pcl/common/transforms.h>
 
@@ -38,10 +38,8 @@ namespace Tang2014
 				for (int i = 0; i < t2s.size(); ++i)
 				{
 					PointPair temp;
-					// temp.sourcePoint = pcl::transformPoint(t2s[i].targetPoint, Eigen::Affine3f( initialTransformation ) );
-					// temp.targetPoint = pcl::transformPoint(t2s[i].sourcePoint, Eigen::Affine3f( initialTransformation ) );
-					temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, initialTransformation);
-					temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, initialTransformation);
+					temp.sourcePoint = registar::transformPointWithNormal(t2s[i].targetPoint, initialTransformation );
+					temp.targetPoint = registar::transformPointWithNormal(t2s[i].sourcePoint, initialTransformation );
 					s2t.push_back(temp);
 				}
 			}
@@ -56,7 +54,7 @@ namespace Tang2014
 			float total_weight = 0.0f;
 			for (int i = 0; i < s2t.size(); ++i)
 			{
-				total_error += ( transformPointWithNormal(s2t[i].sourcePoint, tempTransformation).getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
+				total_error += ( registar::transformPointWithNormal(s2t[i].sourcePoint, tempTransformation).getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
 				total_weight += 1.0f;
 			}
 			float rms_error = sqrtf( total_error / total_weight );
@@ -75,7 +73,7 @@ namespace Tang2014
 		std::cout << transformation << std::endl;
 
 		final_s2t.swap(s2t);
-		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
+		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = registar::transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
 	}
 
 	void PairRegistration::initiateCandidateIndices()
@@ -205,10 +203,8 @@ namespace Tang2014
 		for (int i = 0; i < t2s.size(); ++i)
 		{
 			PointPair temp;
-			// temp.sourcePoint = pcl::transformPoint(t2s[i].targetPoint, Eigen::Affine3f( initialTransformation ) );
-			// temp.targetPoint = pcl::transformPoint(t2s[i].sourcePoint, Eigen::Affine3f( initialTransformation ) );
-			temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, _transformation);
-			temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, _transformation);
+			temp.sourcePoint = registar::transformPointWithNormal(t2s[i].targetPoint, _transformation);
+			temp.targetPoint = registar::transformPointWithNormal(t2s[i].sourcePoint, _transformation);
 			s2t.push_back(temp);
 		}
 
@@ -223,8 +219,7 @@ namespace Tang2014
 		// std::cout << "Final Point Pairs rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;	
 
 		final_s2t.swap(s2t);
-		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());
-
+		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = registar::transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());
 		// std::cout << "Final Point Pairs : " << final_s2t.size() << std::endl;
 	}
 
@@ -326,10 +321,8 @@ namespace Tang2014
 				for (int i = 0; i < t2s.size(); ++i)
 				{
 					PointPair temp;
-					// temp.sourcePoint = pcl::transformPoint(t2s[i].targetPoint, Eigen::Affine3f( initialTransformation ) );
-					// temp.targetPoint = pcl::transformPoint(t2s[i].sourcePoint, Eigen::Affine3f( initialTransformation ) );
-					temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, initialTransformation);
-					temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, initialTransformation);
+					temp.sourcePoint = registar::transformPointWithNormal(t2s[i].targetPoint, initialTransformation);
+					temp.targetPoint = registar::transformPointWithNormal(t2s[i].sourcePoint, initialTransformation);
 					s2t.push_back(temp);
 				}
 			}
@@ -343,7 +336,7 @@ namespace Tang2014
 			float total_weight = 0.0f;
 			for (int i = 0; i < s2t.size(); ++i)
 			{
-				total_error += ( transformPointWithNormal(s2t[i].sourcePoint, tempTransformation).getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
+				total_error += ( registar::transformPointWithNormal(s2t[i].sourcePoint, tempTransformation).getVector3fMap() - s2t[i].targetPoint.getVector3fMap() ).squaredNorm();
 				total_weight += 1.0f;
 			}
 			float rms_error = sqrtf( total_error / total_weight );
@@ -362,7 +355,7 @@ namespace Tang2014
 		// std::cout << transformation << std::endl;
 
 		final_s2t.swap(s2t);
-		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
+		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = registar::transformPointWithNormal(final_s2t[j].sourcePoint, lastTransformation.inverse());
 
 
 	}
@@ -503,10 +496,8 @@ namespace Tang2014
 		for (int i = 0; i < t2s.size(); ++i)
 		{
 			PointPair temp;
-			// temp.sourcePoint = pcl::transformPoint(t2s[i].targetPoint, Eigen::Affine3f( initialTransformation ) );
-			// temp.targetPoint = pcl::transformPoint(t2s[i].sourcePoint, Eigen::Affine3f( initialTransformation ) );
-			temp.sourcePoint = transformPointWithNormal(t2s[i].targetPoint, _transformation);
-			temp.targetPoint = transformPointWithNormal(t2s[i].sourcePoint, _transformation);
+			temp.sourcePoint = registar::transformPointWithNormal(t2s[i].targetPoint, _transformation);
+			temp.targetPoint = registar::transformPointWithNormal(t2s[i].sourcePoint, _transformation);
 			s2t.push_back(temp);
 		}
 
@@ -521,7 +512,7 @@ namespace Tang2014
 		// std::cout << "Final Point Pairs rms_error = " <<  rms_error << " total_weight = " << total_weight << std::endl;	
 
 		final_s2t.swap(s2t);
-		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());
+		for (int j = 0; j < final_s2t.size(); ++j) final_s2t[j].sourcePoint = registar::transformPointWithNormal(final_s2t[j].sourcePoint, _transformation.inverse());
 
 		// std::cout << "Final Point Pairs : " << final_s2t.size() << std::endl;
 	}

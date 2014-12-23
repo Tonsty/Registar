@@ -2,12 +2,13 @@
 #define _OPENMP
 #endif
 
+#include <pcl/common/transforms.h>
+
 #include "pairregistration.h"
 #include "globalregistration.h"
 
 #include "../Williams2001/SRoMCPS.h"
-
-#include "../include/mathutilities.h"
+#include "../include/utilities.h"
 
 namespace Tang2014
 {
@@ -251,18 +252,18 @@ namespace Tang2014
 								PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
 								Transformation transformation = pairRegistrationPtrMap[link]->transformation;
 								PairRegistration::PointPair temp1, temp2;
-								temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, _transformations1[i] * transformation );
-								temp1.sourcePoint = transformPointWithNormal( temp.sourcePoint, _transformations2[j] );
-								temp2.targetPoint = transformPointWithNormal( temp.targetPoint, _transformations1[i] );
-								temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, _transformations2[j] * transformation.inverse() );
+								temp1.targetPoint = registar::transformPointWithNormal( temp.sourcePoint, _transformations1[i] * transformation );
+								temp1.sourcePoint = registar::transformPointWithNormal( temp.sourcePoint, _transformations2[j] );
+								temp2.targetPoint = registar::transformPointWithNormal( temp.targetPoint, _transformations1[i] );
+								temp2.sourcePoint = registar::transformPointWithNormal( temp.targetPoint, _transformations2[j] * transformation.inverse() );
 								_all_final_s2t.push_back(temp1);
 								_all_final_s2t.push_back(temp2);							
 							}
 							else
 							{
 								PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
-								temp.targetPoint = transformPointWithNormal( temp.targetPoint, _transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
-								temp.sourcePoint = transformPointWithNormal( temp.sourcePoint, _transformations2[j] );   //the transformation using pair registration
+								temp.targetPoint = registar::transformPointWithNormal( temp.targetPoint, _transformations1[i] );   //direct mate not the virtual mate, it should also be enough since we continue update 
+								temp.sourcePoint = registar::transformPointWithNormal( temp.sourcePoint, _transformations2[j] );   //the transformation using pair registration
 								_all_final_s2t.push_back(temp);
 							}
 						}
@@ -289,10 +290,10 @@ namespace Tang2014
 								Transformation transformation = pairRegistrationPtrMap[link]->transformation;
 								Transformation transformation2 = transformation.inverse();	
 								PairRegistration::PointPair temp2_1, temp2_2;
-								temp2_1.targetPoint = transformPointWithNormal( temp2.sourcePoint, _transformations1[i] * transformation2 );
-								temp2_1.sourcePoint = transformPointWithNormal( temp2.sourcePoint, _transformations2[j] );
-								temp2_2.targetPoint = transformPointWithNormal( temp2.targetPoint, _transformations1[i] );
-								temp2_2.sourcePoint = transformPointWithNormal( temp2.targetPoint, _transformations2[j] * transformation2.inverse() );
+								temp2_1.targetPoint = registar::transformPointWithNormal( temp2.sourcePoint, _transformations1[i] * transformation2 );
+								temp2_1.sourcePoint = registar::transformPointWithNormal( temp2.sourcePoint, _transformations2[j] );
+								temp2_2.targetPoint = registar::transformPointWithNormal( temp2.targetPoint, _transformations1[i] );
+								temp2_2.sourcePoint = registar::transformPointWithNormal( temp2.targetPoint, _transformations2[j] * transformation2.inverse() );
 								_all_final_s2t.push_back(temp2_1);
 								_all_final_s2t.push_back(temp2_2);
 							}
@@ -302,8 +303,8 @@ namespace Tang2014
 								PairRegistration::PointPair temp2;
 								temp2.targetPoint = temp.sourcePoint;
 								temp2.sourcePoint = temp.targetPoint;
-								temp2.targetPoint = transformPointWithNormal( temp2.targetPoint, _transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
-								temp2.sourcePoint = transformPointWithNormal( temp2.sourcePoint, _transformations2[j] ); //the transformation using pair registration
+								temp2.targetPoint = registar::transformPointWithNormal( temp2.targetPoint, _transformations1[i] ); //direct mate not the virtual mate, it should also be enough since we continue update 
+								temp2.sourcePoint = registar::transformPointWithNormal( temp2.sourcePoint, _transformations2[j] ); //the transformation using pair registration
 								_all_final_s2t.push_back(temp2);
 							}
 						}					
@@ -715,10 +716,10 @@ namespace Tang2014
 				PairRegistration::PointPair temp = pairRegistrationPtrMap[link]->final_s2t[k];
 				Transformation transformation = pairRegistrationPtrMap[link]->transformation;
 				PairRegistration::PointPair temp1, temp2;
-				temp1.targetPoint = transformPointWithNormal( temp.sourcePoint, transformation );
+				temp1.targetPoint = registar::transformPointWithNormal( temp.sourcePoint, transformation );
 				temp1.sourcePoint = temp.sourcePoint;
 				temp2.targetPoint = temp.targetPoint;
-				temp2.sourcePoint = transformPointWithNormal( temp.targetPoint, transformation.inverse() );
+				temp2.sourcePoint = registar::transformPointWithNormal( temp.targetPoint, transformation.inverse() );
 
 				Williams2001::PointPairWithWeight temp_1;
 				temp_1.w = 1.0;
@@ -808,8 +809,8 @@ namespace Tang2014
 					sourceCandidateIndices, sourceCandidateIndices_temp,
 					buffer, transformation, para, s2t, t2s, threads);
 
-				for (int j = 0; j < s2t.size(); ++j) s2t[j].sourcePoint = transformPointWithNormal(s2t[j].sourcePoint, transformation.inverse());
-				for (int j = 0; j < t2s.size(); ++j) t2s[j].sourcePoint = transformPointWithNormal(t2s[j].sourcePoint, transformation);
+				for (int j = 0; j < s2t.size(); ++j) s2t[j].sourcePoint = registar::transformPointWithNormal(s2t[j].sourcePoint, transformation.inverse());
+				for (int j = 0; j < t2s.size(); ++j) t2s[j].sourcePoint = registar::transformPointWithNormal(t2s[j].sourcePoint, transformation);
 
 				buffer1.clear();
 				for (int j = 0; j < s2t.size(); ++j)
