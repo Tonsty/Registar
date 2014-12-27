@@ -29,17 +29,17 @@ int main(int argc, char **argv)
   	GlobalRegistration globalRegistration( scanPtrs, links, loops );
 
   	GlobalRegistration::Parameters gr_para;
-	//gr_para.doInitialPairRegistration = true;
-	//gr_para.doIncrementalLoopRefine = true;
-	//gr_para.doGlobalRefine = false;
+	gr_para.doInitialPairRegistration = true;
+	gr_para.doIncrementalLoopRefine = true;
+	gr_para.doGlobalRefine = false;
 
 	//gr_para.doInitialPairRegistration = false;
 	//gr_para.doIncrementalLoopRefine = false;
 	//gr_para.doGlobalRefine = true;
 
-	gr_para.doInitialPairRegistration = true;
-	gr_para.doIncrementalLoopRefine = false;
-	gr_para.doGlobalRefine = true;
+	//gr_para.doInitialPairRegistration = true;
+	//gr_para.doIncrementalLoopRefine = false;
+	//gr_para.doGlobalRefine = true;
 
   	gr_para.globalIterationNum_max = 50;
   	gr_para.globalIterationNum_min = 30;
@@ -53,8 +53,8 @@ int main(int argc, char **argv)
   	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
   	pr_para.biDirection = true;
-  	pr_para.iterationNum_max = 10;
-  	pr_para.iterationNum_min = 8;
+  	pr_para.iterationNum_max = 50;
+  	pr_para.iterationNum_min = 30;
 
   	gr_para.pr_para = pr_para;
 

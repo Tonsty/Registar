@@ -45,25 +45,24 @@ int main(int argc, char** argv)
   			link.b = j;
 
 			// PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[link.a], scanPtrs[link.b]));
-      PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[link.a], scanPtrs[link.b], 8));
+			PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[link.a], scanPtrs[link.b], 8));
 			pairReigstrationPtr->setKdTree( globalRegistration.kdTreePtrs[link.a], globalRegistration.kdTreePtrs[link.b] );
+			PairRegistration::Parameters pr_para;
+			pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
+			pr_para.sMethod = PairRegistration::UMEYAMA;
+			pr_para.distanceTest = true;
+			pr_para.distThreshold = 0.010f;
+			pr_para.angleTest = true;
+			pr_para.angleThreshold = 45.0f;
+			pr_para.boundaryTest = true;
+			pr_para.biDirection = true;
+			pr_para.iterationNum_max = 0;
+			pr_para.iterationNum_min = 0;
+			pairReigstrationPtr->setParameter(pr_para);
+			pairReigstrationPtr->setTransformation(Transformation::Identity());
+			pairReigstrationPtr->initiateCandidateIndices();
 
-      PairRegistration::Parameters pr_para;
-      pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
-      pr_para.sMethod = PairRegistration::UMEYAMA;
-      pr_para.distanceTest = true;
-      pr_para.distThreshold = 0.010f;
-      pr_para.angleTest = true;
-      pr_para.angleThreshold = 45.0f;
-      pr_para.boundaryTest = true;
-      pr_para.biDirection = true;
-      pr_para.iterationNum_max = 0;
-      pr_para.iterationNum_min = 0;
-      pairReigstrationPtr->setParameter(pr_para);
-      pairReigstrationPtr->setTransformation(Transformation::Identity());
-      pairReigstrationPtr->initiateCandidateIndices();
-
-      std::cout << i << " <<-- " << j << std::endl;
+			std::cout << i << " <<-- " << j << std::endl;
 			pairReigstrationPtr->generateFinalPointPairs(Transformation::Identity());
 
 			std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
@@ -89,14 +88,14 @@ int main(int argc, char** argv)
   			overlapInfo.fracInA = pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.a]->pointsPtr->size();
   			overlapInfo.fracInB = pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.b]->pointsPtr->size();
 
-        totalOverlapInfo.push_back(overlapInfo);  			
+			totalOverlapInfo.push_back(overlapInfo);  			
 
-		  	// // std::cout  << link.a << " : " << scanPtrs[link.a]->filePath << " <<-- " << link.b << " : "<< scanPtrs[link.b]->filePath << " ";
-		   //  std::cout  << std::setw(2) << link.a << " (" << scanPtrs[link.a]->pointsPtr->size() <<") <<-- " << std::setw(2) << link.b << " (" << scanPtrs[link.b]->pointsPtr->size() << ") "
-		   //  			<< std::setw(5) << pairReigstrationPtr->final_s2t.size() << " " 
-					// 	<< std::setw(3) << (int)( pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.a]->pointsPtr->size() ) << "\% "
-					// 	<< std::setw(3) << (int)( pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.b]->pointsPtr->size() ) << "\% " 
-					// 	<< std::endl;
+		  	// std::cout << link.a << " : " << scanPtrs[link.a]->filePath << " <<-- " << link.b << " : "<< scanPtrs[link.b]->filePath << " ";
+		    // std::cout << std::setw(2) << link.a << " (" << scanPtrs[link.a]->pointsPtr->size() <<") <<-- " << std::setw(2) << link.b << " (" << scanPtrs[link.b]->pointsPtr->size() << ") "
+		    //  		 << std::setw(5) << pairReigstrationPtr->final_s2t.size() << " " 
+			//      	 << std::setw(3) << (int)( pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.a]->pointsPtr->size() ) << "\% "
+			//      	 << std::setw(3) << (int)( pairReigstrationPtr->final_s2t.size() * 50.0f / scanPtrs[link.b]->pointsPtr->size() ) << "\% " 
+			//      	 << std::endl;
   		}
 	}
 

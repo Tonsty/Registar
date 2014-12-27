@@ -59,7 +59,10 @@ namespace Tang2014
 			std::cout << "read in " << dummy << std::endl;
 			pcl::PLYReader plyReader;
 			scanPtr->pointsPtr.reset(new Points);
-			plyReader.read(dummy, *scanPtr->pointsPtr);
+			//plyReader.read(dummy, *scanPtr->pointsPtr);
+			pcl::PolygonMeshPtr polygonMesh(new pcl::PolygonMesh);
+			plyReader.read(dummy, *polygonMesh);
+			pcl::fromPCLPointCloud2(polygonMesh->cloud, *scanPtr->pointsPtr);
 
 			//remove NAN points
 			scanPtr->pointsPtr->sensor_origin_ = Eigen::Vector4f(0, 0, 0, 0);
