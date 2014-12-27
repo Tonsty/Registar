@@ -26,7 +26,6 @@ bool overlapInfoComp(const OverlapInfo &a, const OverlapInfo &b)
 	return a.pointPairNum > b.pointPairNum;
 }
 
-
 int main(int argc, char** argv)
 {
 	std::vector<int> p_file_indices_scans = pcl::console::parse_file_extension_argument (argc, argv, ".scans");
@@ -35,6 +34,23 @@ int main(int argc, char** argv)
 
   	GlobalRegistration globalRegistration( scanPtrs );
   	globalRegistration.buildKdTreePtrs();
+
+	PairRegistration::Parameters pr_para;
+	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
+	pr_para.sMethod = PairRegistration::UMEYAMA;
+	pr_para.distanceTest = true;
+	pr_para.angleTest = true;
+	pr_para.boundaryTest = true;
+	pr_para.biDirection = true;
+	pr_para.iterationNum_max = 0;
+	pr_para.iterationNum_min = 0;
+
+	float distThreshold;
+	pcl::console::parse_argument(argc, argv, "--distance", distThreshold);
+	float angleThreshold;
+	pcl::console::parse_argument(argc, argv, "--angle", angleThreshold);
+	pr_para.distThreshold = distThreshold;
+	pr_para.angleThreshold = angleThreshold;
 
   	for (int i = 0; i < scanPtrs.size(); ++i)
   	{
@@ -47,17 +63,7 @@ int main(int argc, char** argv)
 			// PairRegistrationPtr pairReigstrationPtr(new PairRegistration(scanPtrs[link.a], scanPtrs[link.b]));
 			PairRegistrationOMPPtr pairReigstrationPtr(new PairRegistrationOMP(scanPtrs[link.a], scanPtrs[link.b], 8));
 			pairReigstrationPtr->setKdTree( globalRegistration.kdTreePtrs[link.a], globalRegistration.kdTreePtrs[link.b] );
-			PairRegistration::Parameters pr_para;
-			pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
-			pr_para.sMethod = PairRegistration::UMEYAMA;
-			pr_para.distanceTest = true;
-			pr_para.distThreshold = 0.010f;
-			pr_para.angleTest = true;
-			pr_para.angleThreshold = 45.0f;
-			pr_para.boundaryTest = true;
-			pr_para.biDirection = true;
-			pr_para.iterationNum_max = 0;
-			pr_para.iterationNum_min = 0;
+
 			pairReigstrationPtr->setParameter(pr_para);
 			pairReigstrationPtr->setTransformation(Transformation::Identity());
 			pairReigstrationPtr->initiateCandidateIndices();
@@ -135,7 +141,6 @@ int main(int argc, char** argv)
   			{
   				partOverlapInfo.push_back(totalOverlapInfo[j]);
   			}
-
   		}
 
   		std::cout << std::setw(2) << i 

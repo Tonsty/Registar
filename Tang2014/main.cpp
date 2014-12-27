@@ -29,37 +29,40 @@ int main(int argc, char **argv)
   	GlobalRegistration globalRegistration( scanPtrs, links, loops );
 
   	GlobalRegistration::Parameters gr_para;
-	gr_para.doInitialPairRegistration = true;
-	gr_para.doIncrementalLoopRefine = true;
-	gr_para.doGlobalRefine = false;
 
-	//gr_para.doInitialPairRegistration = false;
-	//gr_para.doIncrementalLoopRefine = false;
-	//gr_para.doGlobalRefine = true;
+	gr_para.doInitialPairRegistration = pcl::console::find_switch(argc, argv, "--ipr");
+	gr_para.doIncrementalLoopRefine = pcl::console::find_switch(argc, argv, "--il");
+	gr_para.doGlobalRefine = pcl::console::find_switch(argc, argv, "--gr");
 
-	//gr_para.doInitialPairRegistration = true;
-	//gr_para.doIncrementalLoopRefine = false;
-	//gr_para.doGlobalRefine = true;
-
-  	gr_para.globalIterationNum_max = 50;
-  	gr_para.globalIterationNum_min = 30;
+	int gi_max, gi_min;
+	pcl::console::parse_argument(argc, argv, "--gi_max", gi_max);
+	pcl::console::parse_argument(argc, argv, "--gi_min", gi_min);
+	gr_para.globalIterationNum_max = gi_max;
+	gr_para.globalIterationNum_min = gi_min;
 
   	PairRegistration::Parameters pr_para;
   	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
   	pr_para.sMethod = PairRegistration::UMEYAMA;
   	pr_para.distanceTest = true;
-  	pr_para.distThreshold = 0.005f;
   	pr_para.angleTest = true;
-  	pr_para.angleThreshold = 45.0f;
   	pr_para.boundaryTest = true;
   	pr_para.biDirection = true;
-  	pr_para.iterationNum_max = 50;
-  	pr_para.iterationNum_min = 30;
+
+	int pi_max, pi_min;
+	pcl::console::parse_argument(argc, argv, "--gi_max", pi_max);
+	pcl::console::parse_argument(argc, argv, "--gi_min", pi_min);
+	pr_para.iterationNum_max = pi_max;
+	pr_para.iterationNum_min = pi_min;
+
+	float distThreshold, angleThreshold;
+	pcl::console::parse_argument(argc, argv, "--distance", distThreshold);
+	pcl::console::parse_argument(argc, argv, "--angle", angleThreshold);
+	pr_para.distThreshold = distThreshold;
+	pr_para.angleThreshold = angleThreshold;
 
   	gr_para.pr_para = pr_para;
 
   	globalRegistration.setParameters(gr_para);
-
   	globalRegistration.startRegistration();
 
   	for (int i = 0; i < scanPtrs.size(); ++i)

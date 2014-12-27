@@ -52,6 +52,10 @@
      </property>
      <addaction name="diagramAction"/>
      <addaction name="globalRegistrationAction"/>
+     <addaction name="actionTang2014"/>
+     <addaction name="actionELCH"/>
+     <addaction name="actionLiu2014"/>
+     <addaction name="actionPulli1999"/>
     </widget>
     <addaction name="pairwiseRegistrationAction"/>
     <addaction name="globalRegistrationMenu"/>
@@ -506,6 +510,26 @@
   <action name="hausdorffDistanceAction">
    <property name="text">
     <string>Hausdorff Distance</string>
+   </property>
+  </action>
+  <action name="actionTang2014">
+   <property name="text">
+    <string>Tang2014</string>
+   </property>
+  </action>
+  <action name="actionELCH">
+   <property name="text">
+    <string>ELCH2009</string>
+   </property>
+  </action>
+  <action name="actionLiu2014">
+   <property name="text">
+    <string>Liu2014</string>
+   </property>
+  </action>
+  <action name="actionPulli1999">
+   <property name="text">
+    <string>Pulli1999</string>
    </property>
   </action>
  </widget>
