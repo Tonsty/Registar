@@ -73,7 +73,7 @@ int main(int argc, char **argv)
   		QFile tfFile(tfFileName);
   		tfFile.open(QIODevice::WriteOnly);
   		QTextStream out(&tfFile);			
-  		Transformation transformation = globalRegistration.transformations[i] * scanPtrs[i]->transformation;
+  		Transformation transformation = globalRegistration.transformations[0].inverse() * globalRegistration.transformations[i] * scanPtrs[i]->transformation;
   		for (int i = 0; i < 4; ++i)
   		{
   			for (int j = 0; j < 4; ++j)
