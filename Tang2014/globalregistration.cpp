@@ -3,6 +3,7 @@
 #endif
 
 #include <pcl/common/transforms.h>
+#include <pcl/common/time.h>
 
 #include "pairregistration.h"
 #include "globalregistration.h"
@@ -14,12 +15,17 @@ namespace Tang2014
 {
 	void GlobalRegistration::startRegistration()
 	{
+		pcl::ScopeTime time("calculation");
 		buildKdTreePtrs();
-		initialTransformations();	
+		std::cout << "time after building kdtrees : "<< time.getTimeSeconds() << std::endl;
+		initialTransformations();
 		initialPairRegistration();
+		std::cout << "time after initial pair registration : " << time.getTimeSeconds() << std::endl;
 		if(para.doIncrementalLoopRefine) incrementalLoopRefine();
+		std::cout << "time after incremental loop refinement : " << time.getTimeSeconds() << std::endl;
 		if(para.doGlobalRefine && para.doInitialPairRegistration) globalPairRefine();
 		else if(para.doGlobalRefine) globalRefine(para.globalIterationNum_max, para.globalIterationNum_min);
+		std::cout << "time after global refinement : " << time.getTimeSeconds() << std::endl;
 	}
 
 	void GlobalRegistration::buildKdTreePtrs()
@@ -134,7 +140,7 @@ namespace Tang2014
 		// keep sub-edges between vertices1 and vertices2 consistent with the root edge between _vertex1 and _vertex2, and also update the pair registration transformation
 		makeEdgesConsistent(vertices1, transformations1, vertices2, transformations2, newTransformation);
 
-		for (int iter = 0; iter < 30; ++iter)
+		for (int iter = 0; iter < para.pairIterationNum; ++iter)
 		{
 			// then update newTransformation by direct pair registration
 			all_final_s2t.clear();

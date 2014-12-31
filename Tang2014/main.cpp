@@ -40,6 +40,10 @@ int main(int argc, char **argv)
 	gr_para.globalIterationNum_max = gi_max;
 	gr_para.globalIterationNum_min = gi_min;
 
+	int pi_num;
+	pcl::console::parse_argument(argc, argv, "--pi_num", pi_num);
+	gr_para.pairIterationNum = pi_num;
+
   	PairRegistration::Parameters pr_para;
   	pr_para.mMethod = PairRegistration::POINT_TO_PLANE;
   	pr_para.sMethod = PairRegistration::UMEYAMA;
@@ -49,8 +53,8 @@ int main(int argc, char **argv)
   	pr_para.biDirection = true;
 
 	int pi_max, pi_min;
-	pcl::console::parse_argument(argc, argv, "--gi_max", pi_max);
-	pcl::console::parse_argument(argc, argv, "--gi_min", pi_min);
+	pcl::console::parse_argument(argc, argv, "--pi_max", pi_max);
+	pcl::console::parse_argument(argc, argv, "--pi_min", pi_min);
 	pr_para.iterationNum_max = pi_max;
 	pr_para.iterationNum_min = pi_min;
 

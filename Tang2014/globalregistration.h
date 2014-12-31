@@ -23,6 +23,7 @@ namespace Tang2014
 			bool doGlobalRefine;
 			unsigned int globalIterationNum_max;
 			unsigned int globalIterationNum_min;
+			unsigned int pairIterationNum;
 		} para;
 
 		GlobalRegistration(ScanPtrs _scanPtrs = ScanPtrs(), Links _links = Links(), Loops _loops = Loops()) : scanPtrs(_scanPtrs), links(_links), loops(_loops) {}
