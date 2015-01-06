@@ -156,7 +156,7 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 			correspondenceIndices[i] = correspondenceIndex_inverse;
 		}
 	}
-	else
+	else if(correspondencesComputationParameters.method != DIRECT_POINT_PAIR)
 	{
 		CloudData &cloudData_target = *target->cloudData;
 		KdTreePtr tree_target = target->kdTree;
@@ -454,6 +454,35 @@ void PairwiseRegistration::preCorrespondences(RegistrationData *target, Registra
 					break;
 				}
 			}
+		}
+		inverseStartIndex = correspondenceIndices.size();
+	}
+	else if (correspondencesComputationParameters.method == DIRECT_POINT_PAIR)
+	{
+		CloudData &cloudData_target = *target->cloudData;
+		KdTreePtr tree_target = target->kdTree;
+		BoundariesConstPtr boundaries_target = target->boundaries;
+		CloudData &cloudData_source = *source->cloudData;
+
+		CloudData &cloudData_source_dynamic = correspondencesComputationData.cloudData_source_dynamic;		
+		pcl::transformPointCloudWithNormals(cloudData_source, cloudData_source_dynamic, initialTransformation);
+
+		int point_pair_num = std::min(cloudData_target.size(), cloudData_source_dynamic.size());
+
+		for (int i = 0; i < point_pair_num; i++)
+		{
+			int query = i;
+			int match = i;
+
+			Correspondence correspondence_temp;
+			correspondence_temp.sourcePoint = cloudData_source_dynamic[query];
+			correspondence_temp.targetPoint = cloudData_target[match];
+			correspondences.push_back(correspondence_temp);
+
+			CorrespondenceIndex correspondenceIndex_temp;
+			correspondenceIndex_temp.sourceIndex = query;
+			correspondenceIndex_temp.targetIndex = match;
+			correspondenceIndices.push_back(correspondenceIndex_temp);
 		}
 		inverseStartIndex = correspondenceIndices.size();
 	}

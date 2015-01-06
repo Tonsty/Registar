@@ -353,7 +353,7 @@ bool CloudVisualizer::updateCloudBoundaries(CloudDataConstPtr cloudData, Boundar
 
 void CloudVisualizer::addAxis()
 {
-	visualizer->addCoordinateSystem(0.1);
+	visualizer->addCoordinateSystem(100);
 	update();
 }
 

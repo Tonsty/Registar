@@ -37,7 +37,7 @@ namespace registar
 
 	enum CorrespondenceComputationMethod
 	{
-		POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE
+		POINT_TO_POINT, POINT_TO_PLANE, POINT_TO_MLSSURFACE, DIRECT_POINT_PAIR
 	};
 
 	struct CorrespondencesComputationParameters

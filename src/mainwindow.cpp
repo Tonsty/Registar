@@ -1359,11 +1359,13 @@ void MainWindow::on_pairwiseRegistrationDialog_sendParameters(QVariantMap parame
 			if(cloudVisualizer) 
 			{
 				cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+				cloudVisualizer->getVisualizer()->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "target");
 				cloudVisualizer->resetCamera(registrationData_target->cloudData);
 			}
 			if(cloudVisualizer) 
 			{
 				cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+				cloudVisualizer->getVisualizer()->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "source");
 				cloudVisualizer->resetCamera(registrationData_target->cloudData);
 			}
 
@@ -1526,8 +1528,18 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 				CloudVisualizer * cloudVisualizer = pairwiseRegistrationDialog->addCloudVisualizerTab(pairwiseRegistration->objectName());
 				dynamic_cast<PairwiseRegistrationInteractor*>(pairwiseRegistration)->setCloudVisualizer(cloudVisualizer);
 
-				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
-				if(cloudVisualizer) cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+				if(cloudVisualizer) 
+				{
+					cloudVisualizer->addCloud(registrationData_target->cloudData, "target", 0, 0, 255);
+					cloudVisualizer->getVisualizer()->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "target");
+					cloudVisualizer->resetCamera(registrationData_target->cloudData);
+				}
+				if(cloudVisualizer) 
+				{
+					cloudVisualizer->addCloud(registrationData_source->cloudData, "source", 255, 0, 0);
+					cloudVisualizer->getVisualizer()->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "source");
+					cloudVisualizer->resetCamera(registrationData_target->cloudData);
+				}
 
 				pairwiseRegistrationDialog->showResults(
 					pairwiseRegistration->getTransformation(), 

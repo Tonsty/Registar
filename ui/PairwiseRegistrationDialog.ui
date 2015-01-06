@@ -102,6 +102,11 @@
            <string>Point to MLSSurface</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>Direct Point Pair</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="0" column="1">
