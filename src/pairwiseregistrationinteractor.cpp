@@ -112,8 +112,8 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
 	Eigen::Vector3f red(250, 0, 0);
 	Eigen::Vector3f green(0, 250, 0);
 	Eigen::Vector3f blue(0, 0, 250);
-    float redError = 0.005f;
-    float greenError = 0.0001f ;
+    float redError = 1.0f;
+    float greenError = 0.1f ;
     float blueError = 0.0f;
 
 	if (correspondenceIndices.size() > inverseStartIndex)
@@ -204,6 +204,5 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
     	}
     }
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_temp, "source");
-
 
 }
