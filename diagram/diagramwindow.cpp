@@ -157,7 +157,7 @@ void DiagramWindow::initialMaxSpanningTree()
             nodeEdgeMultiMap.find(sourceIndexStr, targetIndexStr) == nodeEdgeMultiMap.end() )  
         {
             nodeEdgeMultiMap.insert(targetIndexStr, sourceIndexStr);
-            addLink(targetIndexStr, sourceIndexStr);           
+            addLink(targetIndexStr, sourceIndexStr, Qt::darkBlue);           
         }      
 
     }
@@ -333,13 +333,14 @@ void DiagramWindow::addLink2()
 
 }
 
-void DiagramWindow::addLink(QString fromNodeName, QString toNodeName)
+void DiagramWindow::addLink(QString fromNodeName, QString toNodeName, QColor color)
 {
     NodePair nodes;
     nodes.first = nodeMap[fromNodeName];
     nodes.second = nodeMap[toNodeName];
 
     Link *link = new Link(nodes.first, nodes.second);
+	link->setColor(color);
     scene->addItem(link);
 }
 

@@ -21,7 +21,7 @@ public:
     DiagramWindow(QWidget *parent = 0);
 
     void addNode(QString nodeName);
-    void addLink(QString fromNodeName, QString toNodeName);
+    void addLink(QString fromNodeName, QString toNodeName, QColor color = Qt::darkRed);
     void loadGraph(QStringList &nodeList, QMultiMap<QString, QString> &nodeEdgeMultiMap);
     void loadOVLFile(QString fileName);
     void loadOOLVFile(QString fileName);

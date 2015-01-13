@@ -924,7 +924,7 @@ void MainWindow::on_boundaryEstimationDialog_sendParameters(QVariantMap paramete
 
 		if( parameters["overwrite"].value<bool>() )
 		{
-			cloud->setCloudData(cloudData_inliers);
+			cloud->setCloudData(cloudData_outliers);
 			cloud->setPolygons(Polygons(0));
 			cloud->setBoundaries(BoundariesPtr());
 			cloudBrowser->updateCloud(cloud);
