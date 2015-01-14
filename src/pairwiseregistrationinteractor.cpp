@@ -65,7 +65,7 @@ void PairwiseRegistrationInteractor::process(QVariantMap parameters)
 			correspondenceIndices, inverseStartIndex, correspondencesComputationData);
 
 		computeSquareErrors(correspondences, squareErrors_total, rmsError_total);
-		renderErrorMap(correspondenceIndices, inverseStartIndex, squareErrors_total);				
+		renderErrorMap(correspondenceIndices, inverseStartIndex, squareErrors_total, true);				
 	}
 	else if (command == "ICP")
 	{
@@ -99,7 +99,7 @@ void PairwiseRegistrationInteractor::process(QVariantMap parameters)
 			correspondenceIndices, inverseStartIndex, correspondencesComputationData);
 
 		computeSquareErrors(correspondences, squareErrors_total, rmsError_total);		
-		renderErrorMap(correspondenceIndices, inverseStartIndex, squareErrors_total);
+		renderErrorMap(correspondenceIndices, inverseStartIndex, squareErrors_total, false);
 	}
 	else if (command == "Export")
 	{
@@ -107,13 +107,13 @@ void PairwiseRegistrationInteractor::process(QVariantMap parameters)
 	}
 }
 
-void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total)
+void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total, bool mapping)
 {
 	Eigen::Vector3f red(250, 0, 0);
 	Eigen::Vector3f green(0, 250, 0);
 	Eigen::Vector3f blue(0, 0, 250);
-    float redError = 1.0f;
-    float greenError = 0.1f ;
+    float redError = 0.02f;
+    float greenError = 0.002f ;
     float blueError = 0.0f;
 
 	if (correspondenceIndices.size() > inverseStartIndex)
@@ -129,35 +129,38 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
 		}
 		//qDebug() << QString::number(inverseStartIndex);
 		//qDebug() << QString::number(correspondenceIndices.size() - inverseStartIndex);
-		for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
+		if (mapping)
 		{
-			int index = correspondenceIndices[i].targetIndex;
-			//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
-			float error = sqrtf(squareErrors_total[i]);
-			if (error >= redError ) 
+			for (int i = inverseStartIndex; i < correspondenceIndices.size(); ++i)
 			{
-				(*cloudData_target_temp)[index].r = red[0];
-				(*cloudData_target_temp)[index].g = red[1];
-				(*cloudData_target_temp)[index].b = red[2];
-				continue;
-			}
-			if (error >= greenError)
-			{
-				float fraction = (error - greenError) / (redError - greenError);
-				Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
-				(*cloudData_target_temp)[index].r = color[0];
-				(*cloudData_target_temp)[index].g = color[1];
-				(*cloudData_target_temp)[index].b = color[2];  		
-				continue;
-			}
-			if (error >= blueError)
-			{
-				float fraction = (error - blueError) / (greenError - blueError);
-				Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
-				(*cloudData_target_temp)[index].r = color[0];
-				(*cloudData_target_temp)[index].g = color[1];
-				(*cloudData_target_temp)[index].b = color[2];  
-				continue;
+				int index = correspondenceIndices[i].targetIndex;
+				//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
+				float error = sqrtf(squareErrors_total[i]);
+				if (error >= redError ) 
+				{
+					(*cloudData_target_temp)[index].r = red[0];
+					(*cloudData_target_temp)[index].g = red[1];
+					(*cloudData_target_temp)[index].b = red[2];
+					continue;
+				}
+				if (error >= greenError)
+				{
+					float fraction = (error - greenError) / (redError - greenError);
+					Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
+					(*cloudData_target_temp)[index].r = color[0];
+					(*cloudData_target_temp)[index].g = color[1];
+					(*cloudData_target_temp)[index].b = color[2];  		
+					continue;
+				}
+				if (error >= blueError)
+				{
+					float fraction = (error - blueError) / (greenError - blueError);
+					Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
+					(*cloudData_target_temp)[index].r = color[0];
+					(*cloudData_target_temp)[index].g = color[1];
+					(*cloudData_target_temp)[index].b = color[2];  
+					continue;
+				}
 			}
 		}
 		if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_target_temp, "target");
@@ -165,44 +168,57 @@ void PairwiseRegistrationInteractor::renderErrorMap(CorrespondenceIndices &corre
 
 	CloudDataPtr cloudData_source_temp(new CloudData);
 	pcl::transformPointCloudWithNormals(*source->cloudData, *cloudData_source_temp, transformation);
-	for (int i = 0; i < cloudData_source_temp->size(); ++i)
+	if (mapping)
 	{
-		(*cloudData_source_temp)[i].r = 0;
-		(*cloudData_source_temp)[i].g = 0;	
-		(*cloudData_source_temp)[i].b = 250;
-		//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
-	} 
-    for (int i = 0; i < inverseStartIndex; ++i)
-    {
-    	int index = correspondenceIndices[i].sourceIndex;
-    	//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
-    	float error = sqrtf(squareErrors_total[i]);
-    	if (error >= redError) 
-    	{
-    		(*cloudData_source_temp)[index].r = red[0];
-    		(*cloudData_source_temp)[index].g = red[1];
-    		(*cloudData_source_temp)[index].b = red[2];    		
-    		continue;
-    	}
-    	if (error >= greenError)
-    	{
-    		float fraction = (error - greenError) / (redError - greenError);
-    		Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
-    		(*cloudData_source_temp)[index].r = color[0];
-    		(*cloudData_source_temp)[index].g = color[1];   
-    		(*cloudData_source_temp)[index].b = color[2]; 		
-    		continue;
-    	}
-    	if (error >= blueError)
-    	{
-    		float fraction = (error - blueError) / (greenError - blueError);
-    		Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
-    		(*cloudData_source_temp)[index].r = color[0];
-    		(*cloudData_source_temp)[index].g = color[1];   
-    		(*cloudData_source_temp)[index].b = color[2]; 
-    		continue;
-    	}
-    }
+		for (int i = 0; i < cloudData_source_temp->size(); ++i)
+		{
+			(*cloudData_source_temp)[i].r = 0;
+			(*cloudData_source_temp)[i].g = 0;	
+			(*cloudData_source_temp)[i].b = 250;
+			//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
+		} 
+		for (int i = 0; i < inverseStartIndex; ++i)
+		{
+			int index = correspondenceIndices[i].sourceIndex;
+			//qDebug() << QString::number(index) << " " <<  QString::number(squareErrors_total[i]);
+			float error = sqrtf(squareErrors_total[i]);
+			if (error >= redError) 
+			{
+				(*cloudData_source_temp)[index].r = red[0];
+				(*cloudData_source_temp)[index].g = red[1];
+				(*cloudData_source_temp)[index].b = red[2];    		
+				continue;
+			}
+			if (error >= greenError)
+			{
+				float fraction = (error - greenError) / (redError - greenError);
+				Eigen::Vector3f color = red * fraction + green * ( 1.0f -fraction);
+				(*cloudData_source_temp)[index].r = color[0];
+				(*cloudData_source_temp)[index].g = color[1];   
+				(*cloudData_source_temp)[index].b = color[2]; 		
+				continue;
+			}
+			if (error >= blueError)
+			{
+				float fraction = (error - blueError) / (greenError - blueError);
+				Eigen::Vector3f color = green * fraction + blue * ( 1.0f -fraction);
+				(*cloudData_source_temp)[index].r = color[0];
+				(*cloudData_source_temp)[index].g = color[1];   
+				(*cloudData_source_temp)[index].b = color[2]; 
+				continue;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < cloudData_source_temp->size(); ++i)
+		{
+			(*cloudData_source_temp)[i].r = 250;
+			(*cloudData_source_temp)[i].g = 0;	
+			(*cloudData_source_temp)[i].b = 0;
+			//(*cloudData_target_temp)[i].getRGBVector3i() = blue.cast<int>();
+		} 
+	}
 	if(cloudVisualizer) cloudVisualizer->updateCloud(cloudData_source_temp, "source");
 
 }

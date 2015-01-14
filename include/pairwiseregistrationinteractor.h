@@ -29,7 +29,7 @@ namespace registar
 	protected:
 		CloudVisualizer *cloudVisualizer;
 	private:
-		void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total);
+		void renderErrorMap(CorrespondenceIndices &correspondenceIndices, int &inverseStartIndex, std::vector<float> &squareErrors_total, bool mapping = true);
 		void exportTransformation();	
 	};
 }
