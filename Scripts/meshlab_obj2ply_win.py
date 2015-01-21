@@ -3,7 +3,7 @@
 import glob;
 import os;
 
-command = "/home/yiztang/Downloads/software/MeshLab/MeshLabSrc_AllInc_v133/meshlab/src/distrib/meshlabserver"; 
+command = r'"C:\Program Files\VCG\MeshLab\meshlabserver.exe"';
 output_directory = "ply";
 
 filenamelist = glob.glob("*.obj");

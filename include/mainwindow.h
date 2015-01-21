@@ -135,6 +135,7 @@ private slots:
 	void on_depthCameraDialog_sendParameters(QVariantMap parameters);
 
 	void on_concatenationAction_triggered();
+	void on_removeNaNAction_triggered();
 
 	void on_pairwiseRegistrationDialog_sendParameters(QVariantMap parameters);
 	void on_globalRegistrationDialog_sendParameters(QVariantMap parameters);

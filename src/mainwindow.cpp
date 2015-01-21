@@ -561,6 +561,29 @@ void MainWindow::on_concatenationAction_triggered()
 	cloudVisualizer->addCloud(con_cloud);
 }
 
+void MainWindow::on_removeNaNAction_triggered()
+{
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		CloudDataPtr cloudData(new CloudData);
+		std::vector<int> nanIndicesVector;
+		pcl::removeNaNFromPointCloud(*cloud->getCloudData(), *cloudData, nanIndicesVector);
+		cloud->setCloudData(cloudData);
+		cloudBrowser->updateCloud(cloud);
+		bool isVisible = (*it_visible);
+		if(isVisible)cloudVisualizer->updateCloud(cloud);
+		qDebug() << cloudName << "NaN points removed!";
+		it_name++;
+	}	
+}
+
 void MainWindow::on_diagramAction_triggered()
 {
 	if (!diagramWindow)

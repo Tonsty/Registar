@@ -101,11 +101,12 @@
     <addaction name="movingLeastSquaresAction"/>
     <addaction name="boundaryEstimationAction"/>
     <addaction name="outliersRemovalAction"/>
+    <addaction name="removeNaNAction"/>
     <addaction name="hausdorffDistanceAction"/>
+    <addaction name="addNoiseAction"/>
+    <addaction name="menuFieldsOperation"/>
     <addaction name="separator"/>
     <addaction name="menuTransformation"/>
-    <addaction name="menuFieldsOperation"/>
-    <addaction name="addNoiseAction"/>
     <addaction name="separator"/>
     <addaction name="concatenationAction"/>
    </widget>
@@ -530,6 +531,11 @@
   <action name="actionPulli1999">
    <property name="text">
     <string>Pulli1999</string>
+   </property>
+  </action>
+  <action name="removeNaNAction">
+   <property name="text">
+    <string>Remove NaN Points</string>
    </property>
   </action>
  </widget>
