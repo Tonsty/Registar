@@ -250,41 +250,41 @@ bool CloudIO::exportVTKCloudData(const QString &fileName, CloudDataConstPtr clou
 		}
 	}
 
-	//// Write normal values
-	//field_index = getFieldIndex (polygonMesh->cloud, "normal_x");
-	//if (field_index != -1)
-	//{
-	//	fs << "\nNORMALS normal float\n";
-	//	for (unsigned int i = 0; i < nr_points; ++i)
-	//	{
-	//		int xyz = 0;
-	//		for (size_t d = 0; d < polygonMesh->cloud.fields.size (); ++d)
-	//		{
-	//			int count = polygonMesh->cloud.fields[d].count;
-	//			if (count == 0)
-	//				count = 1;          // we simply cannot tolerate 0 counts (coming from older converter code)
-	//			int c = 0;
-	//			if ((polygonMesh->cloud.fields[d].datatype == pcl::PCLPointField::FLOAT32) && (
-	//				polygonMesh->cloud.fields[d].name == "normal_x" || 
-	//				polygonMesh->cloud.fields[d].name == "normal_y" || 
-	//				polygonMesh->cloud.fields[d].name == "normal_z"))
-	//			{
-	//				float value;
-	//				memcpy (&value, &polygonMesh->cloud.data[i * point_size + polygonMesh->cloud.fields[d].offset + c * sizeof (float)], sizeof (float));
-	//				fs << value;
-	//				if (++xyz == 3)
-	//					break;
-	//			}
-	//			fs << " ";
-	//		}
-	//		if (xyz != 3)
-	//		{
-	//			PCL_ERROR ("[pcl::io::saveVTKFile] Input point cloud has no NORMAL_XYZ data!\n");
-	//			return (-2);
-	//		}
-	//		fs << std::endl;
-	//	}
-	//}
+	// Write normal values
+	field_index = getFieldIndex (*cloud, "normal_x");
+	if (field_index != -1)
+	{
+		fs << "\nNORMALS normal float\n";
+		for (unsigned int i = 0; i < nr_points; ++i)
+		{
+			int xyz = 0;
+			for (size_t d = 0; d < cloud->fields.size (); ++d)
+			{
+				int count = cloud->fields[d].count;
+				if (count == 0)
+					count = 1;          // we simply cannot tolerate 0 counts (coming from older converter code)
+				int c = 0;
+				if ((cloud->fields[d].datatype == pcl::PCLPointField::FLOAT32) && (
+					cloud->fields[d].name == "normal_x" || 
+					cloud->fields[d].name == "normal_y" || 
+					cloud->fields[d].name == "normal_z"))
+				{
+					float value;
+					memcpy (&value, &cloud->data[i * point_size + cloud->fields[d].offset + c * sizeof (float)], sizeof (float));
+					fs << value;
+					if (++xyz == 3)
+						break;
+				}
+				fs << " ";
+			}
+			if (xyz != 3)
+			{
+				PCL_ERROR ("[pcl::io::saveVTKFile] Input point cloud has no NORMAL_XYZ data!\n");
+				return (-2);
+			}
+			fs << std::endl;
+		}
+	}
 
 	// Write curvature values
 	field_index = getFieldIndex (*cloud, "curvature");
@@ -407,41 +407,41 @@ bool CloudIO::exportVTKPolygonMesh(const QString &fileName, PolygonMeshConstPtr 
 		}
 	}
 
-	//// Write normal values
-	//field_index = getFieldIndex (polygonMesh->cloud, "normal_x");
-	//if (field_index != -1)
-	//{
-	//	fs << "\nNORMALS normal float\n";
-	//	for (unsigned int i = 0; i < nr_points; ++i)
-	//	{
-	//		int xyz = 0;
-	//		for (size_t d = 0; d < polygonMesh->cloud.fields.size (); ++d)
-	//		{
-	//			int count = polygonMesh->cloud.fields[d].count;
-	//			if (count == 0)
-	//				count = 1;          // we simply cannot tolerate 0 counts (coming from older converter code)
-	//			int c = 0;
-	//			if ((polygonMesh->cloud.fields[d].datatype == pcl::PCLPointField::FLOAT32) && (
-	//				polygonMesh->cloud.fields[d].name == "normal_x" || 
-	//				polygonMesh->cloud.fields[d].name == "normal_y" || 
-	//				polygonMesh->cloud.fields[d].name == "normal_z"))
-	//			{
-	//				float value;
-	//				memcpy (&value, &polygonMesh->cloud.data[i * point_size + polygonMesh->cloud.fields[d].offset + c * sizeof (float)], sizeof (float));
-	//				fs << value;
-	//				if (++xyz == 3)
-	//					break;
-	//			}
-	//			fs << " ";
-	//		}
-	//		if (xyz != 3)
-	//		{
-	//			PCL_ERROR ("[pcl::io::saveVTKFile] Input point cloud has no NORMAL_XYZ data!\n");
-	//			return (-2);
-	//		}
-	//		fs << std::endl;
-	//	}
-	//}
+	// Write normal values
+	field_index = getFieldIndex (polygonMesh->cloud, "normal_x");
+	if (field_index != -1)
+	{
+		fs << "\nNORMALS normal float\n";
+		for (unsigned int i = 0; i < nr_points; ++i)
+		{
+			int xyz = 0;
+			for (size_t d = 0; d < polygonMesh->cloud.fields.size (); ++d)
+			{
+				int count = polygonMesh->cloud.fields[d].count;
+				if (count == 0)
+					count = 1;          // we simply cannot tolerate 0 counts (coming from older converter code)
+				int c = 0;
+				if ((polygonMesh->cloud.fields[d].datatype == pcl::PCLPointField::FLOAT32) && (
+					polygonMesh->cloud.fields[d].name == "normal_x" || 
+					polygonMesh->cloud.fields[d].name == "normal_y" || 
+					polygonMesh->cloud.fields[d].name == "normal_z"))
+				{
+					float value;
+					memcpy (&value, &polygonMesh->cloud.data[i * point_size + polygonMesh->cloud.fields[d].offset + c * sizeof (float)], sizeof (float));
+					fs << value;
+					if (++xyz == 3)
+						break;
+				}
+				fs << " ";
+			}
+			if (xyz != 3)
+			{
+				PCL_ERROR ("[pcl::io::saveVTKFile] Input point cloud has no NORMAL_XYZ data!\n");
+				return (-2);
+			}
+			fs << std::endl;
+		}
+	}
 
 	// Write curvature values
 	field_index = getFieldIndex (polygonMesh->cloud, "curvature");
