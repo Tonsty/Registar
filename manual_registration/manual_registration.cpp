@@ -274,7 +274,9 @@ void ManualRegistration::clearDstVis()
 
 void ManualRegistration::showSrcCloud()
 {
-  vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
+  //vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
+  pcl::visualization::PointCloudColorHandlerRGBField<PointT> rgb_handler(cloud_src_);
+  vis_src_->addPointCloud<PointT>(cloud_src_, rgb_handler, "cloud_src");
   Eigen::Vector4f centroid;
   pcl::compute3DCentroid(*cloud_src_, centroid);
   PointT min_pt, max_pt;
@@ -285,7 +287,9 @@ void ManualRegistration::showSrcCloud()
 
 void ManualRegistration::showDstCloud()
 {
-  vis_dst_->addPointCloud<PointT>(cloud_dst_, "cloud_dst_");
+  //vis_dst_->addPointCloud<PointT>(cloud_dst_, "cloud_dst_");
+  pcl::visualization::PointCloudColorHandlerRGBField<PointT> rgb_handler(cloud_dst_);
+  vis_dst_->addPointCloud<PointT>(cloud_dst_, rgb_handler, "cloud_dst_");  
   Eigen::Vector4f centroid;
   pcl::compute3DCentroid(*cloud_dst_, centroid);
   PointT min_pt, max_pt;
