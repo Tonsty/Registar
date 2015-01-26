@@ -119,7 +119,7 @@ namespace registar
 		for (int i = 0; i < cloud.size(); i++)
 		{
 			cloud[i].r = r;
-			cloud[i].g = b;
+			cloud[i].g = g;
 			cloud[i].b = b;
 		}
 	}

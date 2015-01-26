@@ -26,6 +26,7 @@ class AddNoiseDialog;
 class RandomTransformationDialog;
 class SaveContentDialog;
 class HausdorffDistanceDialog;
+class ColorFieldDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -68,6 +69,7 @@ private:
 	RandomTransformationDialog *randomTransformationDialog;
 	SaveContentDialog *saveContentDialog;
 	HausdorffDistanceDialog *hausdorffDistanceDialog;
+	ColorFieldDialog *colorFieldDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -127,6 +129,8 @@ private slots:
 	void on_randomTransformationDialog_sendParameters(QVariantMap parameters);
 	void on_hausdorffDistanceAction_triggered();
 	void on_hausdorffDistanceDialog_sendParameters(QVariantMap parameters);
+	void on_colorFieldAction_triggered();
+	void on_colorFieldAction_sendParameters(QVariantMap parameters);
 
 	void on_virtualScanAction_triggered();
 	void on_virtualScanDialog_sendParameters(QVariantMap parameters);

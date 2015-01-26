@@ -26,6 +26,7 @@
 #include "../include/randomtransformationdialog.h"
 #include "../include/savecontentdialog.h"
 #include "../include/hausdorffdistancedialog.h"
+#include "../include/colorfielddialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -63,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	boundaryEstimationDialog = 0;
 	outliersRemovalDialog = 0;
 	normalFieldDialog = 0;
+	colorFieldDialog = 0;
 	virtualScanDialog = 0;
 	depthCameraDialog = 0;
 	pairwiseRegistrationDialog = 0;
@@ -429,6 +431,19 @@ void MainWindow::on_normalFieldAction_triggered()
 	normalFieldDialog->show();
 	normalFieldDialog->raise();
 	normalFieldDialog->activateWindow();
+}
+
+void MainWindow::on_colorFieldAction_triggered()
+{
+	if (!colorFieldDialog)
+	{
+		colorFieldDialog = new ColorFieldDialog(this);
+		connect(colorFieldDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_colorFieldAction_sendParameters(QVariantMap)));
+	}
+	colorFieldDialog->show();
+	colorFieldDialog->raise();
+	colorFieldDialog->activateWindow();
 }
 
 void MainWindow::on_addNoiseAction_triggered()
@@ -1067,6 +1082,72 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 		
 		it_name++;
 		it_visible++;
+	}	
+}
+
+void MainWindow::on_colorFieldAction_sendParameters(QVariantMap parameters)
+{
+	float R = parameters["R"].toFloat();
+	float G = parameters["G"].toFloat();
+	float B = parameters["B"].toFloat();
+
+	float Hmin = parameters["Hmin"].toFloat();
+	float Hmax = parameters["Hmax"].toFloat();
+	float S = parameters["S"].toFloat();
+	float V = parameters["V"].toFloat();
+
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
+
+	QStringList::Iterator it_name = cloudNameList.begin();
+	QList<bool>::Iterator it_visible = isVisibleList.begin();
+
+	int tabIndex = colorFieldDialog->tabWidget->currentIndex();
+	std::vector<RGB_> rgbs = generateUniformColors(cloudNameList.size(), Hmin, Hmax);
+	std::vector<RGB_>::iterator it_rgb = rgbs.begin();
+
+	while (it_name != cloudNameList.end())
+	{
+		QString cloudName = (*it_name);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		CloudDataConstPtr cloudData = cloud->getCloudData();
+
+		CloudDataPtr cloudData_filtered;
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+
+		cloudData_filtered.reset(new CloudData);
+		pcl::copyPointCloud(*cloudData, *cloudData_filtered);
+		if (tabIndex == 0) //Manual set color
+		{
+			setPointCloudColor(*cloudData_filtered, R, G, B);
+		}
+		else if (tabIndex == 1)//Uniform set color
+		{
+			setPointCloudColor(*cloudData_filtered, (*it_rgb).r, (*it_rgb).g, (*it_rgb).b );
+		}
+
+		QApplication::restoreOverrideCursor();
+		QApplication::beep();
+
+		if( parameters["overwrite"].value<bool>() )
+		{
+			cloud->setCloudData(cloudData_filtered);
+			cloudBrowser->updateCloud(cloud);
+			bool isVisible = (*it_visible);
+			if(isVisible)cloudVisualizer->updateCloud(cloud);
+		}
+		else
+		{	
+			Polygons polygons = cloud->getPolygons();
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Cloud* cloudFiltered = cloudManager->addCloud(cloudData_filtered, polygons, Cloud::fromFilter, "", transformation);
+			cloudBrowser->addCloud(cloudFiltered);
+			cloudVisualizer->addCloud(cloudFiltered);
+		}	
+
+		it_name++;
+		it_visible++;
+		it_rgb++;
 	}	
 }
 

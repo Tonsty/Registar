@@ -95,6 +95,7 @@
       <string>FieldsOperation</string>
      </property>
      <addaction name="normalFieldAction"/>
+     <addaction name="colorFieldAction"/>
     </widget>
     <addaction name="euclideanClusterExtractionAction"/>
     <addaction name="voxelGridAction"/>
@@ -536,6 +537,11 @@
   <action name="removeNaNAction">
    <property name="text">
     <string>Remove NaN Points</string>
+   </property>
+  </action>
+  <action name="colorFieldAction">
+   <property name="text">
+    <string>Color Field</string>
    </property>
   </action>
  </widget>
