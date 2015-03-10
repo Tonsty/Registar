@@ -51,7 +51,7 @@ namespace registar
 		void resetCamera(CloudDataConstPtr cloudData);
 		void resetCamera(const Cloud* cloud);
 
-		void addAxis();
+		void addAxis(float axis_len = 1.0f);
 		void removeAxis();
 		void addOrientationMarker();
 		void removeOrientationMarker();

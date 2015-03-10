@@ -596,6 +596,7 @@ void MainWindow::on_removeNaNAction_triggered()
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
 		qDebug() << cloudName << "NaN points removed!";
 		it_name++;
+		it_visible++;
 	}	
 }
 
@@ -704,7 +705,23 @@ void MainWindow::on_drawAxisAction_toggled(bool isChecked)
 	if(isChecked) qDebug() << "Draw axis";
 	else qDebug() << "Undraw axis";
 
-	if(isChecked)cloudVisualizer->addAxis();
+	QStringList cloudNameList = cloudBrowser->getVisibleCloudNames();
+
+	QStringList::Iterator it = cloudNameList.begin();
+	pcl::PointCloud<PointType> cloud_box;
+	for(QStringList::iterator it = cloudNameList.begin(); it != cloudNameList.end(); it++)
+	{
+		QString cloudName = (*it);
+		Cloud *cloud = cloudManager->getCloud(cloudName);
+		PointType min_pt, max_pt;
+		pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
+		cloud_box.push_back(min_pt);
+		cloud_box.push_back(max_pt);
+	}	
+	PointType all_min_pt, all_max_pt;
+	pcl::getMinMax3D(cloud_box, all_min_pt, all_max_pt);
+	float axis_len = ( all_max_pt.getVector3fMap() - all_min_pt.getVector3fMap() ).norm() * 0.5f;
+	if(isChecked)cloudVisualizer->addAxis(axis_len);
 	else cloudVisualizer->removeAxis();
 }
 
@@ -766,6 +783,7 @@ void MainWindow::on_confirmRegistrationAction_triggered()
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
 		qDebug() << cloudName << "registration transformation confirmed!";
 		it_name++;
+		it_visible++;
 	}	
 }
 
@@ -789,6 +807,7 @@ void MainWindow::on_applyTransformationAction_triggered()
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
 		qDebug() << cloudName << "transformation applied!";
 		it_name++;
+		it_visible++;
 	}	
 }
 
@@ -811,6 +830,7 @@ void MainWindow::on_forceRigidRegistrationAction_triggered()
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
 		qDebug() << cloudName << " is forced to rigid transformation!";
 		it_name++;
+		it_visible++;
 	}		
 }
 
