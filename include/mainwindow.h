@@ -23,7 +23,7 @@ class NormalFieldDialog;
 class VirtualScanDialog;
 class DepthCameraDialog;
 class AddNoiseDialog;
-class RandomTransformationDialog;
+class TransformationDialog;
 class SaveContentDialog;
 class HausdorffDistanceDialog;
 class ColorFieldDialog;
@@ -66,7 +66,7 @@ private:
 	VirtualScanDialog *virtualScanDialog;
 	DepthCameraDialog *depthCameraDialog;
 	AddNoiseDialog *addNoiseDialog;
-	RandomTransformationDialog *randomTransformationDialog;
+	TransformationDialog *transformationDialog;
 	SaveContentDialog *saveContentDialog;
 	HausdorffDistanceDialog *hausdorffDistanceDialog;
 	ColorFieldDialog *colorFieldDialog;
@@ -125,8 +125,8 @@ private slots:
 	void on_normalFieldDialog_sendParameters(QVariantMap parameters);
 	void on_addNoiseAction_triggered();
 	void on_addNoiseDialog_sendParameters(QVariantMap parameters);
-	void on_randomTransformationAction_triggered();
-	void on_randomTransformationDialog_sendParameters(QVariantMap parameters);
+	void on_transformationAction_triggered();
+	void on_transformationDialog_sendParameters(QVariantMap parameters);
 	void on_hausdorffDistanceAction_triggered();
 	void on_hausdorffDistanceDialog_sendParameters(QVariantMap parameters);
 	void on_colorFieldAction_triggered();

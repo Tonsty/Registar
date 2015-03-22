@@ -23,7 +23,7 @@
 #include "../include/virtualscan.h"
 #include "../set_color/set_color.h"
 #include "../include/addnoisedialog.h"
-#include "../include/randomtransformationdialog.h"
+#include "../include/transformationdialog.h"
 #include "../include/savecontentdialog.h"
 #include "../include/hausdorffdistancedialog.h"
 #include "../include/colorfielddialog.h"
@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	depthCameraDialog = 0;
 	pairwiseRegistrationDialog = 0;
 	addNoiseDialog = 0;
-	randomTransformationDialog = 0;
+	transformationDialog = 0;
 	saveContentDialog = 0;
 	hausdorffDistanceDialog = 0;
 
@@ -459,17 +459,17 @@ void MainWindow::on_addNoiseAction_triggered()
 	addNoiseDialog->activateWindow();
 }
 
-void MainWindow::on_randomTransformationAction_triggered()
+void MainWindow::on_transformationAction_triggered()
 {
-	if (!randomTransformationDialog)
+	if (!transformationDialog)
 	{
-		randomTransformationDialog = new RandomTransformationDialog(this);
-		connect(randomTransformationDialog, SIGNAL(sendParameters(QVariantMap)),
-			this, SLOT(on_randomTransformationDialog_sendParameters(QVariantMap)));
+		transformationDialog = new TransformationDialog(this);
+		connect(transformationDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_transformationDialog_sendParameters(QVariantMap)));
 	}
-	randomTransformationDialog->show();
-	randomTransformationDialog->raise();
-	randomTransformationDialog->activateWindow();
+	transformationDialog->show();
+	transformationDialog->raise();
+	transformationDialog->activateWindow();
 }
 
 void MainWindow::on_hausdorffDistanceAction_triggered()
@@ -1235,10 +1235,20 @@ void MainWindow::on_addNoiseDialog_sendParameters(QVariantMap parameters)
 	}	
 }
 
-void MainWindow::on_randomTransformationDialog_sendParameters(QVariantMap parameters)
+void MainWindow::on_transformationDialog_sendParameters(QVariantMap parameters)
 {
+	QString command = parameters["command"].toString();
+
 	float max_angle = parameters["max_angle"].toFloat();
 	float max_distance = parameters["max_distance"].toFloat();
+	bool rotate_around_centroid = parameters["rotate_around_centroid"].toBool();
+
+	bool send_centroid_origin = parameters["send_centroid_origin"].toBool();
+	bool align_pca_xyz = parameters["align_pca_xyz"].toBool();
+	bool scale_unit = parameters["scale_unit"].toBool();
+
+	bool uniform = parameters["uniform"].toBool();
+	bool separate = parameters["separate"].toBool();
 
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
 	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
@@ -1251,9 +1261,64 @@ void MainWindow::on_randomTransformationDialog_sendParameters(QVariantMap parame
 		Cloud *cloud = cloudManager->getCloud(cloudName);
 
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		Eigen::Matrix4f transformation = cloud->getTransformation();
-		Eigen::Matrix4f randomRigidTransf = randomRigidTransformation(max_angle / 180 * M_PI, max_distance) * transformation;
-		cloud->setRegistrationTransformation(randomRigidTransf);
+
+		if ( command == "Random" )
+		{
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Eigen::Matrix4f randomRigidTransf = Eigen::Matrix4f::Identity();
+			if (rotate_around_centroid)
+			{
+				Eigen::Matrix3f rotation = randomRotation(max_angle / 180 * M_PI).toRotationMatrix();
+				Eigen::Vector3f translation = randomTranslation(max_distance);
+				Eigen::Vector4f centroid;
+				pcl::compute3DCentroid(*cloud->getCloudData(), centroid);
+				centroid = transformation * centroid;
+				translation += ( Eigen::Matrix3f::Identity() - rotation ) * centroid.block<3, 1>(0, 0);
+				randomRigidTransf.block<3,3>(0,0) = rotation;
+				randomRigidTransf.block<3,1>(0,3) = translation;
+				randomRigidTransf = randomRigidTransf * transformation;
+			}
+			else
+			{
+				randomRigidTransf = randomRigidTransformation(max_angle / 180 * M_PI, max_distance) * transformation;
+			}
+			cloud->setRegistrationTransformation(randomRigidTransf);
+		}
+		else if ( command == "Normalize" )
+		{
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Eigen::Matrix4f normalizeTransformation = Eigen::Matrix4f::Identity();
+			if (send_centroid_origin)
+			{
+				Eigen::Vector3f translation = Eigen::Vector3f(0,0,0);
+				Eigen::Vector4f centroid;
+				pcl::compute3DCentroid(*cloud->getCloudData(), centroid);
+				centroid = transformation * centroid;
+				translation = -centroid.block<3,1>(0, 0);
+				normalizeTransformation.block<3,1>(0, 3) = translation;
+				normalizeTransformation = normalizeTransformation * transformation;
+			}
+			if (align_pca_xyz)
+			{
+				Eigen::Transform<float,3, Eigen::Affine> pcaTransformation;
+				pcl::getPrincipalTransformation(*cloud->getCloudData(), pcaTransformation);
+				Eigen::Matrix3f rotation = pcaTransformation.rotation().inverse();
+				Eigen::Vector3f translation = Eigen::Vector3f(0, 0, 0);
+				Eigen::Vector4f centroid = pcaTransformation.matrix().block<4,1>(0, 3);
+				centroid = transformation * centroid;
+				translation = ( Eigen::Matrix3f::Identity() - rotation ) * centroid.block<3,1>(0,0);
+				normalizeTransformation.block<3,3>(0,0) = rotation;
+				normalizeTransformation.block<3,1>(0,3) = translation;
+				normalizeTransformation = normalizeTransformation * transformation;
+			}
+			if (scale_unit)
+			{
+				PointType min_pt, max_pt;
+				pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
+			}
+			cloud->setRegistrationTransformation(normalizeTransformation);
+		}
+
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
 

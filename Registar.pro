@@ -83,7 +83,7 @@ HEADERS += include/mainwindow.h \
 			include/virtualscan.h \
 			set_color/set_color.h \
 			include/addnoisedialog.h \
-			include/randomtransformationdialog.h \
+			include/transformationdialog.h \
 			include/savecontentdialog.h \
 			include/hausdorffdistancedialog.h \
 			include/hausdorffdistance.h \
@@ -125,7 +125,7 @@ SOURCES += src/main.cpp \
 			src/virtualscan.cpp \
 			set_color/set_color.cpp \
 			src/addnoisedialog.cpp \
-			src/randomtransformationdialog.cpp \
+			src/transformationdialog.cpp \
 			src/savecontentdialog.cpp \
 			src/hausdorffdistancedialog.cpp \
 			src/hausdorffdistance.cpp \
@@ -147,7 +147,7 @@ FORMS += ui/MainWindow.ui \
 			ui/VirtualScanDialog.ui \
 			ui/DepthCameraDialog.ui \
 			ui/AddNoiseDialog.ui \
-			ui/RandomTransformationDialog.ui \
+			ui/TransformationDialog.ui \
 			ui/SaveContentDialog.ui \
 			ui/HausdorffDistanceDialog.ui \
 			ui/ColorFieldDialog.ui

@@ -2,15 +2,15 @@
 #define RANDOMTRANSFORMATIONDIALOG_H
 
 #include <QtGui/QDialog>
-#include "ui_RandomTransformationDialog.h"
+#include "ui_TransformationDialog.h"
 
-class RandomTransformationDialog : public QDialog, public Ui_RandomTransformationDialog
+class TransformationDialog : public QDialog, public Ui_TransformationDialog
 {
 	Q_OBJECT
 
 public:
-	RandomTransformationDialog(QWidget *parent = 0);
-	virtual ~RandomTransformationDialog();
+	TransformationDialog(QWidget *parent = 0);
+	virtual ~TransformationDialog();
 
 signals:
 	void sendParameters(QVariantMap parameters);

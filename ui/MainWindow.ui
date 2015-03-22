@@ -81,15 +81,6 @@
     <property name="title">
      <string>Fil&amp;ters</string>
     </property>
-    <widget class="QMenu" name="menuTransformation">
-     <property name="title">
-      <string>Transformation</string>
-     </property>
-     <addaction name="translationAction"/>
-     <addaction name="rotationAction"/>
-     <addaction name="scaleAction"/>
-     <addaction name="randomTransformationAction"/>
-    </widget>
     <widget class="QMenu" name="menuFieldsOperation">
      <property name="title">
       <string>FieldsOperation</string>
@@ -107,7 +98,7 @@
     <addaction name="addNoiseAction"/>
     <addaction name="menuFieldsOperation"/>
     <addaction name="separator"/>
-    <addaction name="menuTransformation"/>
+    <addaction name="transformationAction"/>
     <addaction name="separator"/>
     <addaction name="concatenationAction"/>
    </widget>
@@ -504,9 +495,9 @@
     <string>Add Noise</string>
    </property>
   </action>
-  <action name="randomTransformationAction">
+  <action name="transformationAction">
    <property name="text">
-    <string>Random Transformation</string>
+    <string>Transformation</string>
    </property>
   </action>
   <action name="hausdorffDistanceAction">
@@ -542,6 +533,11 @@
   <action name="colorFieldAction">
    <property name="text">
     <string>Color Field</string>
+   </property>
+  </action>
+  <action name="actionCustom_Transformation">
+   <property name="text">
+    <string>Custom Transformation</string>
    </property>
   </action>
  </widget>
