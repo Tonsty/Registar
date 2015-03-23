@@ -27,6 +27,7 @@
 #include "../include/savecontentdialog.h"
 #include "../include/hausdorffdistancedialog.h"
 #include "../include/colorfielddialog.h"
+#include "../include/generateoutliersdialog.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -72,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	transformationDialog = 0;
 	saveContentDialog = 0;
 	hausdorffDistanceDialog = 0;
+	generateOutliersDialog = 0;
 
 	diagramWindow = 0;
 	globalRegistrationDialog = 0;
@@ -707,9 +709,8 @@ void MainWindow::on_drawAxisAction_toggled(bool isChecked)
 
 	QStringList cloudNameList = cloudBrowser->getVisibleCloudNames();
 
-	QStringList::Iterator it = cloudNameList.begin();
 	pcl::PointCloud<PointType> cloud_box;
-	for(QStringList::iterator it = cloudNameList.begin(); it != cloudNameList.end(); it++)
+	for(QStringList::Iterator it = cloudNameList.begin(); it != cloudNameList.end(); it++)
 	{
 		QString cloudName = (*it);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
@@ -1105,7 +1106,7 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 	}	
 }
 
-void MainWindow::on_colorFieldAction_sendParameters(QVariantMap parameters)
+void MainWindow::on_colorFieldDialog_sendParameters(QVariantMap parameters)
 {
 	float R = parameters["R"].toFloat();
 	float G = parameters["G"].toFloat();
@@ -1329,6 +1330,81 @@ void MainWindow::on_transformationDialog_sendParameters(QVariantMap parameters)
 		it_name++;
 		it_visible++;
 	}	
+}
+
+void MainWindow::on_generateOutliersAction_triggered()
+{
+	if (!generateOutliersDialog)
+	{
+		generateOutliersDialog = new GenerateOutliersDialog(this);
+		connect(generateOutliersDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_generateOutliersDialog_sendParameters(QVariantMap)));
+		connect(generateOutliersDialog, SIGNAL(boundingBox()),
+			this, SLOT(on_generateOutliersDialog_boundingBox()));
+	}
+
+	generateOutliersDialog->show();
+	generateOutliersDialog->raise();
+	generateOutliersDialog->activateWindow();
+}
+
+void MainWindow::on_generateOutliersDialog_sendParameters(QVariantMap parameters)
+{
+	float xmin = parameters["xmin"].toFloat();
+	float xmax = parameters["xmax"].toFloat();
+	float ymin = parameters["ymin"].toFloat();
+	float ymax = parameters["ymax"].toFloat();
+	float zmin = parameters["zmin"].toFloat();
+	float zmax = parameters["zmax"].toFloat();
+
+	int numofpoints = parameters["numofpoints"].toInt();
+
+	bool overwrite = parameters["overwrite"].toBool();
+	float noise_std = parameters["noise_std"].toFloat();
+	int method = parameters["method"].toInt();
+
+	if ( method == 0)
+	{
+		CloudDataPtr cloudData_outliers(new CloudData);
+		cloudData_outliers->resize(numofpoints);
+		for (int i =0; i < numofpoints; i++)
+		{
+			cloudData_outliers->points[i].getVector3fMap() = random3DPoint(xmin, xmax, ymin, ymax, zmin, zmax).getVector3fMap();
+		}
+		Polygons polygons;
+		Cloud* cloudOutliers = cloudManager->addCloud(cloudData_outliers, polygons, Cloud::fromFilter, "", Eigen::Matrix4f::Identity());
+		cloudBrowser->addCloud(cloudOutliers);
+		cloudVisualizer->addCloud(cloudOutliers);
+	}
+}
+
+void MainWindow::on_generateOutliersDialog_boundingBox()
+{
+	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+
+	if (cloudNameList.begin() != cloudNameList.end())
+	{
+		pcl::PointCloud<PointType> cloud_box;
+		for(QStringList::Iterator it = cloudNameList.begin(); it != cloudNameList.end(); it++)
+		{
+			QString cloudName = (*it);
+			Cloud *cloud = cloudManager->getCloud(cloudName);
+			PointType min_pt, max_pt;
+			pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
+			cloud_box.push_back(min_pt);
+			cloud_box.push_back(max_pt);
+		}	
+		PointType all_min_pt, all_max_pt;
+		pcl::getMinMax3D(cloud_box, all_min_pt, all_max_pt);
+
+		generateOutliersDialog->xMinLineEdit->setText(QString::number(all_min_pt.x));
+		generateOutliersDialog->yMinLineEdit->setText(QString::number(all_min_pt.y));
+		generateOutliersDialog->zMinLineEdit->setText(QString::number(all_min_pt.z));
+
+		generateOutliersDialog->xMaxLineEdit->setText(QString::number(all_max_pt.x));
+		generateOutliersDialog->yMaxLineEdit->setText(QString::number(all_max_pt.y));
+		generateOutliersDialog->zMaxLineEdit->setText(QString::number(all_max_pt.z));
+	}
 }
 
 void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)

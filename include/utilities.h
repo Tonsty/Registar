@@ -1,6 +1,7 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+#include <stdlib.h>
 #include <Eigen/Dense>
 #include <time.h>
 #include <boost/random.hpp>
@@ -55,8 +56,8 @@ namespace registar
 	{
 		//srand((unsigned int)time(0));
 
-		int a = rand() % 65536;
-		float b = ((float)a)/65535;
+		int a = rand();
+		float b = ((float)a) / RAND_MAX;
 
 		return min + ( max - min ) * b;
 	}
@@ -77,7 +78,7 @@ namespace registar
 		return Eigen::Vector3f( x0, x1, x2 );	
 	}
 
-	inline Eigen::AngleAxisf randomRotation( float angleScale = 1.0f * M_PI)
+	inline Eigen::AngleAxisf randomRotation( float angleScale = 1.0f * M_PI) // around axis pass origin
 	{
 		return Eigen::AngleAxisf( randomFloat() * angleScale, randomUnitVector() );
 	}
@@ -101,6 +102,16 @@ namespace registar
 		randomRigidTransf.block<3,3>(0,0) = randomRotation( angleScale ).toRotationMatrix();
 		randomRigidTransf.block<3,1>(0,3) = randomTranslation( translationScale );
 		return randomRigidTransf;
+	}
+
+	inline pcl::PointXYZ random3DPoint(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+	{
+		pcl::PointXYZ randompoint;
+		randompoint.x = randomFloat(xmin, xmax);
+		randompoint.y = randomFloat(ymin, ymax);
+		randompoint.z = randomFloat(zmin, zmax);
+
+		return randompoint;
 	}
 
 	inline void flipPointCloudNormalsTowardsViewpoint(const CloudData &cloud_in, const pcl::PointXYZ &view_point, CloudData &cloud_out)

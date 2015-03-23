@@ -100,6 +100,7 @@
     <addaction name="separator"/>
     <addaction name="transformationAction"/>
     <addaction name="separator"/>
+    <addaction name="generateOutliersAction"/>
     <addaction name="concatenationAction"/>
    </widget>
    <widget class="QMenu" name="renderMenu">
@@ -538,6 +539,11 @@
   <action name="actionCustom_Transformation">
    <property name="text">
     <string>Custom Transformation</string>
+   </property>
+  </action>
+  <action name="generateOutliersAction">
+   <property name="text">
+    <string>Generate Outliers</string>
    </property>
   </action>
  </widget>

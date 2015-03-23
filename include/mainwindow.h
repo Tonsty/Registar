@@ -27,6 +27,7 @@ class TransformationDialog;
 class SaveContentDialog;
 class HausdorffDistanceDialog;
 class ColorFieldDialog;
+class GenerateOutliersDialog;
 
 class PairwiseRegistrationDialog;
 
@@ -70,6 +71,7 @@ private:
 	SaveContentDialog *saveContentDialog;
 	HausdorffDistanceDialog *hausdorffDistanceDialog;
 	ColorFieldDialog *colorFieldDialog;
+	GenerateOutliersDialog *generateOutliersDialog;
 
 	PairwiseRegistrationDialog *pairwiseRegistrationDialog;
 	registar::PairwiseRegistrationManager *pairwiseRegistrationManager;
@@ -130,7 +132,10 @@ private slots:
 	void on_hausdorffDistanceAction_triggered();
 	void on_hausdorffDistanceDialog_sendParameters(QVariantMap parameters);
 	void on_colorFieldAction_triggered();
-	void on_colorFieldAction_sendParameters(QVariantMap parameters);
+	void on_colorFieldDialog_sendParameters(QVariantMap parameters);
+	void on_generateOutliersAction_triggered();
+	void on_generateOutliersDialog_sendParameters(QVariantMap parameters);
+	void on_generateOutliersDialog_boundingBox();
 
 	void on_virtualScanAction_triggered();
 	void on_virtualScanDialog_sendParameters(QVariantMap parameters);

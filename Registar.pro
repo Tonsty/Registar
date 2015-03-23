@@ -87,7 +87,8 @@ HEADERS += include/mainwindow.h \
 			include/savecontentdialog.h \
 			include/hausdorffdistancedialog.h \
 			include/hausdorffdistance.h \
-			include/colorfielddialog.h
+			include/colorfielddialog.h \
+			include/generateoutliersdialog.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -129,7 +130,8 @@ SOURCES += src/main.cpp \
 			src/savecontentdialog.cpp \
 			src/hausdorffdistancedialog.cpp \
 			src/hausdorffdistance.cpp \
-			src/colorfielddialog.cpp
+			src/colorfielddialog.cpp \
+			src/generateoutliersdialog.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -150,6 +152,7 @@ FORMS += ui/MainWindow.ui \
 			ui/TransformationDialog.ui \
 			ui/SaveContentDialog.ui \
 			ui/HausdorffDistanceDialog.ui \
-			ui/ColorFieldDialog.ui
+			ui/ColorFieldDialog.ui  \
+			ui/GenerateOutliersDialog.ui
 
 
