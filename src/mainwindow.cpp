@@ -1350,6 +1350,8 @@ void MainWindow::on_generateOutliersAction_triggered()
 
 void MainWindow::on_generateOutliersDialog_sendParameters(QVariantMap parameters)
 {
+	QString command = parameters["command"].toString();
+
 	float xmin = parameters["xmin"].toFloat();
 	float xmax = parameters["xmax"].toFloat();
 	float ymin = parameters["ymin"].toFloat();
@@ -1359,11 +1361,16 @@ void MainWindow::on_generateOutliersDialog_sendParameters(QVariantMap parameters
 
 	int numofpoints = parameters["numofpoints"].toInt();
 
-	bool overwrite = parameters["overwrite"].toBool();
-	float noise_std = parameters["noise_std"].toFloat();
 	int method = parameters["method"].toInt();
+	bool uniform = parameters["uniform"].toBool();
+	bool separate = parameters["separate"].toBool();
 
-	if ( method == 0)
+	float percent = parameters["percent"].toFloat();
+	float noise_std = parameters["noise_std"].toFloat();
+
+	bool overwrite = parameters["overwrite"].toBool();
+
+	if( command == "Manual")
 	{
 		CloudDataPtr cloudData_outliers(new CloudData);
 		cloudData_outliers->resize(numofpoints);
@@ -1376,6 +1383,55 @@ void MainWindow::on_generateOutliersDialog_sendParameters(QVariantMap parameters
 		cloudBrowser->addCloud(cloudOutliers);
 		cloudVisualizer->addCloud(cloudOutliers);
 	}
+	else if ( command == "Data-dependent")
+	{
+		if ( method == 0)
+		{
+			if (uniform)
+			{
+			}
+			else if (separate)
+			{
+				QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
+
+				if (cloudNameList.begin() != cloudNameList.end())
+				{
+					for(QStringList::Iterator it = cloudNameList.begin(); it != cloudNameList.end(); it++)
+					{
+						QString cloudName = (*it);
+						Cloud *cloud = cloudManager->getCloud(cloudName);
+						PointType min_pt, max_pt;
+						pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
+
+						xmin = min_pt.x;
+						ymin = min_pt.y;
+						zmin = min_pt.z;
+
+						xmax = max_pt.x;
+						ymax = max_pt.y;
+						zmax = max_pt.z;
+
+						CloudDataPtr cloudData_outliers(new CloudData);
+						cloudData_outliers->resize(percent * cloud->getCloudData()->size());
+						for (int i =0; i < cloudData_outliers->size(); i++)
+						{
+							cloudData_outliers->points[i].getVector3fMap() = random3DPoint(xmin, xmax, ymin, ymax, zmin, zmax).getVector3fMap();
+							cloudData_outliers->points[i].getNormalVector3fMap() = 
+						}
+						Polygons polygons;
+						Cloud* cloudOutliers = cloudManager->addCloud(cloudData_outliers, polygons, Cloud::fromFilter, "", Eigen::Matrix4f::Identity());
+						cloudBrowser->addCloud(cloudOutliers);
+						cloudVisualizer->addCloud(cloudOutliers);
+					}	
+				}
+			}
+		}
+		else if (method == 2)
+		{
+
+		}
+	}
+
 }
 
 void MainWindow::on_generateOutliersDialog_boundingBox()

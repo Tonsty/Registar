@@ -104,6 +104,7 @@ bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloud
 			break;
 		}
 	};
+	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, cloudName.toStdString());
 	update();
 	return flag;
 }
@@ -112,7 +113,7 @@ bool CloudVisualizer::addCloud(CloudDataConstPtr cloudData, const QString &cloud
 {
 	bool flag = true;
 	pcl::visualization::PointCloudColorHandlerCustom<PointType> rgb_handler (cloudData, r, g, b);
-	flag = visualizer->addPointCloud<PointType>(cloudData, rgb_handler, cloudName.toStdString());	
+	flag = visualizer->addPointCloud<PointType>(cloudData, rgb_handler, cloudName.toStdString());
 	update();
 	return flag;
 }

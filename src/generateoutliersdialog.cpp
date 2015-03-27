@@ -12,6 +12,8 @@ GenerateOutliersDialog::~GenerateOutliersDialog(){}
 
 void GenerateOutliersDialog::on_applyButton_clicked()
 {
+	QString command = tabWidget->tabText(tabWidget->currentIndex());
+
 	float xmin = xMinLineEdit->text().toFloat();
 	float xmax = xMaxLineEdit->text().toFloat();
 	float ymin = yMinLineEdit->text().toFloat();
@@ -21,11 +23,19 @@ void GenerateOutliersDialog::on_applyButton_clicked()
 
 	int numofpoints = numOfPointsLineEdit->text().toInt();
 
-	bool overwrite = overwriteCheckBox->isChecked();
-	float noise_std = noiseSTDLineEdit->text().toFloat();
 	int method = methodComboBox->currentIndex();
+	bool uniform = uniformRadioButton->isChecked();
+	bool separate = separateRadioButton->isChecked();
+
+	float percent = percentLineEdit->text().toFloat();
+	float noise_std = noiseSTDLineEdit->text().toFloat();
+
+	bool overwrite = overwriteCheckBox->isChecked();
 
 	QVariantMap parameters;
+
+	parameters["command"] = command;
+
 	parameters["xmin"] = xmin;
 	parameters["xmax"] = xmax;
 	parameters["ymin"] = ymin;
@@ -35,9 +45,14 @@ void GenerateOutliersDialog::on_applyButton_clicked()
 
 	parameters["numofpoints"] = numofpoints;
 
-	parameters["overwrite"] = overwrite;
-	parameters["noise_std"] = noise_std;
 	parameters["method"] = method;
+	parameters["uniform"] = uniform;
+	parameters["separate"] = separate;
+
+	parameters["percent"] = percent;
+	parameters["noise_std"] = noise_std;
+
+	parameters["overwrite"] = overwrite;
 
 	emit sendParameters(parameters);
 }
