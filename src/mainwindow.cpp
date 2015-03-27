@@ -172,7 +172,7 @@ void MainWindow::on_aboutAction_triggered()
 
 void MainWindow::on_openAction_triggered()
 {
-	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open File"), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
+	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open File"), ".", tr("PLY file (*.ply);;VTK file (*.vtk)"));
 
 	QStringList::Iterator it = fileNameList.begin();
 	while (it != fileNameList.end())
