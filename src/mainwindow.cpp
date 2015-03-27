@@ -1416,7 +1416,7 @@ void MainWindow::on_generateOutliersDialog_sendParameters(QVariantMap parameters
 						for (int i =0; i < cloudData_outliers->size(); i++)
 						{
 							cloudData_outliers->points[i].getVector3fMap() = random3DPoint(xmin, xmax, ymin, ymax, zmin, zmax).getVector3fMap();
-							cloudData_outliers->points[i].getNormalVector3fMap() = 
+							cloudData_outliers->points[i].getNormalVector3fMap() = Eigen::Vector3f(0,0,1);
 						}
 						Polygons polygons;
 						Cloud* cloudOutliers = cloudManager->addCloud(cloudData_outliers, polygons, Cloud::fromFilter, "", Eigen::Matrix4f::Identity());
