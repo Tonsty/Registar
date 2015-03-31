@@ -441,7 +441,7 @@ void MainWindow::on_colorFieldAction_triggered()
 	{
 		colorFieldDialog = new ColorFieldDialog(this);
 		connect(colorFieldDialog, SIGNAL(sendParameters(QVariantMap)),
-			this, SLOT(on_colorFieldAction_sendParameters(QVariantMap)));
+			this, SLOT(on_colorFieldDialog_sendParameters(QVariantMap)));
 	}
 	colorFieldDialog->show();
 	colorFieldDialog->raise();
