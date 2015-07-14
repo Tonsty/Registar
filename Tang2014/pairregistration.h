@@ -69,8 +69,8 @@ namespace Tang2014
 			sourceKdTree = _sourceKdTree;
 		}
 
-		inline void setParameter(PairRegistration::Parameters _para) { para = _para; }
-		inline void setTransformation(Transformation _transformation) { transformation = _transformation; }
+		inline void setParameter(const PairRegistration::Parameters &_para) { para = _para; }
+		inline void setTransformation(const Transformation &_transformation) { transformation = _transformation; }
 
 		ScanPtr target;
 		ScanPtr source;
@@ -110,12 +110,12 @@ namespace Tang2014
 
 		static void generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, unsigned int _threads);
+								PointsPtr _sbuffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, unsigned int _threads);
 
 		static void generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
 								std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _threads);
+								PointsPtr _buffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _threads);
 
 		virtual void generateFinalPointPairs(Transformation _transformation);
 

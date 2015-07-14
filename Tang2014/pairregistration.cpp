@@ -362,7 +362,7 @@ namespace Tang2014
 
 	void PairRegistrationOMP::generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, unsigned int _threads)
+								PointsPtr _sbuffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, unsigned int _threads)
 	{
 		pcl::transformPointCloudWithNormals(*_source->pointsPtr, *_sbuffer, _transformation);
 
@@ -477,7 +477,7 @@ namespace Tang2014
 	void PairRegistrationOMP::generatePointPairsOMP(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
 								std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _thread)
+								PointsPtr _buffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _thread)
 	{
 		generatePointPairsOMP(_target, _source, _targetKdTree, _sourceCandidateIndices, _sourceCandidateIndices_temp, _buffer, _transformation, _para, _s2t, _thread);
 		generatePointPairsOMP(_source, _target, _sourceKdTree, _targetCandidateIndices, _targetCandidateIndices_temp, _buffer, _transformation.inverse(), _para,_t2s, _thread);

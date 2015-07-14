@@ -7,6 +7,8 @@
 #define PCL_NO_PRECOMPILE
 #endif
 
+#include <boost/filesystem.hpp>
+
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/ply_io.h>
@@ -27,6 +29,7 @@ namespace Tang2014
 
 		char dummy[300];
 		int scan_i = 0;
+		std::string directory = boost::filesystem::path(fileName).remove_filename().string();
 		while( file.getline(dummy, 300) )
 		{
 			std::cout << "scan " << scan_i << " : " << dummy << std::endl;
@@ -35,11 +38,12 @@ namespace Tang2014
 			scanPtrs.push_back(scanPtr);
 
 			//read in file path
-			scanPtr->filePath = std::string(dummy);
+			scanPtr->filePath = directory + "/" + std::string(dummy);
 
 			//read in transformation
 			QFileInfo fileInfo(dummy);
-			QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";	
+			//QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";	
+			QString tfFileName = QString::fromStdString(directory) + "/" + fileInfo.completeBaseName() + ".tf";	
 			std::cout << "read in " << tfFileName.toStdString() << std::endl; 
 			QFile tfFile(tfFileName);
 
@@ -56,12 +60,12 @@ namespace Tang2014
 			scanPtr->transformation = transformation;				
 
 			//read in pointcloud (points and normals)
-			std::cout << "read in " << dummy << std::endl;
+			std::cout << "read in " << directory <<"/" << dummy << std::endl;
 			pcl::PLYReader plyReader;
 			scanPtr->pointsPtr.reset(new Points);
 			//plyReader.read(dummy, *scanPtr->pointsPtr);
 			pcl::PolygonMeshPtr polygonMesh(new pcl::PolygonMesh);
-			plyReader.read(dummy, *polygonMesh);
+			plyReader.read(directory + "/" + dummy, *polygonMesh);
 			pcl::fromPCLPointCloud2(polygonMesh->cloud, *scanPtr->pointsPtr);
 
 			//remove NAN points
@@ -75,7 +79,8 @@ namespace Tang2014
 			pcl::transformPointCloudWithNormals(*scanPtr->pointsPtr, *scanPtr->pointsPtr, transformation);
 
 			//read in boundaries
-			QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
+			//QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
+			QString bdFileName = QString::fromStdString(directory) + "/" + fileInfo.completeBaseName() + ".bd";
 			std::cout << "read in " << bdFileName.toStdString() << std::endl;
 			pcl::PCDReader pcdReader;
 			scanPtr->boundariesPtr.reset(new Boundaries);
