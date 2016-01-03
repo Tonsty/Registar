@@ -211,6 +211,9 @@ void ManualRegistration::clearPressed()
 
   vis_src_->removeAllShapes();
   vis_dst_->removeAllShapes();
+
+  ui_->qvtk_widget_src->update();
+  ui_->qvtk_widget_dst->update();
 }
 
 void ManualRegistration::orthoChanged (int state)
