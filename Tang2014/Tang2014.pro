@@ -32,7 +32,7 @@ unix{
 	INCLUDEPATH += . /usr/include/vtk-5.8/ /usr/local/include/pcl-1.8/ /usr/include/eigen3/
 	LIBS += -L/usr/lib/ \
 			-lQVTK -lvtkCommon -lQVTK -lvtkRendering -lvtkFiltering -lvtkGraphics \
-			-lboost_system \
+			-lboost_system -lboost_filesystem\
 			-L/usr/local/lib/ \
 			-lpcl_visualization -lpcl_io -lpcl_common -lpcl_kdtree -lpcl_search -lpcl_filters \
 			-L/usr/lib/gcc/x85_64-linux-gnu/ \
