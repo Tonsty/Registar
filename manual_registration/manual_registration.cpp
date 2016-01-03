@@ -279,7 +279,7 @@ void ManualRegistration::showSrcCloud()
 {
   //vis_src_->addPointCloud<PointT>(cloud_src_, "cloud_src_");
   pcl::visualization::PointCloudColorHandlerRGBField<PointT> rgb_handler(cloud_src_);
-  vis_src_->addPointCloud<PointT>(cloud_src_, rgb_handler, "cloud_src");
+  vis_src_->addPointCloud<PointT>(cloud_src_, rgb_handler, "cloud_src_");
   Eigen::Vector4f centroid;
   pcl::compute3DCentroid(*cloud_src_, centroid);
   PointT min_pt, max_pt;
