@@ -1516,7 +1516,7 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 			pcl::PointCloud<pcl::PointXYZ>::CloudVectorType clouds;
 			std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > poses;
 			std::vector<float> enthropies;
-			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere2(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
+			cloudVisualizer->getVisualizer()->renderViewTesselatedSphere3(xres, yres, clouds, poses, enthropies, tesselation_level, view_angle, radius_sphere, use_vertices);
 
 			std::vector<RGB_> rgbs = generateUniformColors(clouds.size(), 60, 300);
 
@@ -1538,7 +1538,7 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 				cloudBrowser->addCloud(cloud);
 				cloudVisualizer->addCloud(cloud);
 
-				std::cout << "scan " << i << " : " << enthropies[i] << std::endl;
+				//std::cout << "scan " << i << " : " << enthropies[i] << std::endl;
 
 				//std::vector<int> nanIndicesVector;
 				//pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );

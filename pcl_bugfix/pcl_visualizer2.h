@@ -20,6 +20,9 @@ namespace pcl
         	void renderViewTesselatedSphere2(int xres, int yres, pcl::PointCloud<pcl::PointXYZ>::CloudVectorType & cloud,
             								std::vector<Eigen::Matrix4f,Eigen::aligned_allocator< Eigen::Matrix4f > > & poses, std::vector<float> & enthropies, 
             								int tesselation_level, float view_angle = 45, float radius_sphere = 1, bool use_vertices = true);
+			void renderViewTesselatedSphere3(int xres, int yres, pcl::PointCloud<pcl::PointXYZ>::CloudVectorType & cloud,
+				std::vector<Eigen::Matrix4f,Eigen::aligned_allocator< Eigen::Matrix4f > > & poses, std::vector<float> & enthropies, 
+				int tesselation_level, float view_angle = 45, float radius_sphere = 1, bool use_vertices = true);
 		};
 	}
 }
