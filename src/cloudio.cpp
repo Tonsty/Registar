@@ -323,7 +323,7 @@ bool CloudIO::exportVTKPolygonMesh(const QString &fileName, PolygonMeshConstPtr 
 	{
 		PCL_ERROR ("[pcl::io::saveVTKFile] Input point cloud has no data!\n");
 		return (-1);
-	}
+	}                                       
 
 	// Open file
 	std::ofstream fs;

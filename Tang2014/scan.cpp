@@ -30,6 +30,7 @@ namespace Tang2014
 		char dummy[300];
 		int scan_i = 0;
 		std::string directory = boost::filesystem::path(fileName).remove_filename().string();
+		if (directory == "") directory = ".";
 		while( file.getline(dummy, 300) )
 		{
 			std::cout << "scan " << scan_i << " : " << dummy << std::endl;
