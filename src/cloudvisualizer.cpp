@@ -135,7 +135,7 @@ bool CloudVisualizer::addCloudNormals(CloudDataConstPtr cloudData, const QString
 {
 	PointType min_pt, max_pt;
 	pcl::getMinMax3D(*cloudData, min_pt, max_pt);
-	float normal_len = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 300;
+	float normal_len = ( max_pt.getVector3fMap() - min_pt.getVector3fMap() ).norm() / 100;
 
 	bool flag;
 	flag = visualizer->addPointCloudNormals<PointType>(cloudData, 1, normal_len, cloudNormalsName.toStdString());
