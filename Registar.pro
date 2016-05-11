@@ -88,7 +88,10 @@ HEADERS += include/mainwindow.h \
 			include/hausdorffdistancedialog.h \
 			include/hausdorffdistance.h \
 			include/colorfielddialog.h \
-			include/generateoutliersdialog.h
+			include/generateoutliersdialog.h \
+			include/tang2014dialog.h \
+			include/tang2014.h \
+			include/args_converter.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -131,7 +134,14 @@ SOURCES += src/main.cpp \
 			src/hausdorffdistancedialog.cpp \
 			src/hausdorffdistance.cpp \
 			src/colorfielddialog.cpp \
-			src/generateoutliersdialog.cpp
+			src/generateoutliersdialog.cpp \
+			src/tang2014dialog.cpp \
+			src/tang2014.cpp \
+			src/args_converter.cpp \
+			../Tang2014/pairregistration.cpp \
+			../Tang2014/tang2014_globalregistration.cpp \
+			../Tang2014/graph.cpp \
+			../Williams2001/SRoMCPS.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -153,6 +163,7 @@ FORMS += ui/MainWindow.ui \
 			ui/SaveContentDialog.ui \
 			ui/HausdorffDistanceDialog.ui \
 			ui/ColorFieldDialog.ui  \
-			ui/GenerateOutliersDialog.ui
+			ui/GenerateOutliersDialog.ui \
+			ui/Tang2014Dialog.ui
 
 

@@ -52,7 +52,7 @@
      </property>
      <addaction name="diagramAction"/>
      <addaction name="globalRegistrationAction"/>
-     <addaction name="actionTang2014"/>
+     <addaction name="tang2014Action"/>
      <addaction name="actionELCH"/>
      <addaction name="actionLiu2014"/>
      <addaction name="actionPulli1999"/>
@@ -506,7 +506,7 @@
     <string>Hausdorff Distance</string>
    </property>
   </action>
-  <action name="actionTang2014">
+  <action name="tang2014Action">
    <property name="text">
     <string>Tang2014</string>
    </property>

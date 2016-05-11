@@ -36,6 +36,8 @@ class GlobalRegistrationDialog;
 
 class ManualRegistration;
 
+class Tang2014Dialog;
+
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -82,6 +84,8 @@ private:
 	registar::CycleRegistrationManager *cycleRegistrationManager;
 
 	ManualRegistration *manualRegistration;
+
+	Tang2014Dialog *tang2014Dialog;
 
 private slots:
 	void on_aboutAction_triggered();
@@ -148,6 +152,9 @@ private slots:
 
 	void on_pairwiseRegistrationDialog_sendParameters(QVariantMap parameters);
 	void on_globalRegistrationDialog_sendParameters(QVariantMap parameters);
+
+	void on_tang2014Action_triggered();
+	void on_tang2014Dialog_sendParameters(QVariantMap parameters);
 };
 
 #endif 

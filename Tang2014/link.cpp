@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace Tang2014
+namespace tang2014
 {
 	void importLinks(const std::string fileName, Links &links)
 	{

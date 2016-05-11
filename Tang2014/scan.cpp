@@ -20,7 +20,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-namespace Tang2014
+namespace tang2014
 {
 	void importScanPtrs(const std::string fileName, ScanPtrs &scanPtrs )
 	{

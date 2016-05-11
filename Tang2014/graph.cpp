@@ -1,6 +1,6 @@
 #include "graph.h"
 
-namespace Tang2014
+namespace tang2014
 {
 	std::ostream& operator<<(std::ostream& _out, const GraphVertex &_graphVertex)
 	{

@@ -30,6 +30,7 @@ namespace registar
 
 		void setCloudData(CloudDataPtr cloudData);
 		CloudDataConstPtr getCloudData()const;
+		CloudDataPtr getCloudData();
 
 		void setPolygons(const Polygons &polygons);
 		const Polygons& getPolygons()const;
@@ -51,6 +52,7 @@ namespace registar
 
 		void setBoundaries(BoundariesPtr boundaries);
 		BoundariesConstPtr getBoundaries()const;
+		BoundariesPtr getBoundaries();
 
 	protected:
 		CloudDataPtr cloudData;

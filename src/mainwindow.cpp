@@ -38,6 +38,9 @@
 #include "../include/globalregistrationdialog.h"
 #include "../include/globalregistration.h"
 
+#include "../include/tang2014dialog.h"
+#include "../include/tang2014.h"
+
 #include "../manual_registration/manual_registration.h"
 #include "../include/utilities.h"
 
@@ -79,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	globalRegistrationDialog = 0;
 
 	manualRegistration = 0;
+
+	tang2014Dialog = 0;
 
 	setCentralWidget(cloudVisualizer);
 
@@ -2055,6 +2060,44 @@ void MainWindow::on_globalRegistrationDialog_sendParameters(QVariantMap paramete
 
 		}
 	}
+}
+
+void MainWindow::on_tang2014Action_triggered()
+{
+	if (!tang2014Dialog)
+	{
+		tang2014Dialog = new Tang2014Dialog(this);
+		connect(tang2014Dialog, SIGNAL(sendParameters(QVariantMap)), 
+			this, SLOT(on_tang2014Dialog_sendParameters(QVariantMap)));
+	}
+	tang2014Dialog->show();
+	tang2014Dialog->raise();
+	tang2014Dialog->activateWindow();
+}
+
+void MainWindow::on_tang2014Dialog_sendParameters(QVariantMap parameters) {
+
+	QList<Cloud*> cloudList = cloudManager->getAllClouds();
+
+	tang2014::ScanPtrs scanPtrs;
+	for (int i = 0; i < cloudList.size(); i++) {
+		tang2014::ScanPtr scanPtr(new tang2014::Scan);
+		scanPtrs.push_back(scanPtr);
+
+		scanPtr->transformation = cloudList[i]->getRegistrationTransformation();
+		scanPtr->pointsPtr.reset(new tang2014::Points);
+		pcl::transformPointCloudWithNormals(*cloudList[i]->getCloudData(), *scanPtr->pointsPtr, scanPtr->transformation);
+		scanPtr->boundariesPtr = cloudList[i]->getBoundaries();
+		scanPtr->filePath = cloudList[i]->getFileName().toStdString();
+	}
+
+	tang2014::Transformations transformations = registar::Tang2014::startRegistration(scanPtrs, parameters);
+
+	for (int i = 0; i < cloudList.size(); i++) {
+		cloudList[i]->setRegistrationTransformation(transformations[0].inverse() * transformations[i] * scanPtrs[i]->transformation);
+		cloudVisualizer->updateCloud(cloudList[i]);
+	}
+
 }
 
 

@@ -27,6 +27,11 @@ CloudDataConstPtr Cloud::getCloudData()const
 	return this->cloudData;
 }
 
+CloudDataPtr Cloud::getCloudData() 
+{
+	return this->cloudData;
+}
+
 void Cloud::setFromWhere(const FromWhere &fromWhere)
 {
 	this->fromWhere = fromWhere;
@@ -83,6 +88,11 @@ void Cloud::setBoundaries(BoundariesPtr boundaries)
 }
 
 BoundariesConstPtr Cloud::getBoundaries()const
+{
+	return this->boundaries;
+}
+
+BoundariesPtr Cloud::getBoundaries()
 {
 	return this->boundaries;
 }

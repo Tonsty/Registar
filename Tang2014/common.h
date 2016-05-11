@@ -3,7 +3,7 @@
 #include <pcl/search/kdtree.h>
 #include <pcl/features/boundary.h>
 
-namespace Tang2014
+namespace tang2014
 {
 	typedef pcl::PointXYZRGBNormal Point;
 	typedef pcl::Boundary Boundary;

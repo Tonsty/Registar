@@ -8,7 +8,7 @@
 #include "link.h"
 #include "loop.h"
 
-namespace Tang2014
+namespace tang2014
 {
 	typedef ScanIndex VertexBase;
 	struct GraphVertex

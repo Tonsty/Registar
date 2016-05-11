@@ -1,5 +1,5 @@
-#ifndef GLOBALREGISTRATION_H
-#define GLOBALREGISTRATION_H
+#ifndef TANG2014_GLOBALREGISTRATION_H
+#define TANG2014_GLOBALREGISTRATION_H
 
 #include "common.h"
 #include "link.h"
@@ -8,7 +8,7 @@
 #include "pairregistration.h"
 #include "graph.h"
 
-namespace Tang2014
+namespace tang2014
 {
 	class GlobalRegistration
 	{

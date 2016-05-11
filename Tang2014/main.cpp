@@ -6,11 +6,9 @@
 #include "scan.h"
 #include "globalregistration.h"
 
-#include "../Williams2001/SRoMCPS.h"
-
 #include <pcl/console/parse.h>
 
-using namespace Tang2014;
+using namespace tang2014;
 
 int main(int argc, char **argv)
 {

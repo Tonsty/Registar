@@ -6,7 +6,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-namespace Tang2014
+namespace tang2014
 {
 	struct Scan
 	{

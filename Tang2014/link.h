@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-namespace Tang2014
+namespace tang2014
 {
 	typedef unsigned int ScanIndex;
 	struct Link

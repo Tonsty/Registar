@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace Tang2014
+namespace tang2014
 {
 	void importLoops(const std::string fileName, Loops &loops)
 	{

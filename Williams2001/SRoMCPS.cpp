@@ -5,7 +5,7 @@
 
 #include "SRoMCPS.h"
 
-namespace Williams2001
+namespace williams2001
 { 
 	SRoMCPS::SRoMCPS(ScanIndexPairs &_sipairs, std::vector<PointPairWithWeights> &_ppairwwss, int _M) : sipairs(_sipairs), ppairwwss(_ppairwwss), M(_M)
 	{

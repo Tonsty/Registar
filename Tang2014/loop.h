@@ -6,7 +6,7 @@
 
 #include "link.h"
 
-namespace Tang2014
+namespace tang2014
 {
 	typedef std::vector<ScanIndex> ScanIndices;
 	struct Loop

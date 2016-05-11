@@ -1,5 +1,5 @@
-#ifndef PAIRWISEREGISTRATION_H
-#define PAIRWISEREGISTRATION_H
+#ifndef TANG2014_PAIRWISEREGISTRATION_H
+#define TANG2014_PAIRWISEREGISTRATION_H
 
 #include "common.h"
 #include "scan.h"
@@ -7,7 +7,7 @@
 
 #include <map>
 
-namespace Tang2014
+namespace tang2014
 {
 	class PairRegistration
 	{

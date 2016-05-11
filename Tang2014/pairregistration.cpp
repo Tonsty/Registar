@@ -7,7 +7,7 @@
 
 #include <pcl/common/transforms.h>
 
-namespace Tang2014
+namespace tang2014
 {
 	void PairRegistration::startRegistration()
 	{

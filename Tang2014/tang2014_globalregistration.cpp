@@ -11,7 +11,7 @@
 #include "../Williams2001/SRoMCPS.h"
 #include "../include/utilities.h"
 
-namespace Tang2014
+namespace tang2014
 {
 	void GlobalRegistration::startRegistration()
 	{
@@ -385,11 +385,11 @@ namespace Tang2014
 	{
 		if (_graphLoop->loop.size() <= 2) return std::numeric_limits<float>::max();
 
-		Williams2001::ScanIndexPairs sipairs;
-		std::vector<Williams2001::PointPairWithWeights> ppairwwss;
+		williams2001::ScanIndexPairs sipairs;
+		std::vector<williams2001::PointPairWithWeights> ppairwwss;
 		int M = _graphLoop->loop.size();
 
-		Williams2001::PointPairWithWeights buffer1;
+		williams2001::PointPairWithWeights buffer1;
 
 		std::cout << "refine loop : " << *_graphLoop << std::endl;
 		for (int i = 0; i < M; ++i)
@@ -417,16 +417,16 @@ namespace Tang2014
 				ScanIndex a = i;
 				ScanIndex b = (i + 1)%M;
 
-				sipairs.push_back(Williams2001::ScanIndexPair(a,b));
+				sipairs.push_back(williams2001::ScanIndexPair(a,b));
 
 				buffer1.clear();
 				for (int k = 0; k < all_final_s2t.size(); ++k)
 				{
 					PairRegistration::PointPair temp = all_final_s2t[k];
-					Williams2001::PointPairWithWeight temp_1;
+					williams2001::PointPairWithWeight temp_1;
 					temp_1.w = 1.0;
-					temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-					temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<Williams2001::Scalar>();
+					temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<williams2001::Scalar>(); 
+					temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<williams2001::Scalar>();
 					buffer1.push_back(temp_1);
 				}
 				ppairwwss.push_back(buffer1);
@@ -449,16 +449,16 @@ namespace Tang2014
 				ScanIndex a = i;
 				ScanIndex b = (i + 1)%M;
 
-				sipairs.push_back(Williams2001::ScanIndexPair(a,b));
+				sipairs.push_back(williams2001::ScanIndexPair(a,b));
 
 				buffer1.clear();
 				for (int k = 0; k < all_final_s2t.size(); ++k)
 				{
 					PairRegistration::PointPair temp = all_final_s2t[k];
-					Williams2001::PointPairWithWeight temp_1;
+					williams2001::PointPairWithWeight temp_1;
 					temp_1.w = 1.0;
-					temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-					temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<Williams2001::Scalar>();
+					temp_1.ppair.first = temp.targetPoint.getVector3fMap().cast<williams2001::Scalar>(); 
+					temp_1.ppair.second = temp.sourcePoint.getVector3fMap().cast<williams2001::Scalar>();
 					buffer1.push_back(temp_1);
 				}
 				ppairwwss.push_back(buffer1);
@@ -476,7 +476,7 @@ namespace Tang2014
 		// std::cout << "sipairs.size() : " << sipairs.size() << std::endl;
 		// std::cout << "ppairwwss.size() : " << ppairwwss.size() << std::endl;
 
-		Williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);
+		williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);
 
 		float total_error = ( sromcps_globalrefine.R *  sromcps_globalrefine.Q * sromcps_globalrefine.R.transpose() ).trace();
 		float total_weight = 0.0f;
@@ -702,11 +702,11 @@ namespace Tang2014
 
 	void GlobalRegistration::globalPairRefine()
 	{
-		Williams2001::ScanIndexPairs sipairs;
-		std::vector<Williams2001::PointPairWithWeights> ppairwwss;
+		williams2001::ScanIndexPairs sipairs;
+		std::vector<williams2001::PointPairWithWeights> ppairwwss;
 		int M = scanPtrs.size();
 
-		Williams2001::PointPairWithWeights buffer1;
+		williams2001::PointPairWithWeights buffer1;
 
 		for (int i = 0; i < links.size(); ++i)
 		{
@@ -714,7 +714,7 @@ namespace Tang2014
 			ScanIndex a = link.a;
 			ScanIndex b = link.b;
 
-			sipairs.push_back(Williams2001::ScanIndexPair(a,b));
+			sipairs.push_back(williams2001::ScanIndexPair(a,b));
 
 			buffer1.clear();
 			for (int k = 0; k < pairRegistrationPtrMap[link]->final_s2t.size(); ++k)
@@ -727,22 +727,22 @@ namespace Tang2014
 				temp2.targetPoint = temp.targetPoint;
 				temp2.sourcePoint = registar::transformPointWithNormal( temp.targetPoint, transformation.inverse() );
 
-				Williams2001::PointPairWithWeight temp_1;
+				williams2001::PointPairWithWeight temp_1;
 				temp_1.w = 1.0;
-				temp_1.ppair.first = temp1.targetPoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-				temp_1.ppair.second = temp1.sourcePoint.getVector3fMap().cast<Williams2001::Scalar>();
+				temp_1.ppair.first = temp1.targetPoint.getVector3fMap().cast<williams2001::Scalar>(); 
+				temp_1.ppair.second = temp1.sourcePoint.getVector3fMap().cast<williams2001::Scalar>();
 				buffer1.push_back(temp_1);
 
-				Williams2001::PointPairWithWeight temp_2;
+				williams2001::PointPairWithWeight temp_2;
 				temp_2.w = 1.0;
-				temp_2.ppair.first = temp2.targetPoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-				temp_2.ppair.second = temp2.sourcePoint.getVector3fMap().cast<Williams2001::Scalar>();
+				temp_2.ppair.first = temp2.targetPoint.getVector3fMap().cast<williams2001::Scalar>(); 
+				temp_2.ppair.second = temp2.sourcePoint.getVector3fMap().cast<williams2001::Scalar>();
 				buffer1.push_back(temp_2);
 			}
 			ppairwwss.push_back(buffer1);
 		}
 
-		Williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);	
+		williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);	
 
 		float total_error = ( sromcps_globalrefine.R *  sromcps_globalrefine.Q * sromcps_globalrefine.R.transpose() ).trace();
 		float total_weight = 0.0f;
@@ -771,11 +771,11 @@ namespace Tang2014
 		int threads = omp_get_num_procs();
 		std::cout << threads << "threads" << std::endl;
 
-		Williams2001::ScanIndexPairs sipairs;
-		std::vector<Williams2001::PointPairWithWeights> ppairwwss;
+		williams2001::ScanIndexPairs sipairs;
+		std::vector<williams2001::PointPairWithWeights> ppairwwss;
 		int M = scanPtrs.size();
 
-		Williams2001::PointPairWithWeights buffer1;
+		williams2001::PointPairWithWeights buffer1;
 
 		float last_rms_error = std::numeric_limits<float>::max();
 
@@ -789,7 +789,7 @@ namespace Tang2014
 				ScanIndex a = link.a;
 				ScanIndex b = link.b;
 
-				sipairs.push_back(Williams2001::ScanIndexPair(a,b));
+				sipairs.push_back(williams2001::ScanIndexPair(a,b));
 
 				buffer->clear();
 				s2t.clear();
@@ -821,18 +821,18 @@ namespace Tang2014
 				buffer1.clear();
 				for (int j = 0; j < s2t.size(); ++j)
 				{
-					Williams2001::PointPairWithWeight temp;
+					williams2001::PointPairWithWeight temp;
 					temp.w = 1.0;
-					temp.ppair.first = s2t[j].targetPoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-					temp.ppair.second = s2t[j].sourcePoint.getVector3fMap().cast<Williams2001::Scalar>();
+					temp.ppair.first = s2t[j].targetPoint.getVector3fMap().cast<williams2001::Scalar>(); 
+					temp.ppair.second = s2t[j].sourcePoint.getVector3fMap().cast<williams2001::Scalar>();
 					buffer1.push_back(temp);
 				}
 				for (int j = 0; j < t2s.size(); ++j)
 				{
-					Williams2001::PointPairWithWeight temp;
+					williams2001::PointPairWithWeight temp;
 					temp.w = 1.0;
-					temp.ppair.first = t2s[j].sourcePoint.getVector3fMap().cast<Williams2001::Scalar>(); 
-					temp.ppair.second = t2s[j].targetPoint.getVector3fMap().cast<Williams2001::Scalar>();
+					temp.ppair.first = t2s[j].sourcePoint.getVector3fMap().cast<williams2001::Scalar>(); 
+					temp.ppair.second = t2s[j].targetPoint.getVector3fMap().cast<williams2001::Scalar>();
 					buffer1.push_back(temp);
 				}
 				// std::cout << transformation << std::endl;
@@ -840,7 +840,7 @@ namespace Tang2014
 				ppairwwss.push_back(buffer1);
 			}
 
-			Williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);
+			williams2001::SRoMCPS sromcps_globalrefine(sipairs, ppairwwss, M);
 
 			float total_error = ( sromcps_globalrefine.R *  sromcps_globalrefine.Q * sromcps_globalrefine.R.transpose() ).trace();
 			float total_weight = 0.0f;

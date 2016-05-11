@@ -51,7 +51,7 @@ HEADERS += graph.h \
 
 SOURCES += graph.cpp \
 			pairregistration.cpp \
-			globalregistration.cpp \
+			tang2014_globalregistration.cpp \
 			main.cpp \
 			scan.cpp \
 			loop.cpp \
