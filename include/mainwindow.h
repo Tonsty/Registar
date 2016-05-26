@@ -50,6 +50,8 @@ public:
 protected:
 	void changeEvent(QEvent *event);
 	void closeEvent(QCloseEvent *event);
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 private:
 	void registerMetaType();

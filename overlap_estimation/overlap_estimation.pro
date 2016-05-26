@@ -52,7 +52,7 @@ HEADERS += ../Tang2014/graph.h \
 
 SOURCES += ../Tang2014/graph.cpp \
 			../Tang2014/pairregistration.cpp \
-			../Tang2014/globalregistration.cpp \
+			../Tang2014/tang2014_globalregistration.cpp \
 			main.cpp \
 			../Tang2014/scan.cpp \
 			../Tang2014/loop.cpp \

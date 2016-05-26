@@ -96,6 +96,9 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	colorActionGroup->addAction(colorNoneAction);
 	colorActionGroup->addAction(colorOriginalAction);
 	colorActionGroup->addAction(colorCustomAction);
+
+	cloudVisualizer->setAcceptDrops(false);
+	setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow(){} 
@@ -828,10 +831,10 @@ void MainWindow::on_forceRigidRegistrationAction_triggered()
 	{
 		QString cloudName = (*it_name);
 		Cloud *cloud = cloudManager->getCloud(cloudName);
-		//std::cout << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
+		//std::cerr << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
 		Eigen::Matrix4f transformation = cloud->getRegistrationTransformation();
 		cloud->setRegistrationTransformation(toRigidTransformation(transformation));
-		//std::cout << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
+		//std::cerr << getScaleFromTransformation(cloud->getRegistrationTransformation()) << std::endl;
 		bool isVisible = (*it_visible);
 		if(isVisible)cloudVisualizer->updateCloud(cloud);
 		qDebug() << cloudName << " is forced to rigid transformation!";
@@ -1508,7 +1511,7 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 
 			// std::vector<int> nanIndicesVector;
 			// pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
-			// std::cout << *cloudData << std::endl;
+			// std::cerr << *cloudData << std::endl;
 			// pcl::PLYWriter writer;
 			// writer.write( "temp.ply", *cloudData);	
 
@@ -1543,11 +1546,11 @@ void MainWindow::on_depthCameraDialog_sendParameters(QVariantMap parameters)
 				cloudBrowser->addCloud(cloud);
 				cloudVisualizer->addCloud(cloud);
 
-				//std::cout << "scan " << i << " : " << enthropies[i] << std::endl;
+				//std::cerr << "scan " << i << " : " << enthropies[i] << std::endl;
 
 				//std::vector<int> nanIndicesVector;
 				//pcl::removeNaNFromPointCloud( *cloudData, *cloudData, nanIndicesVector );
-				//std::cout << *cloudData << std::endl;
+				//std::cerr << *cloudData << std::endl;
 				//pcl::PLYWriter writer;
 				//std::stringstream ss;
 				//ss << "temp_" << i << ".ply";
@@ -1583,17 +1586,17 @@ void MainWindow::on_virtualScanDialog_sendParameters(QVariantMap parameters)
 			Eigen::Matrix4f pose = cloudVisualizer->getVisualizer()->getViewerPose().matrix();
 			pcl::visualization::Camera camera;
 			cloudVisualizer->getVisualizer()->getCameraParameters(camera);
-			std::cout << pose << std::endl;
-			//std::cout << camera.pos[0] << "\t" << camera.pos[1] << "\t" << camera.pos[2] << std::endl;
-			//std::cout << camera.focal[0] - camera.pos[0] << "\t" << camera.focal[1] - camera.pos[2] << "\t" << camera.focal[2] - camera.pos[2] << std::endl;
-			//std::cout << camera.view[0] << "\t" << camera.view[1] << "\t" << camera.view[2] << std::endl;
+			std::cerr << pose << std::endl;
+			//std::cerr << camera.pos[0] << "\t" << camera.pos[1] << "\t" << camera.pos[2] << std::endl;
+			//std::cerr << camera.focal[0] - camera.pos[0] << "\t" << camera.focal[1] - camera.pos[2] << "\t" << camera.focal[2] - camera.pos[2] << std::endl;
+			//std::cerr << camera.view[0] << "\t" << camera.view[1] << "\t" << camera.view[2] << std::endl;
 			Eigen::Vector3d pos(camera.pos);
 			Eigen::Vector3d focal(camera.focal);
 			Eigen::Vector3d view(camera.view);
-			std::cout << (pos - focal).normalized() << std::endl;
-			std::cout << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 0, 1) << std::endl;
-			std::cout << (pos - focal).cross(view).cross(pos - focal).normalized() << std::endl;
-			std::cout << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 1, 0) << std::endl;
+			std::cerr << (pos - focal).normalized() << std::endl;
+			std::cerr << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 0, 1) << std::endl;
+			std::cerr << (pos - focal).cross(view).cross(pos - focal).normalized() << std::endl;
+			std::cerr << pose.block<3,3>(0,0).inverse() * Eigen::Vector3f(0, 1, 0) << std::endl;
 			//VirtualScan::scan(nr_scans, nr_points_in_scans, vert_res, hor_res, max_dist, pose, vtk_polydata, temp);
 			break;
 		}
@@ -2097,6 +2100,60 @@ void MainWindow::on_tang2014Dialog_sendParameters(QVariantMap parameters) {
 		cloudList[i]->setRegistrationTransformation(transformations[0].inverse() * transformations[i] * scanPtrs[i]->transformation);
 		cloudVisualizer->updateCloud(cloudList[i]);
 	}
+
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
+	if (event->mimeData()->hasFormat("text/uri-list"))
+		event->acceptProposedAction();
+}
+void MainWindow::dropEvent(QDropEvent *event) {
+	QList<QUrl> urls = event->mimeData()->urls();
+	if(urls.isEmpty())
+		return;
+
+	QStringList fileNameList;
+
+	foreach(QUrl url, urls) {
+		QString file_name = url.toLocalFile();
+		//std::cerr << file_name.toStdString() << std::endl;
+		if(file_name.endsWith(".ply") || file_name.endsWith(".vtk")) {
+			fileNameList.push_back(file_name);
+		}
+	}
+
+	QStringList::Iterator it = fileNameList.begin();
+	while (it != fileNameList.end())
+	{
+		if (!(*it).isEmpty()) 
+		{
+			QString fileName = (*it);
+			PolygonMeshPtr polygonMesh(new PolygonMesh);
+			CloudDataPtr cloudData(new CloudData);
+			Eigen::Matrix4f transformation;
+			BoundariesPtr boundaries(new Boundaries);
+			QApplication::setOverrideCursor(Qt::WaitCursor);
+			if ( CloudIO::importPLYPolygonMesh(fileName, polygonMesh) )
+			{
+				pcl::fromPCLPointCloud2(polygonMesh->cloud, *cloudData);
+			}
+			else if ( !CloudIO::importPLYCloudData(fileName, cloudData) ) 
+			{
+				it++;
+				continue;
+			}
+			CloudIO::importTransformation(fileName, transformation);
+			CloudIO::importBoundaries(fileName, boundaries);
+			QApplication::restoreOverrideCursor();
+			QApplication::beep();
+			Cloud* cloud = cloudManager->addCloud(cloudData, polygonMesh->polygons, Cloud::fromIO, fileName, transformation);
+			cloud->setBoundaries(boundaries);
+			cloudBrowser->addCloud(cloud);
+			cloudVisualizer->addCloud(cloud);
+			cloudVisualizer->resetCamera(cloud);
+		}
+		it++;
+	} 
 
 }
 

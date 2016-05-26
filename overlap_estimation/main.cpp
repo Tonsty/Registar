@@ -11,7 +11,7 @@
 #include "../Tang2014/pairregistration.h"
 #include "../Tang2014/globalregistration.h"
 
-using namespace Tang2014;
+using namespace tang2014;
 
 struct OverlapInfo
 {
