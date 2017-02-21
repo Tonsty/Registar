@@ -90,7 +90,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Uniform Set Color</string>
+       <string>Set Uniform Hue Distribution Colors</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>

@@ -86,7 +86,7 @@ namespace tang2014
 
 	void PairRegistration::generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
 											std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-											PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t)
+											PointsPtr _sbuffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t)
 	{
 		pcl::transformPointCloudWithNormals(*_source->pointsPtr, *_sbuffer, _transformation);
 
@@ -184,13 +184,13 @@ namespace tang2014
 	void PairRegistration::generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
 		std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
 		std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-		PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s)
+		PointsPtr _buffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s)
 	{
 		generatePointPairs(_target, _source, _targetKdTree, _sourceCandidateIndices, _sourceCandidateIndices_temp, _buffer, _transformation, _para, _s2t);
 		generatePointPairs(_source, _target, _sourceKdTree, _targetCandidateIndices, _targetCandidateIndices_temp, _buffer, _transformation.inverse(), _para,_t2s);
 	}
 
-	void PairRegistration::generateFinalPointPairs(Transformation _transformation)
+	void PairRegistration::generateFinalPointPairs(const Transformation &_transformation)
 	{
 		PointsPtr buffer(new Points);
 		PointPairs s2t, t2s;
@@ -483,7 +483,7 @@ namespace tang2014
 		generatePointPairsOMP(_source, _target, _sourceKdTree, _targetCandidateIndices, _targetCandidateIndices_temp, _buffer, _transformation.inverse(), _para,_t2s, _thread);
 	}
 
-	void PairRegistrationOMP::generateFinalPointPairs(Transformation _transformation)
+	void PairRegistrationOMP::generateFinalPointPairs(const Transformation &_transformation)
 	{
 		PointsPtr buffer(new Points);
 		PointPairs s2t, t2s;

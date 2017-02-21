@@ -52,14 +52,14 @@ namespace tang2014
 
 		static void generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, 
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _sbuffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t);
+								PointsPtr _sbuffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t);
 
 		static void generatePointPairs(ScanPtr _target, ScanPtr _source, KdTreePtr _targetKdTree, KdTreePtr _sourceKdTree, 
 								std::vector<int> &_targetCandidateIndices, std::vector<int> &_targetCandidateIndices_temp,
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
-								PointsPtr _buffer, Transformation _transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s);
+								PointsPtr _buffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s);
 
-		virtual void generateFinalPointPairs(Transformation _transformation);
+		virtual void generateFinalPointPairs(const Transformation &_transformation);
 
 		Transformation solveRegistration(PointPairs &_s2t, Eigen::Matrix3Xf &src, Eigen::Matrix3Xf &tgt);
 
@@ -117,7 +117,7 @@ namespace tang2014
 								std::vector<int> &_sourceCandidateIndices, std::vector<int> &_sourceCandidateIndices_temp,
 								PointsPtr _buffer, const Transformation &_transformation, PairRegistration::Parameters _para, PointPairs &_s2t, PointPairs &_t2s, unsigned int _threads);
 
-		virtual void generateFinalPointPairs(Transformation _transformation);
+		virtual void generateFinalPointPairs(const Transformation &_transformation);
 
 		unsigned int threads;
 

@@ -1,6 +1,7 @@
 #include <QtCore/QDebug>
 
 #define PCL_NO_PRECOMPILE
+
 #include "../include/voxelgrid.h"
 #include <pcl/filters/voxel_grid.h>
 

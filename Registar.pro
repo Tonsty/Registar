@@ -3,6 +3,7 @@ TARGET= Registar
 CONFIG += debug_and_release debug_and_release_target warn_off 
 DEPENDPATH += .
 UI_DIR = ui/
+include(Registar.pri)
 win32{
 	CONFIG += console
 	INCLUDEPATH += . "C:/Program Files/VTK/include/vtk-5.8/" "C:/Program Files/PCL/include/pcl-1.8/" "C:/Program Files/Eigen3/include/eigen3/" "C:/Program Files/flann/include/" "D:/boost_1_63_0/"
@@ -63,6 +64,7 @@ HEADERS += include/mainwindow.h \
 			include/outliersremovaldialog.h \
 			include/outliersremoval.h \
 			include/normalfielddialog.h \
+			include/normalfield.h \
 			include/pairwiseregistrationdialog.h \
 			include/pairwiseregistration.h \
 			pcl_bugfix/gpu_extract_clusters2.h \
@@ -91,7 +93,8 @@ HEADERS += include/mainwindow.h \
 			include/generateoutliersdialog.h \
 			include/tang2014dialog.h \
 			include/tang2014.h \
-			include/args_converter.h
+			include/args_converter.h \
+			include/backgroundcolordialog.h
 #			include/globalregistrationinteractor.h
 SOURCES += src/main.cpp \
 			src/mainwindow.cpp \
@@ -111,6 +114,7 @@ SOURCES += src/main.cpp \
 			src/outliersremovaldialog.cpp \
 			src/outliersremoval.cpp \
 			src/normalfielddialog.cpp \
+			src/normalfield.cpp \
 			src/pairwiseregistrationdialog.cpp \
 			src/pairwiseregistration.cpp \
 			diagram/diagramwindow.cpp \
@@ -141,7 +145,8 @@ SOURCES += src/main.cpp \
 			../Tang2014/pairregistration.cpp \
 			../Tang2014/tang2014_globalregistration.cpp \
 			../Tang2014/graph.cpp \
-			../Williams2001/SRoMCPS.cpp
+			../Williams2001/SRoMCPS.cpp \
+			src/backgroundcolordialog.cpp
 #			src/globalregistrationinteractor.cpp
 RESOURCES += res/Registar.qrc \ 
 				diagram/resources.qrc
@@ -164,6 +169,7 @@ FORMS += ui/MainWindow.ui \
 			ui/HausdorffDistanceDialog.ui \
 			ui/ColorFieldDialog.ui  \
 			ui/GenerateOutliersDialog.ui \
-			ui/Tang2014Dialog.ui
+			ui/Tang2014Dialog.ui \
+			ui/BackgroundColorDialog.ui
 
 

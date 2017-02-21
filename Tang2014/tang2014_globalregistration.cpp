@@ -159,7 +159,7 @@ namespace tang2014
 		return newEdge;
 	}
 
-	Transformation GlobalRegistration::GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
+	Transformation GlobalRegistration::GraphVertexDecompose(GraphVertex* currentVertex, const Transformation &lastTransformation, GraphVertex* lastVertex, 
 		std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly)
 	{
 
@@ -213,7 +213,7 @@ namespace tang2014
 				resultTransformations.push_back( currentTransformation );
 			}
 			lastVertex = NULL;
-			lastTransformation = currentTransformation;
+			Transformation lastTransformation = currentTransformation;
 			GraphLoop* currentLoop = static_cast<GraphLoop*>(currentVertex);
 			for (int i = 0; i < currentLoop->loop.size(); ++i)
 			{
