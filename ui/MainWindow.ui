@@ -123,6 +123,8 @@
     <addaction name="separator"/>
     <addaction name="registrationModeAction"/>
     <addaction name="drawBoundaryAction"/>
+    <addaction name="separator"/>
+    <addaction name="backgroundColorAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="editMenu"/>
@@ -544,6 +546,11 @@
   <action name="generateOutliersAction">
    <property name="text">
     <string>Generate Outliers</string>
+   </property>
+  </action>
+  <action name="backgroundColorAction">
+   <property name="text">
+    <string>Background Color</string>
    </property>
   </action>
  </widget>

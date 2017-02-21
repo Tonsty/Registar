@@ -94,7 +94,7 @@ namespace registar
 			vtkIdType cellId;
 			int subId;
 			cellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
-			cloud_out[i].curvature = sqrt(closestPointDist2);
+			cloud_out[i].curvature = sqrt(closestPointDist2) * 0.7;
 		}
 	}
 }

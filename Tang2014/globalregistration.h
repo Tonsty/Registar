@@ -46,7 +46,7 @@ namespace tang2014
 		float loopRefine( GraphLoop* _graphLoop, bool _closing);
 
 		GraphEdge* createGraphEdge(GraphVertex *_vertex1, GraphVertex *_vertex2);
-		Transformation GraphVertexDecompose(GraphVertex* currentVertex, Transformation lastTransformation, GraphVertex* lastVertex, 
+		Transformation GraphVertexDecompose(GraphVertex* currentVertex, const Transformation &lastTransformation, GraphVertex* lastVertex, 
 			std::vector<GraphVertex*> &resultVertices, Transformations &resultTransformations, bool baseVertexOnly);
 		void generateFinalPointPairs(std::vector<GraphVertex*> &_vertices1, Transformations &_transformations1, 
 			std::vector<GraphVertex*> &_vertices2, Transformations &_transformations2, 

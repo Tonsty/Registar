@@ -28,6 +28,7 @@
 #include "../include/hausdorffdistancedialog.h"
 #include "../include/colorfielddialog.h"
 #include "../include/generateoutliersdialog.h"
+#include "../include/normalfield.h"
 
 #include "../include/pairwiseregistrationdialog.h"
 #include "../include/pairwiseregistration.h"
@@ -43,6 +44,8 @@
 
 #include "../manual_registration/manual_registration.h"
 #include "../include/utilities.h"
+
+#include "../include/backgroundcolordialog.h"
 
 #include "../include/mainwindow.h"
 
@@ -84,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 	manualRegistration = 0;
 
 	tang2014Dialog = 0;
+
+	backgroundColorDialog = 0;
 
 	setCentralWidget(cloudVisualizer);
 
@@ -454,6 +459,29 @@ void MainWindow::on_colorFieldAction_triggered()
 	colorFieldDialog->show();
 	colorFieldDialog->raise();
 	colorFieldDialog->activateWindow();
+}
+
+void MainWindow::on_backgroundColorAction_triggered() 
+{
+	if (!backgroundColorDialog)
+	{
+		backgroundColorDialog = new BackgroundColorDialog(this);
+		connect(backgroundColorDialog, SIGNAL(sendParameters(QVariantMap)),
+			this, SLOT(on_backgroundColorDialog_sendParameters(QVariantMap)));
+	}
+	backgroundColorDialog->show();
+	backgroundColorDialog->raise();
+	backgroundColorDialog->activateWindow();
+}
+
+void MainWindow::on_backgroundColorDialog_sendParameters(QVariantMap parameters)
+{
+	float R = parameters["R"].toFloat();
+	float G = parameters["G"].toFloat();
+	float B = parameters["B"].toFloat();
+
+	cloudVisualizer->getVisualizer()->setBackgroundColor(R/255.0f, G/255.0f, B/255.0f);
+	cloudVisualizer->update();
 }
 
 void MainWindow::on_addNoiseAction_triggered()
@@ -1065,10 +1093,6 @@ void MainWindow::on_outliersRemovalDialog_sendParameters(QVariantMap parameters)
 
 void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 {
-	float X = parameters["X"].toFloat();
-	float Y = parameters["Y"].toFloat();
-	float Z = parameters["Z"].toFloat();
-
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
 	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
 
@@ -1083,12 +1107,7 @@ void MainWindow::on_normalFieldDialog_sendParameters(QVariantMap parameters)
 		CloudDataPtr cloudData_filtered;
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 
-		cloudData_filtered.reset(new CloudData);
-		pcl::PointXYZ view_point;
-		view_point.x = X;
-		view_point.y = Y;
-		view_point.z = Z;
-		flipPointCloudNormalsTowardsViewpoint(*cloudData, view_point, *cloudData_filtered);
+		NormalField::filter(cloudData, parameters, cloudData_filtered);
 
 		QApplication::restoreOverrideCursor();
 		QApplication::beep();
@@ -1259,6 +1278,8 @@ void MainWindow::on_transformationDialog_sendParameters(QVariantMap parameters)
 	bool uniform = parameters["uniform"].toBool();
 	bool separate = parameters["separate"].toBool();
 
+	QString matrix_str = parameters["matrix_str"].toString();
+
 	QStringList cloudNameList = cloudBrowser->getSelectedCloudNames();
 	QList<bool> isVisibleList = cloudBrowser->getSelectedCloudIsVisible();
 
@@ -1326,6 +1347,25 @@ void MainWindow::on_transformationDialog_sendParameters(QVariantMap parameters)
 				pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
 			}
 			cloud->setRegistrationTransformation(normalizeTransformation);
+		}
+		else if (command == "Custom") 
+		{
+			Eigen::Matrix4f transformation = cloud->getTransformation();
+			Eigen::Matrix4f customTransformation = Eigen::Matrix4f::Identity();
+			std::stringstream ss (matrix_str.toStdString());
+			//for (int i = 0; i < 4; i++) {
+			//	for (int j = 0; j < 4; j++) {
+			//		float temp;
+			//		ss >> temp;
+			//		cout << temp << endl;
+			//	}
+			//}
+			ss >> customTransformation(0,0) >> customTransformation(0,1) >> customTransformation(0,2) >> customTransformation(0,3) >>
+				customTransformation(1,0) >> customTransformation(1,1) >> customTransformation(1,2) >> customTransformation(1,3) >>
+				customTransformation(2,0) >> customTransformation(2,1) >> customTransformation(2,2) >> customTransformation(2,3) >>
+				customTransformation(3,0) >> customTransformation(3,1) >> customTransformation(3,2) >> customTransformation(3,3);
+			customTransformation = customTransformation * transformation;
+			cloud->setRegistrationTransformation(customTransformation);
 		}
 
 		QApplication::restoreOverrideCursor();

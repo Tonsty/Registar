@@ -23,7 +23,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Oriented by View Point</string>
+        <string>Custom Viewpoint</string>
        </property>
       </widget>
      </item>
@@ -77,17 +77,22 @@
       <widget class="QComboBox" name="comboBox">
        <item>
         <property name="text">
-         <string>Custom</string>
+         <string>Orient normal by custom viewpoint</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>From Visualizer Camera</string>
+         <string>Orient normal by viewpoint of visualizer camera</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>From Scanning Camera</string>
+         <string>Orient normal by viewpoint of scanning camera</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Set normal directly towards custom viewpoint</string>
         </property>
        </item>
       </widget>

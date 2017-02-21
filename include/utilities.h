@@ -125,6 +125,17 @@ namespace registar
 		}
 	}
 
+	inline void setPointCloudNormalsTowardsViewpoint(const CloudData &cloud_in, const pcl::PointXYZ &view_point, CloudData &cloud_out)
+	{
+		pcl::copyPointCloud(cloud_in, cloud_out);
+
+		for (int i = 0; i < cloud_in.size(); ++i)
+		{
+			cloud_out[i].getNormalVector3fMap() = view_point.getVector3fMap() - cloud_in[i].getVector3fMap();
+			cloud_out[i].getNormalVector3fMap().normalize();
+		}
+	}
+
 	inline void setPointCloudColor(CloudData &cloud, const unsigned char &r, const unsigned char &g, const unsigned char &b)
 	{
 		for (int i = 0; i < cloud.size(); i++)

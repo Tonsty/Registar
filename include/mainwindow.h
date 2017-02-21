@@ -38,6 +38,8 @@ class ManualRegistration;
 
 class Tang2014Dialog;
 
+class BackgroundColorDialog; 
+
 
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -88,6 +90,8 @@ private:
 	ManualRegistration *manualRegistration;
 
 	Tang2014Dialog *tang2014Dialog;
+
+	BackgroundColorDialog *backgroundColorDialog;
 
 private slots:
 	void on_aboutAction_triggered();
@@ -157,6 +161,9 @@ private slots:
 
 	void on_tang2014Action_triggered();
 	void on_tang2014Dialog_sendParameters(QVariantMap parameters);
+
+	void on_backgroundColorAction_triggered();
+	void on_backgroundColorDialog_sendParameters(QVariantMap parameters);
 };
 
 #endif 

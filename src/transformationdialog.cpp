@@ -40,6 +40,8 @@ void TransformationDialog::on_applyButton_clicked()
 	parameters["uniform"] = uniform;
 	parameters["separate"] = separate;
 
+	parameters["matrix_str"] = matrixTextEdit->toPlainText();
+
 	emit sendParameters(parameters);
 }
 

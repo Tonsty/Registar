@@ -20,5 +20,5 @@ namespace tang2014
 	typedef KdTree::Ptr KdTreePtr;
 	typedef std::vector<KdTreePtr> KdTreePtrs;
 
-	typedef std::vector<Transformation> Transformations;
+	typedef std::vector<Transformation, Eigen::aligned_allocator<Transformation> > Transformations;
 }
