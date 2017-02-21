@@ -1,6 +1,7 @@
 #include <QtGui/QtGui>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <iostream>
 
 #include "diagramwindow.h"
 #include "link.h"
