@@ -93,6 +93,8 @@ private:
 
 	BackgroundColorDialog *backgroundColorDialog;
 
+	QString currentDirectory;
+
 private slots:
 	void on_aboutAction_triggered();
 	void on_openAction_triggered();

@@ -51,7 +51,7 @@
 
 using namespace registar;
 
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), currentDirectory(".")
 {
 	setupUi(this);
 
@@ -185,9 +185,14 @@ void MainWindow::on_aboutAction_triggered()
 
 void MainWindow::on_openAction_triggered()
 {
-	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open File"), ".", tr("PLY file (*.ply);;VTK file (*.vtk)"));
+	QStringList fileNameList = QFileDialog::getOpenFileNames(this, tr("Open File"), currentDirectory, tr("PLY file (*.ply);;VTK file (*.vtk)"));
 
 	QStringList::Iterator it = fileNameList.begin();
+	if(it != fileNameList.end() && !(*it).isEmpty())
+	{
+		QFileInfo fileInfo(*it);
+		currentDirectory=fileInfo.absoluteDir().absolutePath();
+	}
 	while (it != fileNameList.end())
 	{
 		if (!(*it).isEmpty()) 
@@ -243,13 +248,15 @@ bool MainWindow::on_saveAction_triggered()
 		QString fileName = cloud->getFileName();
 		if (fileName.isEmpty())
 		{
-			QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 as").arg(cloudName), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
+			QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 as").arg(cloudName), currentDirectory, tr("PLY file (*.ply)\nVTK file (*.vtk)"));
 			if (newFileName.isEmpty())
 			{
 				qDebug() << cloudName << "cancel saveAs!";
 				it++;
 				continue;
 			}
+			QFileInfo fileInfo(newFileName);
+			currentDirectory=fileInfo.absoluteDir().absolutePath();
 			fileName = newFileName;
 		}
 		QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -306,13 +313,15 @@ bool MainWindow::on_saveAsAction_triggered()
 		Eigen::Matrix4f transformation = cloud->getTransformation();
 		BoundariesConstPtr boundaries = cloud->getBoundaries();
 		QString fileName = cloud->getFileName();
-		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as").arg(cloudName).arg(strippedName(fileName)), ".", tr("PLY file (*.ply)\nVTK file (*.vtk)"));
+		QString newFileName = QFileDialog::getSaveFileName(this, tr("Save %1 - %2 as").arg(cloudName).arg(strippedName(fileName)), currentDirectory, tr("PLY file (*.ply)\nVTK file (*.vtk)"));
 		if (newFileName.isEmpty())
 		{
 			qDebug() << cloudName << "cancel saveAs!";
 			it++;
 			continue;
 		}
+		QFileInfo fileInfo(newFileName);
+		currentDirectory=fileInfo.absoluteDir().absolutePath();
 		fileName = newFileName;
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		if( saveContentDialog->savePointCheckBox->isChecked() ) 
@@ -2163,6 +2172,11 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	}
 
 	QStringList::Iterator it = fileNameList.begin();
+	if(it != fileNameList.end() && !(*it).isEmpty())
+	{
+		QFileInfo fileInfo(*it);
+		currentDirectory=fileInfo.absoluteDir().absolutePath();
+	}
 	while (it != fileNameList.end())
 	{
 		if (!(*it).isEmpty()) 
