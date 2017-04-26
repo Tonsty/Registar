@@ -33,7 +33,7 @@ namespace tang2014
 		if (directory == "") directory = ".";
 		while( file.getline(dummy, 300) )
 		{
-			std::cout << "scan " << scan_i << " : " << dummy << std::endl;
+			std::cerr << "scan " << scan_i << " : " << dummy << std::endl;
 
 			ScanPtr scanPtr(new Scan);
 			scanPtrs.push_back(scanPtr);
@@ -45,7 +45,7 @@ namespace tang2014
 			QFileInfo fileInfo(dummy);
 			//QString tfFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tf";	
 			QString tfFileName = QString::fromStdString(directory) + "/" + fileInfo.completeBaseName() + ".tf";	
-			std::cout << "read in " << tfFileName.toStdString() << std::endl; 
+			std::cerr << "read in " << tfFileName.toStdString() << std::endl; 
 			QFile tfFile(tfFileName);
 
 			Transformation transformation = Transformation::Identity();
@@ -57,11 +57,11 @@ namespace tang2014
 						in >> transformation(i, j);
 				tfFile.close();
 			}
-			std::cout << transformation << std::endl;
+			std::cerr << transformation << std::endl;
 			scanPtr->transformation = transformation;				
 
 			//read in pointcloud (points and normals)
-			std::cout << "read in " << directory <<"/" << dummy << std::endl;
+			std::cerr << "read in " << directory <<"/" << dummy << std::endl;
 			pcl::PLYReader plyReader;
 			scanPtr->pointsPtr.reset(new Points);
 			//plyReader.read(dummy, *scanPtr->pointsPtr);
@@ -74,7 +74,7 @@ namespace tang2014
 			scanPtr->pointsPtr->sensor_orientation_ = Eigen::Quaternionf(1, 0, 0, 0);
 			std::vector<int> nanIndicesVector;
 			pcl::removeNaNFromPointCloud( *scanPtr->pointsPtr, *scanPtr->pointsPtr, nanIndicesVector );
-			std::cout << *scanPtr->pointsPtr << std::endl;
+			std::cerr << *scanPtr->pointsPtr << std::endl;
 
 			//transform points and normals
 			pcl::transformPointCloudWithNormals(*scanPtr->pointsPtr, *scanPtr->pointsPtr, transformation);
@@ -82,11 +82,11 @@ namespace tang2014
 			//read in boundaries
 			//QString bdFileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".bd";
 			QString bdFileName = QString::fromStdString(directory) + "/" + fileInfo.completeBaseName() + ".bd";
-			std::cout << "read in " << bdFileName.toStdString() << std::endl;
+			std::cerr << "read in " << bdFileName.toStdString() << std::endl;
 			pcl::PCDReader pcdReader;
 			scanPtr->boundariesPtr.reset(new Boundaries);
 			pcdReader.read(bdFileName.toStdString(), *scanPtr->boundariesPtr);
-			std::cout << *scanPtr->boundariesPtr << std::endl;
+			std::cerr << *scanPtr->boundariesPtr << std::endl;
 
 			scan_i++;
 		}

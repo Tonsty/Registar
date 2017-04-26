@@ -1,8 +1,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include <pcl/console/parse.h>
-
 #ifndef _OPENMP
 #define _OPENMP
 #endif
@@ -10,6 +8,8 @@
 #include "../Tang2014/scan.h"
 #include "../Tang2014/pairregistration.h"
 #include "../Tang2014/globalregistration.h"
+
+#include <pcl/console/parse.h>
 
 using namespace tang2014;
 
@@ -32,7 +32,9 @@ int main(int argc, char** argv)
   	ScanPtrs scanPtrs;
   	importScanPtrs(argv[p_file_indices_scans[0]], scanPtrs);
 
-  	GlobalRegistration globalRegistration( scanPtrs );
+	Links links;
+	Loops loops;
+  	GlobalRegistration globalRegistration(scanPtrs, links, loops);
   	globalRegistration.buildKdTreePtrs();
 
 	PairRegistration::Parameters pr_para;
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 			pairReigstrationPtr->setTransformation(Transformation::Identity());
 			pairReigstrationPtr->initiateCandidateIndices();
 
-			std::cout << i << " <<-- " << j << std::endl;
+			std::cerr << i << " <<-- " << j << std::endl;
 			pairReigstrationPtr->generateFinalPointPairs(Transformation::Identity());
 
 			std::pair<Link, PairRegistrationPtr> pairLP(link, pairReigstrationPtr);
@@ -107,7 +109,7 @@ int main(int argc, char** argv)
 
 	sort(totalOverlapInfo.begin(), totalOverlapInfo.end(), overlapInfoComp);
 
-	std::cout << "Totally Ordered : " << std::endl;
+	//std::cout << "Totally Ordered : " << std::endl;
 
 	for (int i = 0; i < totalOverlapInfo.size(); ++i)
 	{
@@ -128,7 +130,7 @@ int main(int argc, char** argv)
 				<< std::endl;		
 	}
 
-	std::cout << "\n\n\nPartially Ordered : " << std::endl; 
+	//std::cout << "\n\n\nPartially Ordered : " << std::endl; 
 
   	for (int i = 0; i < scanPtrs.size(); ++i)
   	{
@@ -143,7 +145,7 @@ int main(int argc, char** argv)
   			}
   		}
 
-  		std::cout << std::setw(2) << i 
+  		std::cerr << std::setw(2) << i 
   					<< "("<< std::setw(7) << scanPtrs[i]->pointsPtr->size() << ")"
   					<< " <<-- ";
 
@@ -156,7 +158,7 @@ int main(int argc, char** argv)
 
   			if ( link.a == i)
   			{
-  				std::cout << std::setw(2) << link.b 
+  				std::cerr << std::setw(2) << link.b 
   							<< " (" 
   							// << std::setw(7) << pointPairNum 
   							// << ", " 
@@ -166,7 +168,7 @@ int main(int argc, char** argv)
   			}
   			else
   			{
-  				std::cout << std::setw(2) << link.a 
+  				std::cerr << std::setw(2) << link.a 
   							<< " (" 
   							// << std::setw(7) << pointPairNum 
   							// << ", " 
@@ -176,24 +178,24 @@ int main(int argc, char** argv)
   			}
   		}
 
-  		std::cout << std::endl;
+  		std::cerr << std::endl;
 
   	}
 
-	// for (int i = 0; i < totalOverlapInfo.size(); ++i)
-	// {
-	// 	Link link = totalOverlapInfo[i].link;
-	// 	int pointPairNum = totalOverlapInfo[i].pointPairNum;
-	// 	float fracInA = totalOverlapInfo[i].fracInA;
-	// 	float fracInB = totalOverlapInfo[i].fracInB;	
+	 for (int i = 0; i < totalOverlapInfo.size(); ++i)
+	 {
+	 	Link link = totalOverlapInfo[i].link;
+	 	int pointPairNum = totalOverlapInfo[i].pointPairNum;
+	 	float fracInA = totalOverlapInfo[i].fracInA;
+	 	float fracInB = totalOverlapInfo[i].fracInB;	
 
-	// 	std::cout << "("<< i << ") : "
-	// 			<< std::setw(2) << link.a << " (" << scanPtrs[link.a]->pointsPtr->size() <<") <<-- " << std::setw(2) << link.b << " (" << scanPtrs[link.b]->pointsPtr->size() << ") "
-	// 	    	<< std::setw(5) << pointPairNum << " " 
-	// 			<< std::setw(3) << (int)( fracInA ) << "\% "
-	// 			<< std::setw(3) << (int)( fracInB ) << "\% " 
-	// 			<< std::endl;		
-	// }	
+	 	std::cerr << "("<< i << ") : "
+	 			<< std::setw(2) << link.a << " (" << scanPtrs[link.a]->pointsPtr->size() <<") <<-- " << std::setw(2) << link.b << " (" << scanPtrs[link.b]->pointsPtr->size() << ") "
+	 	    	<< std::setw(5) << pointPairNum << " " 
+	 			<< std::setw(3) << (int)( fracInA ) << "\% "
+	 			<< std::setw(3) << (int)( fracInB ) << "\% " 
+	 			<< std::endl;		
+	 }	
 
 	return 0;
 } 
