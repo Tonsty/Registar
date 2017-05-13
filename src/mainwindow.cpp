@@ -1354,6 +1354,12 @@ void MainWindow::on_transformationDialog_sendParameters(QVariantMap parameters)
 			{
 				PointType min_pt, max_pt;
 				pcl::getMinMax3D(*cloud->getCloudData(), min_pt, max_pt);
+				Eigen::Vector3f axises = min_pt.getVector3fMap() - max_pt.getVector3fMap();
+				float scale = 1.0f / axises.cwiseAbs().maxCoeff();
+				normalizeTransformation(0,0) = normalizeTransformation(1,1) = normalizeTransformation(2,2) = scale;
+				Eigen::Vector3f translation(0.5f, 0.5f, 0.5f);
+				translation -= 0.5f * (min_pt.getVector3fMap() + max_pt.getVector3fMap()) * scale;
+				normalizeTransformation.topRightCorner(3, 1) = translation;
 			}
 			cloud->setRegistrationTransformation(normalizeTransformation);
 		}
