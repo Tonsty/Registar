@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), currentDirectory("
 
 	cloudManager = new CloudManager(this);
 	cloudVisualizer = new CloudVisualizer(this);
-	cloudVisualizer->setColorMode(CloudVisualizer::colorCustom);
+	cloudVisualizer->setColorMode(CloudVisualizer::colorOriginal);
 	pairwiseRegistrationManager = new PairwiseRegistrationManager(this);
 	registrationDataManager = new RegistrationDataManager(this);
 
@@ -988,7 +988,7 @@ void MainWindow::on_movingLeastSquaresDialog_sendParameters(QVariantMap paramete
 		if( parameters["overwrite"].value<bool>() )
 		{
 			cloud->setCloudData(cloudData_filtered);
-			cloud->setPolygons(Polygons(0));
+			//cloud->setPolygons(Polygons(0));
 			cloudBrowser->updateCloud(cloud);
 			bool isVisible = (*it_visible);
 			if(isVisible)cloudVisualizer->updateCloud(cloud);
@@ -1180,7 +1180,10 @@ void MainWindow::on_colorFieldDialog_sendParameters(QVariantMap parameters)
 		}
 		else if (tabIndex == 1)//Uniform set color
 		{
-			setPointCloudColor(*cloudData_filtered, (*it_rgb).r, (*it_rgb).g, (*it_rgb).b );
+			double r, g, b;
+			pcl::visualization::getRandomColors (r, g, b);
+			//setPointCloudColor(*cloudData_filtered, (*it_rgb).r, (*it_rgb).g, (*it_rgb).b );
+			setPointCloudColor(*cloudData_filtered, r*255, g*255, b*255 );
 		}
 
 		QApplication::restoreOverrideCursor();
