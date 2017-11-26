@@ -528,6 +528,7 @@ pcl::MovingLeastSquares2<PointInT, PointOutT>::performProcessing (PointCloudOut 
         aux.y = input_->points[index].y;
         aux.z = input_->points[index].z;
         projected_points.push_back (aux);
+		(*corresponding_input_indices_).indices.push_back (index);
 
         if (compute_normals_)
         {
@@ -537,7 +538,6 @@ pcl::MovingLeastSquares2<PointInT, PointOutT>::performProcessing (PointCloudOut 
           aux_normal.normal_z = 0;
           aux_normal.curvature = 0;
           projected_points_normals.push_back (aux_normal);
-          (*corresponding_input_indices_).indices.push_back (index);
         }
       }
       else continue;
@@ -601,6 +601,7 @@ pcl::MovingLeastSquaresOMP2<PointInT, PointOutT>::performProcessing (PointCloudO
 				  aux.y = input_->points[index].y;
 				  aux.z = input_->points[index].z;
 				  projected_points.push_back (aux);
+				  corresponding_input_indices.indices.push_back (index);
 
 				  if (compute_normals_)
 				  {
@@ -610,7 +611,6 @@ pcl::MovingLeastSquaresOMP2<PointInT, PointOutT>::performProcessing (PointCloudO
 					  aux_normal.normal_z = 0;
 					  aux_normal.curvature = 0;
 					  projected_points_normals.push_back (aux_normal);
-					  corresponding_input_indices.indices.push_back (index);
 				  }
 			  }
 			  else
@@ -665,6 +665,7 @@ pcl::MovingLeastSquaresOMP2<PointInT, PointOutT>::performProcessing (PointCloudO
 	            aux.y = input_->points[index].y;
 	            aux.z = input_->points[index].z;
 	            projected_points[tn].push_back (aux);
+				corresponding_input_indices[tn].indices.push_back (index);
 	  
 	            if (compute_normals_)
 	            {
@@ -674,7 +675,6 @@ pcl::MovingLeastSquaresOMP2<PointInT, PointOutT>::performProcessing (PointCloudO
 	              aux_normal.normal_z = 0;
 	              aux_normal.curvature = 0;
 	              projected_points_normals[tn].push_back (aux_normal);
-	              corresponding_input_indices[tn].indices.push_back (index);
 	            }
 	          }
 	          else continue;
